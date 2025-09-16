@@ -1,0 +1,166 @@
+---
+title: "combine.FAH.FAFH_cluster_documentation"
+author: "Fred Cudhea"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: html_document
+---
+<style>
+pre {
+  overflow-x: auto;
+}
+pre code {
+  word-wrap: normal;
+  white-space: pre;
+}
+</style>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+Documentation for R script: combine.FAH.FAFH_cluster.r, which is used to combine food at home (FAH) and food away from home (FAFH) results. This script is called in "LASTING_clsuter_w_masterinput.r" to combine these two results which are generated separately in LASTING model. To better understand the context, in which this script is being used, it may be useful to review the section in "LASTING_clsuter_w_masterinput.r" that calls this script.
+
+Load necessary libraries and read in FAH and FAFH output files (all simulated draws) for the diet pattern and outcome type of interest (defined in "LASTING_cluster_w_master_input.r" where this script is called). Give each file indicator variable "X" so we can differentiate between FAH and FAFH results after merging.
+```{r, load_data, eval=FALSE, echo=TRUE}
+##combine.FAH.FAFH.r
+library(data.table)
+
+#diet<-"Med"
+#n.sims<-10
+
+setwd(paste("/cluster/tufts/lasting/shared/model_development/data/outputs/cost_env/", diet, "_diet_Gro", sep=""))
+#FAH.output<-read.csv("combined.costenvs.sims.granular.csv")
+FAH.output<-read.csv(paste(output.type.sims, ".csv", sep=""))
+
+setwd(paste("/cluster/tufts/lasting/shared/model_development/data/outputs/cost_env/", diet, "_diet_Oth", sep=""))
+#FAFH.output<-read.csv("combined.costenvs.sims.granular.csv")
+FAFH.output<-read.csv(paste(output.type.sims, ".csv", sep=""))
+
+FAH.output$X<-"FAH"
+FAFH.output$X<-"FAFH"
+```
+Merge FAH and FAFH sims files, sum FAH and FAFH sims, and save results.
+```{r, merge_and_sum, eval=FALSE, echo=TRUE}
+combined.output<-rbind(FAH.output, FAFH.output)
+cols.to.sum<-paste("X", 1:n.sims, sep="")
+sims.data.table<-as.data.table(combined.output)
+
+#keep<-c("Foodgroup",  "broad_foodgroup", "Sex", "race_gp","age_gp", "subgroup_id", "population",
+#        "intake_units", "price_to_intake_conversion", "outcome", "outcome_unit")
+
+keep<-c("Foodgroup", "sex_gp", "race_gp","age_gp", "subgroup_id", "population",
+        "Intake_unit", "outcome", "outcome_unit")
+
+all.output<-sims.data.table[,lapply(.SD, sum), by=keep, .SDcols=cols.to.sum]
+
+setwd(paste("/cluster/tufts/lasting/shared/model_development/data/outputs/cost_env/", diet, "_diet_both", sep=""))
+#write.csv(x=all.output, file="combined.costenvs.sims.granular.csv")
+write.csv(x=all.output, file=paste(output.type.sims, ".csv", sep=""))
+```
+
+Read in pop sims, use it to calculate per capita output for summed sims (and then save output).
+```{r, per_capita, eval=FALSE, echo=TRUE}
+# THIS FILE LOCATION IS WRONG
+# file_location = "/cluster/tufts/lasting/shared/model_development/data/inputs"
+
+# THIS IS CORRECT
+file_location = "/cluster/tufts/lasting/shared/LASTING/in/FINAL"
+setwd(file_location)
+#pop.sims<-read.csv("population.sims.csv", fileEncoding = 'UTF-8-BOM')
+pop.sims<-read.csv("observed.pop.draws.csv", fileEncoding = 'UTF-8-BOM')
+
+
+percapita.all<-get.percapita.sims(impact.sims=as.data.frame(all.output), 
+                                                        population.sims=pop.sims, 
+                                                        pop.sims.names=paste("X", c(1:n.sims), sep=""), 
+                                                        new.pop.sims.names=paste("pop", c(1:n.sims), sep=""), 
+                                                        sims.names=paste("X", c(1:n.sims), sep=""))
+
+setwd(paste("/cluster/tufts/lasting/shared/model_development/data/outputs/cost_env/", diet, "_diet_both/per_capita", sep=""))
+#fwrite(x=all.output, file="combined.costenvs.sims.percapita.granular.csv")
+fwrite(x=all.output, file=paste(output.type.sims, ".percapita.csv", sep=""))
+```
+
+Calculate and save summary stats (mean, median, sd, 2.5th and 9.5th percentiles) from sims. 
+```{r, summary_stats, eval=FALSE, echo=TRUE}
+setwd(paste("/cluster/tufts/lasting/shared/model_development/data/outputs/cost_env/", diet, "_diet_both", sep=""))
+combined.summary<-get.summary.stats.simple(impact.sims=as.data.frame(all.output), 
+                                           vars=paste("X", 1:n.sims, sep=""))
+write.csv(x=combined.summary, file=paste(output.type.summary, ".csv", sep=""))
+
+setwd(paste("/cluster/tufts/lasting/shared/model_development/data/outputs/cost_env/", diet, "_diet_both/per_capita", sep=""))
+combined.summary.percapita<-get.summary.stats.simple(impact.sims=as.data.frame(percapita.all), 
+                                           vars=paste("X", 1:n.sims, sep=""))
+write.csv(x=combined.summary.percapita, file=paste(output.type.sims, ",percapita.csv", sep=""))
+```
+
+Next, we want to get these results for all strata combos. First, we define the vector "strata" which has strings of all the strata you are using for your analysis. Note that, if the names of your strata change or you are using your own strata, you need to change this vector to match your analysis. 
+```{r, define_strat_vec, eval=FALSE, echo=TRUE}
+##########get sums based on less granular subgroups#########
+##get all possible combinations of strata
+strata<-c("age_gp", "sex_gp", "race_gp", "Foodgroup")
+```
+
+The following code gets all the strata combos of interest in the a list object named "strata.combos", based on strata vector defined above. Here, "i" is a possible number of a strata that a strata-combination is made out of. In our case, we have 4 possibilities. 1-strata "combos" like age, sex, etc.., 2-strata combos like age/sex, age/race, etc.., 3-strata combos like age/sex/race etc... and one four strata combo: age/sex/race/Foodgroup. So, You loop through from i =1 to i=4, and at each iteration, you get all possible strata combinations with i strata using combn function. Then, you add  to strata.combos.list. Finally, you want add a "null" element to your list so you when you loop through strata.combos, you also create results that sum over all subgroups. 
+```{r, get_combos, eval=FALSE, echo=TRUE}
+strata.combos<-list()
+for(i in 1:length(strata))
+{
+  x<-combn(strata, i)
+  combos.for.i<-split(x, rep(1:ncol(x), each = nrow(x))) #https://stackoverflow.com/questions/6819804/how-to-convert-a-matrix-to-a-list-of-column-vectors-in-r
+  strata.combos<-c(strata.combos, combos.for.i)
+}
+strata.combos["null"]<-list(NULL) ##add null element to list to use for overall numbers
+```
+
+Use summary.stats.by.strata function defined in "cost_change_functions.r" to get summary stats for all strata combinations, which takes the strata.combos list you just created and the FAH+FAFH combined sims as input. summ.stats.by.strata.cost will be a list of 4 lists, each corresponding to an output type: 1 = summary stats, 2 = sims, 3 = per capita summary stats, 4 = per capita sims. Each list is a list with an element for each strata combo. 
+```{r, sum_stats_by_strata, eval=FALSE, echo=TRUE}
+output_location<-paste("/cluster/tufts/lasting/shared/model_development/data/outputs/cost_env/", diet, "_diet_both", sep="")
+setwd(paste(output_location, "/By_SubGroup", sep=""))
+summ.stats.by.strata.cost<-summary.stats.by.strata(impact.sims.allgroups=all.output, 
+                                                   strata.combos.list=strata.combos, 
+                                                   pop.sims=pop.sims)
+```
+
+Next, loop through the strata combos and save the sim output, rename variables names for the summary output and include them in summary.list and summary.list.percapita created in "LASTING_cluster_w_masterinput.r". Finally, Some fine-tuning on names of the list elements (adding underscores between strata, as well as adding "all" label to last element of lists which corresponds the "null" strata combo summing over all subgroups).
+
+```{r, save_and_rename, eval=FALSE, echo=TRUE}
+for(j in 1:length(strata.combos))
+{
+  setwd(paste(output_location, "/By_SubGroup/full_sims", sep=""))
+  #setwd("C:\\Users\\fcudhe01\\Box\\lasting_aim_3\\data\\out\\example_cost\\BySubGroup\\full_sims")
+  fwrite(x=summ.stats.by.strata.cost[[2]][[j]], file=paste(output.type.sims.bystrata,".sims.output_by_", paste(strata.combos[[j]], collapse='_'), ".csv", sep=""))
+ 
+  setwd(paste(output_location, "/per_capita/By_SubGroup/full_sims", sep=""))
+  #setwd("C:\\Users\\fcudhe01\\Box\\lasting_aim_3\\data\\out\\example_cost\\per_capita\\BySubGroup\\full_sims")
+  fwrite(x=summ.stats.by.strata.cost[[4]][[j]], file=paste(output.type.sims.bystrata, ".sims.percapita.output_by_", paste(strata.combos[[j]], collapse='_'), ".csv", sep=""))
+
+  names(summ.stats.by.strata.cost[[1]][[j]])[which(names(summ.stats.by.strata.cost[[1]][[j]]) %in% c("lower_bound (2.5th percentile)", "median", "upper_bound  (97.5th percentile)", "mean", "SD"))]<-
+    c(LB.name, median.name, UB.name, mean.name, SD.name)
+  
+  names(summ.stats.by.strata.cost[[3]][[j]])[which(names(summ.stats.by.strata.cost[[3]][[j]]) %in% c("lower_bound (2.5th percentile)", "median", "upper_bound  (97.5th percentile)", "mean", "SD"))]<-
+    c(LB.name, median.name, UB.name, mean.name, SD.name)
+
+  
+  summary.list[[k]][[j]]<-summ.stats.by.strata.cost[[1]][[j]]
+  summary.list.percapita[[k]][[j]]<-summ.stats.by.strata.cost[[3]][[j]]
+  
+  #all.summ.stats.by.strata<-summ.stats.by.strata.cost[[1]][[j]]
+
+  #all.summ.stats.by.strata.per.capita<-summ.stats.by.strata.cost[[3]][[j]]
+  
+  #setwd(paste(output_location, "/By_SubGroup", sep=""))
+  ##setwd("C:\\Users\\fcudhe01\\Box\\lasting_aim_3\\data\\out\\example_cost\\BySubGroup")
+  #write.csv(x=all.summ.stats.by.strata, file=paste("summary.output_by_", paste(strata.combos[[j]], collapse='_'), ".costenv.csv", sep=""))
+  
+  #setwd(paste(output_location, "/per_capita/By_SubGroup", sep=""))
+  ##setwd("C:\\Users\\fcudhe01\\Box\\lasting_aim_3\\data\\out\\example_cost\\per_capita\\BySubGroup")
+  #write.csv(x=all.summ.stats.by.strata.per.capita, file=paste("summary.output.percapita_by_", paste(strata.combos[[j]], collapse='_'), ".costenv.csv", sep=""))
+  
+}
+names(summary.list[[k]])<-lapply(strata.combos, paste, collapse="_")
+names(summary.list[[k]])[length(summary.list[[k]])]<-"all"
+names(summary.list.percapita[[k]])<-lapply(strata.combos, paste, collapse="_")
+names(summary.list.percapita[[k]])[length(summary.list[[k]])]<-"all"
+```
+
+Note that we're not saving the summary stats output just yet. There is more processing done in "LASTING_cluster_w_materinput.r" after this script is called.

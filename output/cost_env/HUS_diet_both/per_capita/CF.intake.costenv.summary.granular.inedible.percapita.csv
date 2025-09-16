@@ -1,0 +1,433 @@
+sex_gp,race_gp,age_gp,subgroup_id,population,Foodgroup,Intake_unit,outcome,outcome_unit,subgroup,Age,Age_label,Sex,Sex_label,Race,Race_label,population.se,agecat,female,race,age,mean_impact,sd_impact,median_impact,lowerci_95_impact,upperci_95_impact
+Female,HIS,20-34,3,6549965,added_sugar,tsp eq/day,CED,MJ,3,1,20-34,1,Female,3,HIS,0,1,1,3,25,0,0,0,0,0
+Female,HIS,20-34,3,6549965,added_sugar,tsp eq/day,Food_price,USD,3,1,20-34,1,Female,3,HIS,0,1,1,3,25,0,0,0,0,0
+Female,HIS,20-34,3,6549965,added_sugar,tsp eq/day,FL,mrh-eq,3,1,20-34,1,Female,3,HIS,0,1,1,3,25,0,0,0,0,0
+Female,HIS,20-34,3,6549965,oil,g/day,CED,MJ,3,1,20-34,1,Female,3,HIS,0,1,1,3,25,0,0,0,0,0
+Female,HIS,20-34,3,6549965,oil,g/day,Food_price,USD,3,1,20-34,1,Female,3,HIS,0,1,1,3,25,0,0,0,0,0
+Female,HIS,20-34,3,6549965,oil,g/day,FL,mrh-eq,3,1,20-34,1,Female,3,HIS,0,1,1,3,25,0,0,0,0,0
+Female,HIS,20-34,3,6549965,sat_fat,g/day,CED,MJ,3,1,20-34,1,Female,3,HIS,0,1,1,3,25,0,0,0,0,0
+Female,HIS,20-34,3,6549965,sat_fat,g/day,Food_price,USD,3,1,20-34,1,Female,3,HIS,0,1,1,3,25,0,0,0,0,0
+Female,HIS,20-34,3,6549965,sat_fat,g/day,FL,mrh-eq,3,1,20-34,1,Female,3,HIS,0,1,1,3,25,0,0,0,0,0
+Female,HIS,35-44,11,4706043,added_sugar,tsp eq/day,CED,MJ,11,2,35-44,1,Female,3,HIS,0,2,1,3,35,0,0,0,0,0
+Female,HIS,35-44,11,4706043,added_sugar,tsp eq/day,Food_price,USD,11,2,35-44,1,Female,3,HIS,0,2,1,3,35,0,0,0,0,0
+Female,HIS,35-44,11,4706043,added_sugar,tsp eq/day,FL,mrh-eq,11,2,35-44,1,Female,3,HIS,0,2,1,3,35,0,0,0,0,0
+Female,HIS,35-44,11,4706043,oil,g/day,CED,MJ,11,2,35-44,1,Female,3,HIS,0,2,1,3,35,0,0,0,0,0
+Female,HIS,35-44,11,4706043,oil,g/day,Food_price,USD,11,2,35-44,1,Female,3,HIS,0,2,1,3,35,0,0,0,0,0
+Female,HIS,35-44,11,4706043,oil,g/day,FL,mrh-eq,11,2,35-44,1,Female,3,HIS,0,2,1,3,35,0,0,0,0,0
+Female,HIS,35-44,11,4706043,sat_fat,g/day,CED,MJ,11,2,35-44,1,Female,3,HIS,0,2,1,3,35,0,0,0,0,0
+Female,HIS,35-44,11,4706043,sat_fat,g/day,Food_price,USD,11,2,35-44,1,Female,3,HIS,0,2,1,3,35,0,0,0,0,0
+Female,HIS,35-44,11,4706043,sat_fat,g/day,FL,mrh-eq,11,2,35-44,1,Female,3,HIS,0,2,1,3,35,0,0,0,0,0
+Female,HIS,45-54,19,2981376,added_sugar,tsp eq/day,CED,MJ,19,3,45-54,1,Female,3,HIS,0,3,1,3,45,0,0,0,0,0
+Female,HIS,45-54,19,2981376,added_sugar,tsp eq/day,Food_price,USD,19,3,45-54,1,Female,3,HIS,0,3,1,3,45,0,0,0,0,0
+Female,HIS,45-54,19,2981376,added_sugar,tsp eq/day,FL,mrh-eq,19,3,45-54,1,Female,3,HIS,0,3,1,3,45,0,0,0,0,0
+Female,HIS,45-54,19,2981376,oil,g/day,CED,MJ,19,3,45-54,1,Female,3,HIS,0,3,1,3,45,0,0,0,0,0
+Female,HIS,45-54,19,2981376,oil,g/day,Food_price,USD,19,3,45-54,1,Female,3,HIS,0,3,1,3,45,0,0,0,0,0
+Female,HIS,45-54,19,2981376,oil,g/day,FL,mrh-eq,19,3,45-54,1,Female,3,HIS,0,3,1,3,45,0,0,0,0,0
+Female,HIS,45-54,19,2981376,sat_fat,g/day,CED,MJ,19,3,45-54,1,Female,3,HIS,0,3,1,3,45,0,0,0,0,0
+Female,HIS,45-54,19,2981376,sat_fat,g/day,Food_price,USD,19,3,45-54,1,Female,3,HIS,0,3,1,3,45,0,0,0,0,0
+Female,HIS,45-54,19,2981376,sat_fat,g/day,FL,mrh-eq,19,3,45-54,1,Female,3,HIS,0,3,1,3,45,0,0,0,0,0
+Female,HIS,55-64,27,2911586,added_sugar,tsp eq/day,CED,MJ,27,4,55-64,1,Female,3,HIS,0,4,1,3,55,0,0,0,0,0
+Female,HIS,55-64,27,2911586,added_sugar,tsp eq/day,Food_price,USD,27,4,55-64,1,Female,3,HIS,0,4,1,3,55,0,0,0,0,0
+Female,HIS,55-64,27,2911586,added_sugar,tsp eq/day,FL,mrh-eq,27,4,55-64,1,Female,3,HIS,0,4,1,3,55,0,0,0,0,0
+Female,HIS,55-64,27,2911586,oil,g/day,CED,MJ,27,4,55-64,1,Female,3,HIS,0,4,1,3,55,0,0,0,0,0
+Female,HIS,55-64,27,2911586,oil,g/day,Food_price,USD,27,4,55-64,1,Female,3,HIS,0,4,1,3,55,0,0,0,0,0
+Female,HIS,55-64,27,2911586,oil,g/day,FL,mrh-eq,27,4,55-64,1,Female,3,HIS,0,4,1,3,55,0,0,0,0,0
+Female,HIS,55-64,27,2911586,sat_fat,g/day,CED,MJ,27,4,55-64,1,Female,3,HIS,0,4,1,3,55,0,0,0,0,0
+Female,HIS,55-64,27,2911586,sat_fat,g/day,Food_price,USD,27,4,55-64,1,Female,3,HIS,0,4,1,3,55,0,0,0,0,0
+Female,HIS,55-64,27,2911586,sat_fat,g/day,FL,mrh-eq,27,4,55-64,1,Female,3,HIS,0,4,1,3,55,0,0,0,0,0
+Female,HIS,65-74,35,1616432,added_sugar,tsp eq/day,CED,MJ,35,5,65-74,1,Female,3,HIS,0,5,1,3,65,0,0,0,0,0
+Female,HIS,65-74,35,1616432,added_sugar,tsp eq/day,Food_price,USD,35,5,65-74,1,Female,3,HIS,0,5,1,3,65,0,0,0,0,0
+Female,HIS,65-74,35,1616432,added_sugar,tsp eq/day,FL,mrh-eq,35,5,65-74,1,Female,3,HIS,0,5,1,3,65,0,0,0,0,0
+Female,HIS,65-74,35,1616432,oil,g/day,CED,MJ,35,5,65-74,1,Female,3,HIS,0,5,1,3,65,0,0,0,0,0
+Female,HIS,65-74,35,1616432,oil,g/day,Food_price,USD,35,5,65-74,1,Female,3,HIS,0,5,1,3,65,0,0,0,0,0
+Female,HIS,65-74,35,1616432,oil,g/day,FL,mrh-eq,35,5,65-74,1,Female,3,HIS,0,5,1,3,65,0,0,0,0,0
+Female,HIS,65-74,35,1616432,sat_fat,g/day,CED,MJ,35,5,65-74,1,Female,3,HIS,0,5,1,3,65,0,0,0,0,0
+Female,HIS,65-74,35,1616432,sat_fat,g/day,Food_price,USD,35,5,65-74,1,Female,3,HIS,0,5,1,3,65,0,0,0,0,0
+Female,HIS,65-74,35,1616432,sat_fat,g/day,FL,mrh-eq,35,5,65-74,1,Female,3,HIS,0,5,1,3,65,0,0,0,0,0
+Female,HIS,75+,43,737080,added_sugar,tsp eq/day,CED,MJ,43,6,75+,1,Female,3,HIS,0,6,1,3,75,0,0,0,0,0
+Female,HIS,75+,43,737080,added_sugar,tsp eq/day,Food_price,USD,43,6,75+,1,Female,3,HIS,0,6,1,3,75,0,0,0,0,0
+Female,HIS,75+,43,737080,added_sugar,tsp eq/day,FL,mrh-eq,43,6,75+,1,Female,3,HIS,0,6,1,3,75,0,0,0,0,0
+Female,HIS,75+,43,737080,oil,g/day,CED,MJ,43,6,75+,1,Female,3,HIS,0,6,1,3,75,0,0,0,0,0
+Female,HIS,75+,43,737080,oil,g/day,Food_price,USD,43,6,75+,1,Female,3,HIS,0,6,1,3,75,0,0,0,0,0
+Female,HIS,75+,43,737080,oil,g/day,FL,mrh-eq,43,6,75+,1,Female,3,HIS,0,6,1,3,75,0,0,0,0,0
+Female,HIS,75+,43,737080,sat_fat,g/day,CED,MJ,43,6,75+,1,Female,3,HIS,0,6,1,3,75,0,0,0,0,0
+Female,HIS,75+,43,737080,sat_fat,g/day,Food_price,USD,43,6,75+,1,Female,3,HIS,0,6,1,3,75,0,0,0,0,0
+Female,HIS,75+,43,737080,sat_fat,g/day,FL,mrh-eq,43,6,75+,1,Female,3,HIS,0,6,1,3,75,0,0,0,0,0
+Female,NHB,20-34,2,4596338,added_sugar,tsp eq/day,CED,MJ,2,1,20-34,1,Female,2,NHB,0,1,1,2,25,0,0,0,0,0
+Female,NHB,20-34,2,4596338,added_sugar,tsp eq/day,Food_price,USD,2,1,20-34,1,Female,2,NHB,0,1,1,2,25,0,0,0,0,0
+Female,NHB,20-34,2,4596338,added_sugar,tsp eq/day,FL,mrh-eq,2,1,20-34,1,Female,2,NHB,0,1,1,2,25,0,0,0,0,0
+Female,NHB,20-34,2,4596338,oil,g/day,CED,MJ,2,1,20-34,1,Female,2,NHB,0,1,1,2,25,0,0,0,0,0
+Female,NHB,20-34,2,4596338,oil,g/day,Food_price,USD,2,1,20-34,1,Female,2,NHB,0,1,1,2,25,0,0,0,0,0
+Female,NHB,20-34,2,4596338,oil,g/day,FL,mrh-eq,2,1,20-34,1,Female,2,NHB,0,1,1,2,25,0,0,0,0,0
+Female,NHB,20-34,2,4596338,sat_fat,g/day,CED,MJ,2,1,20-34,1,Female,2,NHB,0,1,1,2,25,0,0,0,0,0
+Female,NHB,20-34,2,4596338,sat_fat,g/day,Food_price,USD,2,1,20-34,1,Female,2,NHB,0,1,1,2,25,0,0,0,0,0
+Female,NHB,20-34,2,4596338,sat_fat,g/day,FL,mrh-eq,2,1,20-34,1,Female,2,NHB,0,1,1,2,25,0,0,0,0,0
+Female,NHB,35-44,10,2841551,added_sugar,tsp eq/day,CED,MJ,10,2,35-44,1,Female,2,NHB,0,2,1,2,35,0,0,0,0,0
+Female,NHB,35-44,10,2841551,added_sugar,tsp eq/day,Food_price,USD,10,2,35-44,1,Female,2,NHB,0,2,1,2,35,0,0,0,0,0
+Female,NHB,35-44,10,2841551,added_sugar,tsp eq/day,FL,mrh-eq,10,2,35-44,1,Female,2,NHB,0,2,1,2,35,0,0,0,0,0
+Female,NHB,35-44,10,2841551,oil,g/day,CED,MJ,10,2,35-44,1,Female,2,NHB,0,2,1,2,35,0,0,0,0,0
+Female,NHB,35-44,10,2841551,oil,g/day,Food_price,USD,10,2,35-44,1,Female,2,NHB,0,2,1,2,35,0,0,0,0,0
+Female,NHB,35-44,10,2841551,oil,g/day,FL,mrh-eq,10,2,35-44,1,Female,2,NHB,0,2,1,2,35,0,0,0,0,0
+Female,NHB,35-44,10,2841551,sat_fat,g/day,CED,MJ,10,2,35-44,1,Female,2,NHB,0,2,1,2,35,0,0,0,0,0
+Female,NHB,35-44,10,2841551,sat_fat,g/day,Food_price,USD,10,2,35-44,1,Female,2,NHB,0,2,1,2,35,0,0,0,0,0
+Female,NHB,35-44,10,2841551,sat_fat,g/day,FL,mrh-eq,10,2,35-44,1,Female,2,NHB,0,2,1,2,35,0,0,0,0,0
+Female,NHB,45-54,18,2294986,added_sugar,tsp eq/day,CED,MJ,18,3,45-54,1,Female,2,NHB,0,3,1,2,45,0,0,0,0,0
+Female,NHB,45-54,18,2294986,added_sugar,tsp eq/day,Food_price,USD,18,3,45-54,1,Female,2,NHB,0,3,1,2,45,0,0,0,0,0
+Female,NHB,45-54,18,2294986,added_sugar,tsp eq/day,FL,mrh-eq,18,3,45-54,1,Female,2,NHB,0,3,1,2,45,0,0,0,0,0
+Female,NHB,45-54,18,2294986,oil,g/day,CED,MJ,18,3,45-54,1,Female,2,NHB,0,3,1,2,45,0,0,0,0,0
+Female,NHB,45-54,18,2294986,oil,g/day,Food_price,USD,18,3,45-54,1,Female,2,NHB,0,3,1,2,45,0,0,0,0,0
+Female,NHB,45-54,18,2294986,oil,g/day,FL,mrh-eq,18,3,45-54,1,Female,2,NHB,0,3,1,2,45,0,0,0,0,0
+Female,NHB,45-54,18,2294986,sat_fat,g/day,CED,MJ,18,3,45-54,1,Female,2,NHB,0,3,1,2,45,0,0,0,0,0
+Female,NHB,45-54,18,2294986,sat_fat,g/day,Food_price,USD,18,3,45-54,1,Female,2,NHB,0,3,1,2,45,0,0,0,0,0
+Female,NHB,45-54,18,2294986,sat_fat,g/day,FL,mrh-eq,18,3,45-54,1,Female,2,NHB,0,3,1,2,45,0,0,0,0,0
+Female,NHB,55-64,26,3005374,added_sugar,tsp eq/day,CED,MJ,26,4,55-64,1,Female,2,NHB,0,4,1,2,55,0,0,0,0,0
+Female,NHB,55-64,26,3005374,added_sugar,tsp eq/day,Food_price,USD,26,4,55-64,1,Female,2,NHB,0,4,1,2,55,0,0,0,0,0
+Female,NHB,55-64,26,3005374,added_sugar,tsp eq/day,FL,mrh-eq,26,4,55-64,1,Female,2,NHB,0,4,1,2,55,0,0,0,0,0
+Female,NHB,55-64,26,3005374,oil,g/day,CED,MJ,26,4,55-64,1,Female,2,NHB,0,4,1,2,55,0,0,0,0,0
+Female,NHB,55-64,26,3005374,oil,g/day,Food_price,USD,26,4,55-64,1,Female,2,NHB,0,4,1,2,55,0,0,0,0,0
+Female,NHB,55-64,26,3005374,oil,g/day,FL,mrh-eq,26,4,55-64,1,Female,2,NHB,0,4,1,2,55,0,0,0,0,0
+Female,NHB,55-64,26,3005374,sat_fat,g/day,CED,MJ,26,4,55-64,1,Female,2,NHB,0,4,1,2,55,0,0,0,0,0
+Female,NHB,55-64,26,3005374,sat_fat,g/day,Food_price,USD,26,4,55-64,1,Female,2,NHB,0,4,1,2,55,0,0,0,0,0
+Female,NHB,55-64,26,3005374,sat_fat,g/day,FL,mrh-eq,26,4,55-64,1,Female,2,NHB,0,4,1,2,55,0,0,0,0,0
+Female,NHB,65-74,34,1390166,added_sugar,tsp eq/day,CED,MJ,34,5,65-74,1,Female,2,NHB,0,5,1,2,65,0,0,0,0,0
+Female,NHB,65-74,34,1390166,added_sugar,tsp eq/day,Food_price,USD,34,5,65-74,1,Female,2,NHB,0,5,1,2,65,0,0,0,0,0
+Female,NHB,65-74,34,1390166,added_sugar,tsp eq/day,FL,mrh-eq,34,5,65-74,1,Female,2,NHB,0,5,1,2,65,0,0,0,0,0
+Female,NHB,65-74,34,1390166,oil,g/day,CED,MJ,34,5,65-74,1,Female,2,NHB,0,5,1,2,65,0,0,0,0,0
+Female,NHB,65-74,34,1390166,oil,g/day,Food_price,USD,34,5,65-74,1,Female,2,NHB,0,5,1,2,65,0,0,0,0,0
+Female,NHB,65-74,34,1390166,oil,g/day,FL,mrh-eq,34,5,65-74,1,Female,2,NHB,0,5,1,2,65,0,0,0,0,0
+Female,NHB,65-74,34,1390166,sat_fat,g/day,CED,MJ,34,5,65-74,1,Female,2,NHB,0,5,1,2,65,0,0,0,0,0
+Female,NHB,65-74,34,1390166,sat_fat,g/day,Food_price,USD,34,5,65-74,1,Female,2,NHB,0,5,1,2,65,0,0,0,0,0
+Female,NHB,65-74,34,1390166,sat_fat,g/day,FL,mrh-eq,34,5,65-74,1,Female,2,NHB,0,5,1,2,65,0,0,0,0,0
+Female,NHB,75+,42,1249362,added_sugar,tsp eq/day,CED,MJ,42,6,75+,1,Female,2,NHB,0,6,1,2,75,0,0,0,0,0
+Female,NHB,75+,42,1249362,added_sugar,tsp eq/day,Food_price,USD,42,6,75+,1,Female,2,NHB,0,6,1,2,75,0,0,0,0,0
+Female,NHB,75+,42,1249362,added_sugar,tsp eq/day,FL,mrh-eq,42,6,75+,1,Female,2,NHB,0,6,1,2,75,0,0,0,0,0
+Female,NHB,75+,42,1249362,oil,g/day,CED,MJ,42,6,75+,1,Female,2,NHB,0,6,1,2,75,0,0,0,0,0
+Female,NHB,75+,42,1249362,oil,g/day,Food_price,USD,42,6,75+,1,Female,2,NHB,0,6,1,2,75,0,0,0,0,0
+Female,NHB,75+,42,1249362,oil,g/day,FL,mrh-eq,42,6,75+,1,Female,2,NHB,0,6,1,2,75,0,0,0,0,0
+Female,NHB,75+,42,1249362,sat_fat,g/day,CED,MJ,42,6,75+,1,Female,2,NHB,0,6,1,2,75,0,0,0,0,0
+Female,NHB,75+,42,1249362,sat_fat,g/day,Food_price,USD,42,6,75+,1,Female,2,NHB,0,6,1,2,75,0,0,0,0,0
+Female,NHB,75+,42,1249362,sat_fat,g/day,FL,mrh-eq,42,6,75+,1,Female,2,NHB,0,6,1,2,75,0,0,0,0,0
+Female,NHW,20-34,1,18192633,added_sugar,tsp eq/day,CED,MJ,1,1,20-34,1,Female,1,NHW,0,1,1,1,25,0,0,0,0,0
+Female,NHW,20-34,1,18192633,added_sugar,tsp eq/day,Food_price,USD,1,1,20-34,1,Female,1,NHW,0,1,1,1,25,0,0,0,0,0
+Female,NHW,20-34,1,18192633,added_sugar,tsp eq/day,FL,mrh-eq,1,1,20-34,1,Female,1,NHW,0,1,1,1,25,0,0,0,0,0
+Female,NHW,20-34,1,18192633,oil,g/day,CED,MJ,1,1,20-34,1,Female,1,NHW,0,1,1,1,25,0,0,0,0,0
+Female,NHW,20-34,1,18192633,oil,g/day,Food_price,USD,1,1,20-34,1,Female,1,NHW,0,1,1,1,25,0,0,0,0,0
+Female,NHW,20-34,1,18192633,oil,g/day,FL,mrh-eq,1,1,20-34,1,Female,1,NHW,0,1,1,1,25,0,0,0,0,0
+Female,NHW,20-34,1,18192633,sat_fat,g/day,CED,MJ,1,1,20-34,1,Female,1,NHW,0,1,1,1,25,0,0,0,0,0
+Female,NHW,20-34,1,18192633,sat_fat,g/day,Food_price,USD,1,1,20-34,1,Female,1,NHW,0,1,1,1,25,0,0,0,0,0
+Female,NHW,20-34,1,18192633,sat_fat,g/day,FL,mrh-eq,1,1,20-34,1,Female,1,NHW,0,1,1,1,25,0,0,0,0,0
+Female,NHW,35-44,9,10789518,added_sugar,tsp eq/day,CED,MJ,9,2,35-44,1,Female,1,NHW,0,2,1,1,35,0,0,0,0,0
+Female,NHW,35-44,9,10789518,added_sugar,tsp eq/day,Food_price,USD,9,2,35-44,1,Female,1,NHW,0,2,1,1,35,0,0,0,0,0
+Female,NHW,35-44,9,10789518,added_sugar,tsp eq/day,FL,mrh-eq,9,2,35-44,1,Female,1,NHW,0,2,1,1,35,0,0,0,0,0
+Female,NHW,35-44,9,10789518,oil,g/day,CED,MJ,9,2,35-44,1,Female,1,NHW,0,2,1,1,35,0,0,0,0,0
+Female,NHW,35-44,9,10789518,oil,g/day,Food_price,USD,9,2,35-44,1,Female,1,NHW,0,2,1,1,35,0,0,0,0,0
+Female,NHW,35-44,9,10789518,oil,g/day,FL,mrh-eq,9,2,35-44,1,Female,1,NHW,0,2,1,1,35,0,0,0,0,0
+Female,NHW,35-44,9,10789518,sat_fat,g/day,CED,MJ,9,2,35-44,1,Female,1,NHW,0,2,1,1,35,0,0,0,0,0
+Female,NHW,35-44,9,10789518,sat_fat,g/day,Food_price,USD,9,2,35-44,1,Female,1,NHW,0,2,1,1,35,0,0,0,0,0
+Female,NHW,35-44,9,10789518,sat_fat,g/day,FL,mrh-eq,9,2,35-44,1,Female,1,NHW,0,2,1,1,35,0,0,0,0,0
+Female,NHW,45-54,17,12961330,added_sugar,tsp eq/day,CED,MJ,17,3,45-54,1,Female,1,NHW,0,3,1,1,45,0,0,0,0,0
+Female,NHW,45-54,17,12961330,added_sugar,tsp eq/day,Food_price,USD,17,3,45-54,1,Female,1,NHW,0,3,1,1,45,0,0,0,0,0
+Female,NHW,45-54,17,12961330,added_sugar,tsp eq/day,FL,mrh-eq,17,3,45-54,1,Female,1,NHW,0,3,1,1,45,0,0,0,0,0
+Female,NHW,45-54,17,12961330,oil,g/day,CED,MJ,17,3,45-54,1,Female,1,NHW,0,3,1,1,45,0,0,0,0,0
+Female,NHW,45-54,17,12961330,oil,g/day,Food_price,USD,17,3,45-54,1,Female,1,NHW,0,3,1,1,45,0,0,0,0,0
+Female,NHW,45-54,17,12961330,oil,g/day,FL,mrh-eq,17,3,45-54,1,Female,1,NHW,0,3,1,1,45,0,0,0,0,0
+Female,NHW,45-54,17,12961330,sat_fat,g/day,CED,MJ,17,3,45-54,1,Female,1,NHW,0,3,1,1,45,0,0,0,0,0
+Female,NHW,45-54,17,12961330,sat_fat,g/day,Food_price,USD,17,3,45-54,1,Female,1,NHW,0,3,1,1,45,0,0,0,0,0
+Female,NHW,45-54,17,12961330,sat_fat,g/day,FL,mrh-eq,17,3,45-54,1,Female,1,NHW,0,3,1,1,45,0,0,0,0,0
+Female,NHW,55-64,25,16626401,added_sugar,tsp eq/day,CED,MJ,25,4,55-64,1,Female,1,NHW,0,4,1,1,55,0,0,0,0,0
+Female,NHW,55-64,25,16626401,added_sugar,tsp eq/day,Food_price,USD,25,4,55-64,1,Female,1,NHW,0,4,1,1,55,0,0,0,0,0
+Female,NHW,55-64,25,16626401,added_sugar,tsp eq/day,FL,mrh-eq,25,4,55-64,1,Female,1,NHW,0,4,1,1,55,0,0,0,0,0
+Female,NHW,55-64,25,16626401,oil,g/day,CED,MJ,25,4,55-64,1,Female,1,NHW,0,4,1,1,55,0,0,0,0,0
+Female,NHW,55-64,25,16626401,oil,g/day,Food_price,USD,25,4,55-64,1,Female,1,NHW,0,4,1,1,55,0,0,0,0,0
+Female,NHW,55-64,25,16626401,oil,g/day,FL,mrh-eq,25,4,55-64,1,Female,1,NHW,0,4,1,1,55,0,0,0,0,0
+Female,NHW,55-64,25,16626401,sat_fat,g/day,CED,MJ,25,4,55-64,1,Female,1,NHW,0,4,1,1,55,0,0,0,0,0
+Female,NHW,55-64,25,16626401,sat_fat,g/day,Food_price,USD,25,4,55-64,1,Female,1,NHW,0,4,1,1,55,0,0,0,0,0
+Female,NHW,55-64,25,16626401,sat_fat,g/day,FL,mrh-eq,25,4,55-64,1,Female,1,NHW,0,4,1,1,55,0,0,0,0,0
+Female,NHW,65-74,33,11513863,added_sugar,tsp eq/day,CED,MJ,33,5,65-74,1,Female,1,NHW,0,5,1,1,65,0,0,0,0,0
+Female,NHW,65-74,33,11513863,added_sugar,tsp eq/day,Food_price,USD,33,5,65-74,1,Female,1,NHW,0,5,1,1,65,0,0,0,0,0
+Female,NHW,65-74,33,11513863,added_sugar,tsp eq/day,FL,mrh-eq,33,5,65-74,1,Female,1,NHW,0,5,1,1,65,0,0,0,0,0
+Female,NHW,65-74,33,11513863,oil,g/day,CED,MJ,33,5,65-74,1,Female,1,NHW,0,5,1,1,65,0,0,0,0,0
+Female,NHW,65-74,33,11513863,oil,g/day,Food_price,USD,33,5,65-74,1,Female,1,NHW,0,5,1,1,65,0,0,0,0,0
+Female,NHW,65-74,33,11513863,oil,g/day,FL,mrh-eq,33,5,65-74,1,Female,1,NHW,0,5,1,1,65,0,0,0,0,0
+Female,NHW,65-74,33,11513863,sat_fat,g/day,CED,MJ,33,5,65-74,1,Female,1,NHW,0,5,1,1,65,0,0,0,0,0
+Female,NHW,65-74,33,11513863,sat_fat,g/day,Food_price,USD,33,5,65-74,1,Female,1,NHW,0,5,1,1,65,0,0,0,0,0
+Female,NHW,65-74,33,11513863,sat_fat,g/day,FL,mrh-eq,33,5,65-74,1,Female,1,NHW,0,5,1,1,65,0,0,0,0,0
+Female,NHW,75+,41,9145660,added_sugar,tsp eq/day,CED,MJ,41,6,75+,1,Female,1,NHW,0,6,1,1,75,0,0,0,0,0
+Female,NHW,75+,41,9145660,added_sugar,tsp eq/day,Food_price,USD,41,6,75+,1,Female,1,NHW,0,6,1,1,75,0,0,0,0,0
+Female,NHW,75+,41,9145660,added_sugar,tsp eq/day,FL,mrh-eq,41,6,75+,1,Female,1,NHW,0,6,1,1,75,0,0,0,0,0
+Female,NHW,75+,41,9145660,oil,g/day,CED,MJ,41,6,75+,1,Female,1,NHW,0,6,1,1,75,0,0,0,0,0
+Female,NHW,75+,41,9145660,oil,g/day,Food_price,USD,41,6,75+,1,Female,1,NHW,0,6,1,1,75,0,0,0,0,0
+Female,NHW,75+,41,9145660,oil,g/day,FL,mrh-eq,41,6,75+,1,Female,1,NHW,0,6,1,1,75,0,0,0,0,0
+Female,NHW,75+,41,9145660,sat_fat,g/day,CED,MJ,41,6,75+,1,Female,1,NHW,0,6,1,1,75,0,0,0,0,0
+Female,NHW,75+,41,9145660,sat_fat,g/day,Food_price,USD,41,6,75+,1,Female,1,NHW,0,6,1,1,75,0,0,0,0,0
+Female,NHW,75+,41,9145660,sat_fat,g/day,FL,mrh-eq,41,6,75+,1,Female,1,NHW,0,6,1,1,75,0,0,0,0,0
+Female,OTH,20-34,4,3878604,added_sugar,tsp eq/day,CED,MJ,4,1,20-34,1,Female,4,OTH,0,1,1,4,25,0,0,0,0,0
+Female,OTH,20-34,4,3878604,added_sugar,tsp eq/day,Food_price,USD,4,1,20-34,1,Female,4,OTH,0,1,1,4,25,0,0,0,0,0
+Female,OTH,20-34,4,3878604,added_sugar,tsp eq/day,FL,mrh-eq,4,1,20-34,1,Female,4,OTH,0,1,1,4,25,0,0,0,0,0
+Female,OTH,20-34,4,3878604,oil,g/day,CED,MJ,4,1,20-34,1,Female,4,OTH,0,1,1,4,25,0,0,0,0,0
+Female,OTH,20-34,4,3878604,oil,g/day,Food_price,USD,4,1,20-34,1,Female,4,OTH,0,1,1,4,25,0,0,0,0,0
+Female,OTH,20-34,4,3878604,oil,g/day,FL,mrh-eq,4,1,20-34,1,Female,4,OTH,0,1,1,4,25,0,0,0,0,0
+Female,OTH,20-34,4,3878604,sat_fat,g/day,CED,MJ,4,1,20-34,1,Female,4,OTH,0,1,1,4,25,0,0,0,0,0
+Female,OTH,20-34,4,3878604,sat_fat,g/day,Food_price,USD,4,1,20-34,1,Female,4,OTH,0,1,1,4,25,0,0,0,0,0
+Female,OTH,20-34,4,3878604,sat_fat,g/day,FL,mrh-eq,4,1,20-34,1,Female,4,OTH,0,1,1,4,25,0,0,0,0,0
+Female,OTH,35-44,12,2705155,added_sugar,tsp eq/day,CED,MJ,12,2,35-44,1,Female,4,OTH,0,2,1,4,35,0,0,0,0,0
+Female,OTH,35-44,12,2705155,added_sugar,tsp eq/day,Food_price,USD,12,2,35-44,1,Female,4,OTH,0,2,1,4,35,0,0,0,0,0
+Female,OTH,35-44,12,2705155,added_sugar,tsp eq/day,FL,mrh-eq,12,2,35-44,1,Female,4,OTH,0,2,1,4,35,0,0,0,0,0
+Female,OTH,35-44,12,2705155,oil,g/day,CED,MJ,12,2,35-44,1,Female,4,OTH,0,2,1,4,35,0,0,0,0,0
+Female,OTH,35-44,12,2705155,oil,g/day,Food_price,USD,12,2,35-44,1,Female,4,OTH,0,2,1,4,35,0,0,0,0,0
+Female,OTH,35-44,12,2705155,oil,g/day,FL,mrh-eq,12,2,35-44,1,Female,4,OTH,0,2,1,4,35,0,0,0,0,0
+Female,OTH,35-44,12,2705155,sat_fat,g/day,CED,MJ,12,2,35-44,1,Female,4,OTH,0,2,1,4,35,0,0,0,0,0
+Female,OTH,35-44,12,2705155,sat_fat,g/day,Food_price,USD,12,2,35-44,1,Female,4,OTH,0,2,1,4,35,0,0,0,0,0
+Female,OTH,35-44,12,2705155,sat_fat,g/day,FL,mrh-eq,12,2,35-44,1,Female,4,OTH,0,2,1,4,35,0,0,0,0,0
+Female,OTH,45-54,20,1908325,added_sugar,tsp eq/day,CED,MJ,20,3,45-54,1,Female,4,OTH,0,3,1,4,45,0,0,0,0,0
+Female,OTH,45-54,20,1908325,added_sugar,tsp eq/day,Food_price,USD,20,3,45-54,1,Female,4,OTH,0,3,1,4,45,0,0,0,0,0
+Female,OTH,45-54,20,1908325,added_sugar,tsp eq/day,FL,mrh-eq,20,3,45-54,1,Female,4,OTH,0,3,1,4,45,0,0,0,0,0
+Female,OTH,45-54,20,1908325,oil,g/day,CED,MJ,20,3,45-54,1,Female,4,OTH,0,3,1,4,45,0,0,0,0,0
+Female,OTH,45-54,20,1908325,oil,g/day,Food_price,USD,20,3,45-54,1,Female,4,OTH,0,3,1,4,45,0,0,0,0,0
+Female,OTH,45-54,20,1908325,oil,g/day,FL,mrh-eq,20,3,45-54,1,Female,4,OTH,0,3,1,4,45,0,0,0,0,0
+Female,OTH,45-54,20,1908325,sat_fat,g/day,CED,MJ,20,3,45-54,1,Female,4,OTH,0,3,1,4,45,0,0,0,0,0
+Female,OTH,45-54,20,1908325,sat_fat,g/day,Food_price,USD,20,3,45-54,1,Female,4,OTH,0,3,1,4,45,0,0,0,0,0
+Female,OTH,45-54,20,1908325,sat_fat,g/day,FL,mrh-eq,20,3,45-54,1,Female,4,OTH,0,3,1,4,45,0,0,0,0,0
+Female,OTH,55-64,28,2629488,added_sugar,tsp eq/day,CED,MJ,28,4,55-64,1,Female,4,OTH,0,4,1,4,55,0,0,0,0,0
+Female,OTH,55-64,28,2629488,added_sugar,tsp eq/day,Food_price,USD,28,4,55-64,1,Female,4,OTH,0,4,1,4,55,0,0,0,0,0
+Female,OTH,55-64,28,2629488,added_sugar,tsp eq/day,FL,mrh-eq,28,4,55-64,1,Female,4,OTH,0,4,1,4,55,0,0,0,0,0
+Female,OTH,55-64,28,2629488,oil,g/day,CED,MJ,28,4,55-64,1,Female,4,OTH,0,4,1,4,55,0,0,0,0,0
+Female,OTH,55-64,28,2629488,oil,g/day,Food_price,USD,28,4,55-64,1,Female,4,OTH,0,4,1,4,55,0,0,0,0,0
+Female,OTH,55-64,28,2629488,oil,g/day,FL,mrh-eq,28,4,55-64,1,Female,4,OTH,0,4,1,4,55,0,0,0,0,0
+Female,OTH,55-64,28,2629488,sat_fat,g/day,CED,MJ,28,4,55-64,1,Female,4,OTH,0,4,1,4,55,0,0,0,0,0
+Female,OTH,55-64,28,2629488,sat_fat,g/day,Food_price,USD,28,4,55-64,1,Female,4,OTH,0,4,1,4,55,0,0,0,0,0
+Female,OTH,55-64,28,2629488,sat_fat,g/day,FL,mrh-eq,28,4,55-64,1,Female,4,OTH,0,4,1,4,55,0,0,0,0,0
+Female,OTH,65-74,36,1089947,added_sugar,tsp eq/day,CED,MJ,36,5,65-74,1,Female,4,OTH,0,5,1,4,65,0,0,0,0,0
+Female,OTH,65-74,36,1089947,added_sugar,tsp eq/day,Food_price,USD,36,5,65-74,1,Female,4,OTH,0,5,1,4,65,0,0,0,0,0
+Female,OTH,65-74,36,1089947,added_sugar,tsp eq/day,FL,mrh-eq,36,5,65-74,1,Female,4,OTH,0,5,1,4,65,0,0,0,0,0
+Female,OTH,65-74,36,1089947,oil,g/day,CED,MJ,36,5,65-74,1,Female,4,OTH,0,5,1,4,65,0,0,0,0,0
+Female,OTH,65-74,36,1089947,oil,g/day,Food_price,USD,36,5,65-74,1,Female,4,OTH,0,5,1,4,65,0,0,0,0,0
+Female,OTH,65-74,36,1089947,oil,g/day,FL,mrh-eq,36,5,65-74,1,Female,4,OTH,0,5,1,4,65,0,0,0,0,0
+Female,OTH,65-74,36,1089947,sat_fat,g/day,CED,MJ,36,5,65-74,1,Female,4,OTH,0,5,1,4,65,0,0,0,0,0
+Female,OTH,65-74,36,1089947,sat_fat,g/day,Food_price,USD,36,5,65-74,1,Female,4,OTH,0,5,1,4,65,0,0,0,0,0
+Female,OTH,65-74,36,1089947,sat_fat,g/day,FL,mrh-eq,36,5,65-74,1,Female,4,OTH,0,5,1,4,65,0,0,0,0,0
+Female,OTH,75+,44,689818,added_sugar,tsp eq/day,CED,MJ,44,6,75+,1,Female,4,OTH,0,6,1,4,75,0,0,0,0,0
+Female,OTH,75+,44,689818,added_sugar,tsp eq/day,Food_price,USD,44,6,75+,1,Female,4,OTH,0,6,1,4,75,0,0,0,0,0
+Female,OTH,75+,44,689818,added_sugar,tsp eq/day,FL,mrh-eq,44,6,75+,1,Female,4,OTH,0,6,1,4,75,0,0,0,0,0
+Female,OTH,75+,44,689818,oil,g/day,CED,MJ,44,6,75+,1,Female,4,OTH,0,6,1,4,75,0,0,0,0,0
+Female,OTH,75+,44,689818,oil,g/day,Food_price,USD,44,6,75+,1,Female,4,OTH,0,6,1,4,75,0,0,0,0,0
+Female,OTH,75+,44,689818,oil,g/day,FL,mrh-eq,44,6,75+,1,Female,4,OTH,0,6,1,4,75,0,0,0,0,0
+Female,OTH,75+,44,689818,sat_fat,g/day,CED,MJ,44,6,75+,1,Female,4,OTH,0,6,1,4,75,0,0,0,0,0
+Female,OTH,75+,44,689818,sat_fat,g/day,Food_price,USD,44,6,75+,1,Female,4,OTH,0,6,1,4,75,0,0,0,0,0
+Female,OTH,75+,44,689818,sat_fat,g/day,FL,mrh-eq,44,6,75+,1,Female,4,OTH,0,6,1,4,75,0,0,0,0,0
+Male,HIS,20-34,7,6886181,added_sugar,tsp eq/day,CED,MJ,7,1,20-34,2,Male,3,HIS,0,1,0,3,25,0,0,0,0,0
+Male,HIS,20-34,7,6886181,added_sugar,tsp eq/day,Food_price,USD,7,1,20-34,2,Male,3,HIS,0,1,0,3,25,0,0,0,0,0
+Male,HIS,20-34,7,6886181,added_sugar,tsp eq/day,FL,mrh-eq,7,1,20-34,2,Male,3,HIS,0,1,0,3,25,0,0,0,0,0
+Male,HIS,20-34,7,6886181,oil,g/day,CED,MJ,7,1,20-34,2,Male,3,HIS,0,1,0,3,25,0,0,0,0,0
+Male,HIS,20-34,7,6886181,oil,g/day,Food_price,USD,7,1,20-34,2,Male,3,HIS,0,1,0,3,25,0,0,0,0,0
+Male,HIS,20-34,7,6886181,oil,g/day,FL,mrh-eq,7,1,20-34,2,Male,3,HIS,0,1,0,3,25,0,0,0,0,0
+Male,HIS,20-34,7,6886181,sat_fat,g/day,CED,MJ,7,1,20-34,2,Male,3,HIS,0,1,0,3,25,0,0,0,0,0
+Male,HIS,20-34,7,6886181,sat_fat,g/day,Food_price,USD,7,1,20-34,2,Male,3,HIS,0,1,0,3,25,0,0,0,0,0
+Male,HIS,20-34,7,6886181,sat_fat,g/day,FL,mrh-eq,7,1,20-34,2,Male,3,HIS,0,1,0,3,25,0,0,0,0,0
+Male,HIS,35-44,15,4477083,added_sugar,tsp eq/day,CED,MJ,15,2,35-44,2,Male,3,HIS,0,2,0,3,35,0,0,0,0,0
+Male,HIS,35-44,15,4477083,added_sugar,tsp eq/day,Food_price,USD,15,2,35-44,2,Male,3,HIS,0,2,0,3,35,0,0,0,0,0
+Male,HIS,35-44,15,4477083,added_sugar,tsp eq/day,FL,mrh-eq,15,2,35-44,2,Male,3,HIS,0,2,0,3,35,0,0,0,0,0
+Male,HIS,35-44,15,4477083,oil,g/day,CED,MJ,15,2,35-44,2,Male,3,HIS,0,2,0,3,35,0,0,0,0,0
+Male,HIS,35-44,15,4477083,oil,g/day,Food_price,USD,15,2,35-44,2,Male,3,HIS,0,2,0,3,35,0,0,0,0,0
+Male,HIS,35-44,15,4477083,oil,g/day,FL,mrh-eq,15,2,35-44,2,Male,3,HIS,0,2,0,3,35,0,0,0,0,0
+Male,HIS,35-44,15,4477083,sat_fat,g/day,CED,MJ,15,2,35-44,2,Male,3,HIS,0,2,0,3,35,0,0,0,0,0
+Male,HIS,35-44,15,4477083,sat_fat,g/day,Food_price,USD,15,2,35-44,2,Male,3,HIS,0,2,0,3,35,0,0,0,0,0
+Male,HIS,35-44,15,4477083,sat_fat,g/day,FL,mrh-eq,15,2,35-44,2,Male,3,HIS,0,2,0,3,35,0,0,0,0,0
+Male,HIS,45-54,23,3207152,added_sugar,tsp eq/day,CED,MJ,23,3,45-54,2,Male,3,HIS,0,3,0,3,45,0,0,0,0,0
+Male,HIS,45-54,23,3207152,added_sugar,tsp eq/day,Food_price,USD,23,3,45-54,2,Male,3,HIS,0,3,0,3,45,0,0,0,0,0
+Male,HIS,45-54,23,3207152,added_sugar,tsp eq/day,FL,mrh-eq,23,3,45-54,2,Male,3,HIS,0,3,0,3,45,0,0,0,0,0
+Male,HIS,45-54,23,3207152,oil,g/day,CED,MJ,23,3,45-54,2,Male,3,HIS,0,3,0,3,45,0,0,0,0,0
+Male,HIS,45-54,23,3207152,oil,g/day,Food_price,USD,23,3,45-54,2,Male,3,HIS,0,3,0,3,45,0,0,0,0,0
+Male,HIS,45-54,23,3207152,oil,g/day,FL,mrh-eq,23,3,45-54,2,Male,3,HIS,0,3,0,3,45,0,0,0,0,0
+Male,HIS,45-54,23,3207152,sat_fat,g/day,CED,MJ,23,3,45-54,2,Male,3,HIS,0,3,0,3,45,0,0,0,0,0
+Male,HIS,45-54,23,3207152,sat_fat,g/day,Food_price,USD,23,3,45-54,2,Male,3,HIS,0,3,0,3,45,0,0,0,0,0
+Male,HIS,45-54,23,3207152,sat_fat,g/day,FL,mrh-eq,23,3,45-54,2,Male,3,HIS,0,3,0,3,45,0,0,0,0,0
+Male,HIS,55-64,31,2832735,added_sugar,tsp eq/day,CED,MJ,31,4,55-64,2,Male,3,HIS,0,4,0,3,55,0,0,0,0,0
+Male,HIS,55-64,31,2832735,added_sugar,tsp eq/day,Food_price,USD,31,4,55-64,2,Male,3,HIS,0,4,0,3,55,0,0,0,0,0
+Male,HIS,55-64,31,2832735,added_sugar,tsp eq/day,FL,mrh-eq,31,4,55-64,2,Male,3,HIS,0,4,0,3,55,0,0,0,0,0
+Male,HIS,55-64,31,2832735,oil,g/day,CED,MJ,31,4,55-64,2,Male,3,HIS,0,4,0,3,55,0,0,0,0,0
+Male,HIS,55-64,31,2832735,oil,g/day,Food_price,USD,31,4,55-64,2,Male,3,HIS,0,4,0,3,55,0,0,0,0,0
+Male,HIS,55-64,31,2832735,oil,g/day,FL,mrh-eq,31,4,55-64,2,Male,3,HIS,0,4,0,3,55,0,0,0,0,0
+Male,HIS,55-64,31,2832735,sat_fat,g/day,CED,MJ,31,4,55-64,2,Male,3,HIS,0,4,0,3,55,0,0,0,0,0
+Male,HIS,55-64,31,2832735,sat_fat,g/day,Food_price,USD,31,4,55-64,2,Male,3,HIS,0,4,0,3,55,0,0,0,0,0
+Male,HIS,55-64,31,2832735,sat_fat,g/day,FL,mrh-eq,31,4,55-64,2,Male,3,HIS,0,4,0,3,55,0,0,0,0,0
+Male,HIS,65-74,39,1168063,added_sugar,tsp eq/day,CED,MJ,39,5,65-74,2,Male,3,HIS,0,5,0,3,65,0,0,0,0,0
+Male,HIS,65-74,39,1168063,added_sugar,tsp eq/day,Food_price,USD,39,5,65-74,2,Male,3,HIS,0,5,0,3,65,0,0,0,0,0
+Male,HIS,65-74,39,1168063,added_sugar,tsp eq/day,FL,mrh-eq,39,5,65-74,2,Male,3,HIS,0,5,0,3,65,0,0,0,0,0
+Male,HIS,65-74,39,1168063,oil,g/day,CED,MJ,39,5,65-74,2,Male,3,HIS,0,5,0,3,65,0,0,0,0,0
+Male,HIS,65-74,39,1168063,oil,g/day,Food_price,USD,39,5,65-74,2,Male,3,HIS,0,5,0,3,65,0,0,0,0,0
+Male,HIS,65-74,39,1168063,oil,g/day,FL,mrh-eq,39,5,65-74,2,Male,3,HIS,0,5,0,3,65,0,0,0,0,0
+Male,HIS,65-74,39,1168063,sat_fat,g/day,CED,MJ,39,5,65-74,2,Male,3,HIS,0,5,0,3,65,0,0,0,0,0
+Male,HIS,65-74,39,1168063,sat_fat,g/day,Food_price,USD,39,5,65-74,2,Male,3,HIS,0,5,0,3,65,0,0,0,0,0
+Male,HIS,65-74,39,1168063,sat_fat,g/day,FL,mrh-eq,39,5,65-74,2,Male,3,HIS,0,5,0,3,65,0,0,0,0,0
+Male,HIS,75+,47,548525,added_sugar,tsp eq/day,CED,MJ,47,6,75+,2,Male,3,HIS,0,6,0,3,75,0,0,0,0,0
+Male,HIS,75+,47,548525,added_sugar,tsp eq/day,Food_price,USD,47,6,75+,2,Male,3,HIS,0,6,0,3,75,0,0,0,0,0
+Male,HIS,75+,47,548525,added_sugar,tsp eq/day,FL,mrh-eq,47,6,75+,2,Male,3,HIS,0,6,0,3,75,0,0,0,0,0
+Male,HIS,75+,47,548525,oil,g/day,CED,MJ,47,6,75+,2,Male,3,HIS,0,6,0,3,75,0,0,0,0,0
+Male,HIS,75+,47,548525,oil,g/day,Food_price,USD,47,6,75+,2,Male,3,HIS,0,6,0,3,75,0,0,0,0,0
+Male,HIS,75+,47,548525,oil,g/day,FL,mrh-eq,47,6,75+,2,Male,3,HIS,0,6,0,3,75,0,0,0,0,0
+Male,HIS,75+,47,548525,sat_fat,g/day,CED,MJ,47,6,75+,2,Male,3,HIS,0,6,0,3,75,0,0,0,0,0
+Male,HIS,75+,47,548525,sat_fat,g/day,Food_price,USD,47,6,75+,2,Male,3,HIS,0,6,0,3,75,0,0,0,0,0
+Male,HIS,75+,47,548525,sat_fat,g/day,FL,mrh-eq,47,6,75+,2,Male,3,HIS,0,6,0,3,75,0,0,0,0,0
+Male,NHB,20-34,6,4186659,added_sugar,tsp eq/day,CED,MJ,6,1,20-34,2,Male,2,NHB,0,1,0,2,25,0,0,0,0,0
+Male,NHB,20-34,6,4186659,added_sugar,tsp eq/day,Food_price,USD,6,1,20-34,2,Male,2,NHB,0,1,0,2,25,0,0,0,0,0
+Male,NHB,20-34,6,4186659,added_sugar,tsp eq/day,FL,mrh-eq,6,1,20-34,2,Male,2,NHB,0,1,0,2,25,0,0,0,0,0
+Male,NHB,20-34,6,4186659,oil,g/day,CED,MJ,6,1,20-34,2,Male,2,NHB,0,1,0,2,25,0,0,0,0,0
+Male,NHB,20-34,6,4186659,oil,g/day,Food_price,USD,6,1,20-34,2,Male,2,NHB,0,1,0,2,25,0,0,0,0,0
+Male,NHB,20-34,6,4186659,oil,g/day,FL,mrh-eq,6,1,20-34,2,Male,2,NHB,0,1,0,2,25,0,0,0,0,0
+Male,NHB,20-34,6,4186659,sat_fat,g/day,CED,MJ,6,1,20-34,2,Male,2,NHB,0,1,0,2,25,0,0,0,0,0
+Male,NHB,20-34,6,4186659,sat_fat,g/day,Food_price,USD,6,1,20-34,2,Male,2,NHB,0,1,0,2,25,0,0,0,0,0
+Male,NHB,20-34,6,4186659,sat_fat,g/day,FL,mrh-eq,6,1,20-34,2,Male,2,NHB,0,1,0,2,25,0,0,0,0,0
+Male,NHB,35-44,14,2373836,added_sugar,tsp eq/day,CED,MJ,14,2,35-44,2,Male,2,NHB,0,2,0,2,35,0,0,0,0,0
+Male,NHB,35-44,14,2373836,added_sugar,tsp eq/day,Food_price,USD,14,2,35-44,2,Male,2,NHB,0,2,0,2,35,0,0,0,0,0
+Male,NHB,35-44,14,2373836,added_sugar,tsp eq/day,FL,mrh-eq,14,2,35-44,2,Male,2,NHB,0,2,0,2,35,0,0,0,0,0
+Male,NHB,35-44,14,2373836,oil,g/day,CED,MJ,14,2,35-44,2,Male,2,NHB,0,2,0,2,35,0,0,0,0,0
+Male,NHB,35-44,14,2373836,oil,g/day,Food_price,USD,14,2,35-44,2,Male,2,NHB,0,2,0,2,35,0,0,0,0,0
+Male,NHB,35-44,14,2373836,oil,g/day,FL,mrh-eq,14,2,35-44,2,Male,2,NHB,0,2,0,2,35,0,0,0,0,0
+Male,NHB,35-44,14,2373836,sat_fat,g/day,CED,MJ,14,2,35-44,2,Male,2,NHB,0,2,0,2,35,0,0,0,0,0
+Male,NHB,35-44,14,2373836,sat_fat,g/day,Food_price,USD,14,2,35-44,2,Male,2,NHB,0,2,0,2,35,0,0,0,0,0
+Male,NHB,35-44,14,2373836,sat_fat,g/day,FL,mrh-eq,14,2,35-44,2,Male,2,NHB,0,2,0,2,35,0,0,0,0,0
+Male,NHB,45-54,22,2323392,added_sugar,tsp eq/day,CED,MJ,22,3,45-54,2,Male,2,NHB,0,3,0,2,45,0,0,0,0,0
+Male,NHB,45-54,22,2323392,added_sugar,tsp eq/day,Food_price,USD,22,3,45-54,2,Male,2,NHB,0,3,0,2,45,0,0,0,0,0
+Male,NHB,45-54,22,2323392,added_sugar,tsp eq/day,FL,mrh-eq,22,3,45-54,2,Male,2,NHB,0,3,0,2,45,0,0,0,0,0
+Male,NHB,45-54,22,2323392,oil,g/day,CED,MJ,22,3,45-54,2,Male,2,NHB,0,3,0,2,45,0,0,0,0,0
+Male,NHB,45-54,22,2323392,oil,g/day,Food_price,USD,22,3,45-54,2,Male,2,NHB,0,3,0,2,45,0,0,0,0,0
+Male,NHB,45-54,22,2323392,oil,g/day,FL,mrh-eq,22,3,45-54,2,Male,2,NHB,0,3,0,2,45,0,0,0,0,0
+Male,NHB,45-54,22,2323392,sat_fat,g/day,CED,MJ,22,3,45-54,2,Male,2,NHB,0,3,0,2,45,0,0,0,0,0
+Male,NHB,45-54,22,2323392,sat_fat,g/day,Food_price,USD,22,3,45-54,2,Male,2,NHB,0,3,0,2,45,0,0,0,0,0
+Male,NHB,45-54,22,2323392,sat_fat,g/day,FL,mrh-eq,22,3,45-54,2,Male,2,NHB,0,3,0,2,45,0,0,0,0,0
+Male,NHB,55-64,30,2050599,added_sugar,tsp eq/day,CED,MJ,30,4,55-64,2,Male,2,NHB,0,4,0,2,55,0,0,0,0,0
+Male,NHB,55-64,30,2050599,added_sugar,tsp eq/day,Food_price,USD,30,4,55-64,2,Male,2,NHB,0,4,0,2,55,0,0,0,0,0
+Male,NHB,55-64,30,2050599,added_sugar,tsp eq/day,FL,mrh-eq,30,4,55-64,2,Male,2,NHB,0,4,0,2,55,0,0,0,0,0
+Male,NHB,55-64,30,2050599,oil,g/day,CED,MJ,30,4,55-64,2,Male,2,NHB,0,4,0,2,55,0,0,0,0,0
+Male,NHB,55-64,30,2050599,oil,g/day,Food_price,USD,30,4,55-64,2,Male,2,NHB,0,4,0,2,55,0,0,0,0,0
+Male,NHB,55-64,30,2050599,oil,g/day,FL,mrh-eq,30,4,55-64,2,Male,2,NHB,0,4,0,2,55,0,0,0,0,0
+Male,NHB,55-64,30,2050599,sat_fat,g/day,CED,MJ,30,4,55-64,2,Male,2,NHB,0,4,0,2,55,0,0,0,0,0
+Male,NHB,55-64,30,2050599,sat_fat,g/day,Food_price,USD,30,4,55-64,2,Male,2,NHB,0,4,0,2,55,0,0,0,0,0
+Male,NHB,55-64,30,2050599,sat_fat,g/day,FL,mrh-eq,30,4,55-64,2,Male,2,NHB,0,4,0,2,55,0,0,0,0,0
+Male,NHB,65-74,38,1099252,added_sugar,tsp eq/day,CED,MJ,38,5,65-74,2,Male,2,NHB,0,5,0,2,65,0,0,0,0,0
+Male,NHB,65-74,38,1099252,added_sugar,tsp eq/day,Food_price,USD,38,5,65-74,2,Male,2,NHB,0,5,0,2,65,0,0,0,0,0
+Male,NHB,65-74,38,1099252,added_sugar,tsp eq/day,FL,mrh-eq,38,5,65-74,2,Male,2,NHB,0,5,0,2,65,0,0,0,0,0
+Male,NHB,65-74,38,1099252,oil,g/day,CED,MJ,38,5,65-74,2,Male,2,NHB,0,5,0,2,65,0,0,0,0,0
+Male,NHB,65-74,38,1099252,oil,g/day,Food_price,USD,38,5,65-74,2,Male,2,NHB,0,5,0,2,65,0,0,0,0,0
+Male,NHB,65-74,38,1099252,oil,g/day,FL,mrh-eq,38,5,65-74,2,Male,2,NHB,0,5,0,2,65,0,0,0,0,0
+Male,NHB,65-74,38,1099252,sat_fat,g/day,CED,MJ,38,5,65-74,2,Male,2,NHB,0,5,0,2,65,0,0,0,0,0
+Male,NHB,65-74,38,1099252,sat_fat,g/day,Food_price,USD,38,5,65-74,2,Male,2,NHB,0,5,0,2,65,0,0,0,0,0
+Male,NHB,65-74,38,1099252,sat_fat,g/day,FL,mrh-eq,38,5,65-74,2,Male,2,NHB,0,5,0,2,65,0,0,0,0,0
+Male,NHB,75+,46,670963,added_sugar,tsp eq/day,CED,MJ,46,6,75+,2,Male,2,NHB,0,6,0,2,75,0,0,0,0,0
+Male,NHB,75+,46,670963,added_sugar,tsp eq/day,Food_price,USD,46,6,75+,2,Male,2,NHB,0,6,0,2,75,0,0,0,0,0
+Male,NHB,75+,46,670963,added_sugar,tsp eq/day,FL,mrh-eq,46,6,75+,2,Male,2,NHB,0,6,0,2,75,0,0,0,0,0
+Male,NHB,75+,46,670963,oil,g/day,CED,MJ,46,6,75+,2,Male,2,NHB,0,6,0,2,75,0,0,0,0,0
+Male,NHB,75+,46,670963,oil,g/day,Food_price,USD,46,6,75+,2,Male,2,NHB,0,6,0,2,75,0,0,0,0,0
+Male,NHB,75+,46,670963,oil,g/day,FL,mrh-eq,46,6,75+,2,Male,2,NHB,0,6,0,2,75,0,0,0,0,0
+Male,NHB,75+,46,670963,sat_fat,g/day,CED,MJ,46,6,75+,2,Male,2,NHB,0,6,0,2,75,0,0,0,0,0
+Male,NHB,75+,46,670963,sat_fat,g/day,Food_price,USD,46,6,75+,2,Male,2,NHB,0,6,0,2,75,0,0,0,0,0
+Male,NHB,75+,46,670963,sat_fat,g/day,FL,mrh-eq,46,6,75+,2,Male,2,NHB,0,6,0,2,75,0,0,0,0,0
+Male,NHW,20-34,5,19295314,added_sugar,tsp eq/day,CED,MJ,5,1,20-34,2,Male,1,NHW,0,1,0,1,25,0,0,0,0,0
+Male,NHW,20-34,5,19295314,added_sugar,tsp eq/day,Food_price,USD,5,1,20-34,2,Male,1,NHW,0,1,0,1,25,0,0,0,0,0
+Male,NHW,20-34,5,19295314,added_sugar,tsp eq/day,FL,mrh-eq,5,1,20-34,2,Male,1,NHW,0,1,0,1,25,0,0,0,0,0
+Male,NHW,20-34,5,19295314,oil,g/day,CED,MJ,5,1,20-34,2,Male,1,NHW,0,1,0,1,25,0,0,0,0,0
+Male,NHW,20-34,5,19295314,oil,g/day,Food_price,USD,5,1,20-34,2,Male,1,NHW,0,1,0,1,25,0,0,0,0,0
+Male,NHW,20-34,5,19295314,oil,g/day,FL,mrh-eq,5,1,20-34,2,Male,1,NHW,0,1,0,1,25,0,0,0,0,0
+Male,NHW,20-34,5,19295314,sat_fat,g/day,CED,MJ,5,1,20-34,2,Male,1,NHW,0,1,0,1,25,0,0,0,0,0
+Male,NHW,20-34,5,19295314,sat_fat,g/day,Food_price,USD,5,1,20-34,2,Male,1,NHW,0,1,0,1,25,0,0,0,0,0
+Male,NHW,20-34,5,19295314,sat_fat,g/day,FL,mrh-eq,5,1,20-34,2,Male,1,NHW,0,1,0,1,25,0,0,0,0,0
+Male,NHW,35-44,13,10698668,added_sugar,tsp eq/day,CED,MJ,13,2,35-44,2,Male,1,NHW,0,2,0,1,35,0,0,0,0,0
+Male,NHW,35-44,13,10698668,added_sugar,tsp eq/day,Food_price,USD,13,2,35-44,2,Male,1,NHW,0,2,0,1,35,0,0,0,0,0
+Male,NHW,35-44,13,10698668,added_sugar,tsp eq/day,FL,mrh-eq,13,2,35-44,2,Male,1,NHW,0,2,0,1,35,0,0,0,0,0
+Male,NHW,35-44,13,10698668,oil,g/day,CED,MJ,13,2,35-44,2,Male,1,NHW,0,2,0,1,35,0,0,0,0,0
+Male,NHW,35-44,13,10698668,oil,g/day,Food_price,USD,13,2,35-44,2,Male,1,NHW,0,2,0,1,35,0,0,0,0,0
+Male,NHW,35-44,13,10698668,oil,g/day,FL,mrh-eq,13,2,35-44,2,Male,1,NHW,0,2,0,1,35,0,0,0,0,0
+Male,NHW,35-44,13,10698668,sat_fat,g/day,CED,MJ,13,2,35-44,2,Male,1,NHW,0,2,0,1,35,0,0,0,0,0
+Male,NHW,35-44,13,10698668,sat_fat,g/day,Food_price,USD,13,2,35-44,2,Male,1,NHW,0,2,0,1,35,0,0,0,0,0
+Male,NHW,35-44,13,10698668,sat_fat,g/day,FL,mrh-eq,13,2,35-44,2,Male,1,NHW,0,2,0,1,35,0,0,0,0,0
+Male,NHW,45-54,21,10622756,added_sugar,tsp eq/day,CED,MJ,21,3,45-54,2,Male,1,NHW,0,3,0,1,45,0,0,0,0,0
+Male,NHW,45-54,21,10622756,added_sugar,tsp eq/day,Food_price,USD,21,3,45-54,2,Male,1,NHW,0,3,0,1,45,0,0,0,0,0
+Male,NHW,45-54,21,10622756,added_sugar,tsp eq/day,FL,mrh-eq,21,3,45-54,2,Male,1,NHW,0,3,0,1,45,0,0,0,0,0
+Male,NHW,45-54,21,10622756,oil,g/day,CED,MJ,21,3,45-54,2,Male,1,NHW,0,3,0,1,45,0,0,0,0,0
+Male,NHW,45-54,21,10622756,oil,g/day,Food_price,USD,21,3,45-54,2,Male,1,NHW,0,3,0,1,45,0,0,0,0,0
+Male,NHW,45-54,21,10622756,oil,g/day,FL,mrh-eq,21,3,45-54,2,Male,1,NHW,0,3,0,1,45,0,0,0,0,0
+Male,NHW,45-54,21,10622756,sat_fat,g/day,CED,MJ,21,3,45-54,2,Male,1,NHW,0,3,0,1,45,0,0,0,0,0
+Male,NHW,45-54,21,10622756,sat_fat,g/day,Food_price,USD,21,3,45-54,2,Male,1,NHW,0,3,0,1,45,0,0,0,0,0
+Male,NHW,45-54,21,10622756,sat_fat,g/day,FL,mrh-eq,21,3,45-54,2,Male,1,NHW,0,3,0,1,45,0,0,0,0,0
+Male,NHW,55-64,29,15564860,added_sugar,tsp eq/day,CED,MJ,29,4,55-64,2,Male,1,NHW,0,4,0,1,55,0,0,0,0,0
+Male,NHW,55-64,29,15564860,added_sugar,tsp eq/day,Food_price,USD,29,4,55-64,2,Male,1,NHW,0,4,0,1,55,0,0,0,0,0
+Male,NHW,55-64,29,15564860,added_sugar,tsp eq/day,FL,mrh-eq,29,4,55-64,2,Male,1,NHW,0,4,0,1,55,0,0,0,0,0
+Male,NHW,55-64,29,15564860,oil,g/day,CED,MJ,29,4,55-64,2,Male,1,NHW,0,4,0,1,55,0,0,0,0,0
+Male,NHW,55-64,29,15564860,oil,g/day,Food_price,USD,29,4,55-64,2,Male,1,NHW,0,4,0,1,55,0,0,0,0,0
+Male,NHW,55-64,29,15564860,oil,g/day,FL,mrh-eq,29,4,55-64,2,Male,1,NHW,0,4,0,1,55,0,0,0,0,0
+Male,NHW,55-64,29,15564860,sat_fat,g/day,CED,MJ,29,4,55-64,2,Male,1,NHW,0,4,0,1,55,0,0,0,0,0
+Male,NHW,55-64,29,15564860,sat_fat,g/day,Food_price,USD,29,4,55-64,2,Male,1,NHW,0,4,0,1,55,0,0,0,0,0
+Male,NHW,55-64,29,15564860,sat_fat,g/day,FL,mrh-eq,29,4,55-64,2,Male,1,NHW,0,4,0,1,55,0,0,0,0,0
+Male,NHW,65-74,37,10345066,added_sugar,tsp eq/day,CED,MJ,37,5,65-74,2,Male,1,NHW,0,5,0,1,65,0,0,0,0,0
+Male,NHW,65-74,37,10345066,added_sugar,tsp eq/day,Food_price,USD,37,5,65-74,2,Male,1,NHW,0,5,0,1,65,0,0,0,0,0
+Male,NHW,65-74,37,10345066,added_sugar,tsp eq/day,FL,mrh-eq,37,5,65-74,2,Male,1,NHW,0,5,0,1,65,0,0,0,0,0
+Male,NHW,65-74,37,10345066,oil,g/day,CED,MJ,37,5,65-74,2,Male,1,NHW,0,5,0,1,65,0,0,0,0,0
+Male,NHW,65-74,37,10345066,oil,g/day,Food_price,USD,37,5,65-74,2,Male,1,NHW,0,5,0,1,65,0,0,0,0,0
+Male,NHW,65-74,37,10345066,oil,g/day,FL,mrh-eq,37,5,65-74,2,Male,1,NHW,0,5,0,1,65,0,0,0,0,0
+Male,NHW,65-74,37,10345066,sat_fat,g/day,CED,MJ,37,5,65-74,2,Male,1,NHW,0,5,0,1,65,0,0,0,0,0
+Male,NHW,65-74,37,10345066,sat_fat,g/day,Food_price,USD,37,5,65-74,2,Male,1,NHW,0,5,0,1,65,0,0,0,0,0
+Male,NHW,65-74,37,10345066,sat_fat,g/day,FL,mrh-eq,37,5,65-74,2,Male,1,NHW,0,5,0,1,65,0,0,0,0,0
+Male,NHW,75+,45,6831819,added_sugar,tsp eq/day,CED,MJ,45,6,75+,2,Male,1,NHW,0,6,0,1,75,0,0,0,0,0
+Male,NHW,75+,45,6831819,added_sugar,tsp eq/day,Food_price,USD,45,6,75+,2,Male,1,NHW,0,6,0,1,75,0,0,0,0,0
+Male,NHW,75+,45,6831819,added_sugar,tsp eq/day,FL,mrh-eq,45,6,75+,2,Male,1,NHW,0,6,0,1,75,0,0,0,0,0
+Male,NHW,75+,45,6831819,oil,g/day,CED,MJ,45,6,75+,2,Male,1,NHW,0,6,0,1,75,0,0,0,0,0
+Male,NHW,75+,45,6831819,oil,g/day,Food_price,USD,45,6,75+,2,Male,1,NHW,0,6,0,1,75,0,0,0,0,0
+Male,NHW,75+,45,6831819,oil,g/day,FL,mrh-eq,45,6,75+,2,Male,1,NHW,0,6,0,1,75,0,0,0,0,0
+Male,NHW,75+,45,6831819,sat_fat,g/day,CED,MJ,45,6,75+,2,Male,1,NHW,0,6,0,1,75,0,0,0,0,0
+Male,NHW,75+,45,6831819,sat_fat,g/day,Food_price,USD,45,6,75+,2,Male,1,NHW,0,6,0,1,75,0,0,0,0,0
+Male,NHW,75+,45,6831819,sat_fat,g/day,FL,mrh-eq,45,6,75+,2,Male,1,NHW,0,6,0,1,75,0,0,0,0,0
+Male,OTH,20-34,8,3785306,added_sugar,tsp eq/day,CED,MJ,8,1,20-34,2,Male,4,OTH,0,1,0,4,25,0,0,0,0,0
+Male,OTH,20-34,8,3785306,added_sugar,tsp eq/day,Food_price,USD,8,1,20-34,2,Male,4,OTH,0,1,0,4,25,0,0,0,0,0
+Male,OTH,20-34,8,3785306,added_sugar,tsp eq/day,FL,mrh-eq,8,1,20-34,2,Male,4,OTH,0,1,0,4,25,0,0,0,0,0
+Male,OTH,20-34,8,3785306,oil,g/day,CED,MJ,8,1,20-34,2,Male,4,OTH,0,1,0,4,25,0,0,0,0,0
+Male,OTH,20-34,8,3785306,oil,g/day,Food_price,USD,8,1,20-34,2,Male,4,OTH,0,1,0,4,25,0,0,0,0,0
+Male,OTH,20-34,8,3785306,oil,g/day,FL,mrh-eq,8,1,20-34,2,Male,4,OTH,0,1,0,4,25,0,0,0,0,0
+Male,OTH,20-34,8,3785306,sat_fat,g/day,CED,MJ,8,1,20-34,2,Male,4,OTH,0,1,0,4,25,0,0,0,0,0
+Male,OTH,20-34,8,3785306,sat_fat,g/day,Food_price,USD,8,1,20-34,2,Male,4,OTH,0,1,0,4,25,0,0,0,0,0
+Male,OTH,20-34,8,3785306,sat_fat,g/day,FL,mrh-eq,8,1,20-34,2,Male,4,OTH,0,1,0,4,25,0,0,0,0,0
+Male,OTH,35-44,16,2268050,added_sugar,tsp eq/day,CED,MJ,16,2,35-44,2,Male,4,OTH,0,2,0,4,35,0,0,0,0,0
+Male,OTH,35-44,16,2268050,added_sugar,tsp eq/day,Food_price,USD,16,2,35-44,2,Male,4,OTH,0,2,0,4,35,0,0,0,0,0
+Male,OTH,35-44,16,2268050,added_sugar,tsp eq/day,FL,mrh-eq,16,2,35-44,2,Male,4,OTH,0,2,0,4,35,0,0,0,0,0
+Male,OTH,35-44,16,2268050,oil,g/day,CED,MJ,16,2,35-44,2,Male,4,OTH,0,2,0,4,35,0,0,0,0,0
+Male,OTH,35-44,16,2268050,oil,g/day,Food_price,USD,16,2,35-44,2,Male,4,OTH,0,2,0,4,35,0,0,0,0,0
+Male,OTH,35-44,16,2268050,oil,g/day,FL,mrh-eq,16,2,35-44,2,Male,4,OTH,0,2,0,4,35,0,0,0,0,0
+Male,OTH,35-44,16,2268050,sat_fat,g/day,CED,MJ,16,2,35-44,2,Male,4,OTH,0,2,0,4,35,0,0,0,0,0
+Male,OTH,35-44,16,2268050,sat_fat,g/day,Food_price,USD,16,2,35-44,2,Male,4,OTH,0,2,0,4,35,0,0,0,0,0
+Male,OTH,35-44,16,2268050,sat_fat,g/day,FL,mrh-eq,16,2,35-44,2,Male,4,OTH,0,2,0,4,35,0,0,0,0,0
+Male,OTH,45-54,24,2807268,added_sugar,tsp eq/day,CED,MJ,24,3,45-54,2,Male,4,OTH,0,3,0,4,45,0,0,0,0,0
+Male,OTH,45-54,24,2807268,added_sugar,tsp eq/day,Food_price,USD,24,3,45-54,2,Male,4,OTH,0,3,0,4,45,0,0,0,0,0
+Male,OTH,45-54,24,2807268,added_sugar,tsp eq/day,FL,mrh-eq,24,3,45-54,2,Male,4,OTH,0,3,0,4,45,0,0,0,0,0
+Male,OTH,45-54,24,2807268,oil,g/day,CED,MJ,24,3,45-54,2,Male,4,OTH,0,3,0,4,45,0,0,0,0,0
+Male,OTH,45-54,24,2807268,oil,g/day,Food_price,USD,24,3,45-54,2,Male,4,OTH,0,3,0,4,45,0,0,0,0,0
+Male,OTH,45-54,24,2807268,oil,g/day,FL,mrh-eq,24,3,45-54,2,Male,4,OTH,0,3,0,4,45,0,0,0,0,0
+Male,OTH,45-54,24,2807268,sat_fat,g/day,CED,MJ,24,3,45-54,2,Male,4,OTH,0,3,0,4,45,0,0,0,0,0
+Male,OTH,45-54,24,2807268,sat_fat,g/day,Food_price,USD,24,3,45-54,2,Male,4,OTH,0,3,0,4,45,0,0,0,0,0
+Male,OTH,45-54,24,2807268,sat_fat,g/day,FL,mrh-eq,24,3,45-54,2,Male,4,OTH,0,3,0,4,45,0,0,0,0,0
+Male,OTH,55-64,32,2195076,added_sugar,tsp eq/day,CED,MJ,32,4,55-64,2,Male,4,OTH,0,4,0,4,55,0,0,0,0,0
+Male,OTH,55-64,32,2195076,added_sugar,tsp eq/day,Food_price,USD,32,4,55-64,2,Male,4,OTH,0,4,0,4,55,0,0,0,0,0
+Male,OTH,55-64,32,2195076,added_sugar,tsp eq/day,FL,mrh-eq,32,4,55-64,2,Male,4,OTH,0,4,0,4,55,0,0,0,0,0
+Male,OTH,55-64,32,2195076,oil,g/day,CED,MJ,32,4,55-64,2,Male,4,OTH,0,4,0,4,55,0,0,0,0,0
+Male,OTH,55-64,32,2195076,oil,g/day,Food_price,USD,32,4,55-64,2,Male,4,OTH,0,4,0,4,55,0,0,0,0,0
+Male,OTH,55-64,32,2195076,oil,g/day,FL,mrh-eq,32,4,55-64,2,Male,4,OTH,0,4,0,4,55,0,0,0,0,0
+Male,OTH,55-64,32,2195076,sat_fat,g/day,CED,MJ,32,4,55-64,2,Male,4,OTH,0,4,0,4,55,0,0,0,0,0
+Male,OTH,55-64,32,2195076,sat_fat,g/day,Food_price,USD,32,4,55-64,2,Male,4,OTH,0,4,0,4,55,0,0,0,0,0
+Male,OTH,55-64,32,2195076,sat_fat,g/day,FL,mrh-eq,32,4,55-64,2,Male,4,OTH,0,4,0,4,55,0,0,0,0,0
+Male,OTH,65-74,40,989548,added_sugar,tsp eq/day,CED,MJ,40,5,65-74,2,Male,4,OTH,0,5,0,4,65,0,0,0,0,0
+Male,OTH,65-74,40,989548,added_sugar,tsp eq/day,Food_price,USD,40,5,65-74,2,Male,4,OTH,0,5,0,4,65,0,0,0,0,0
+Male,OTH,65-74,40,989548,added_sugar,tsp eq/day,FL,mrh-eq,40,5,65-74,2,Male,4,OTH,0,5,0,4,65,0,0,0,0,0
+Male,OTH,65-74,40,989548,oil,g/day,CED,MJ,40,5,65-74,2,Male,4,OTH,0,5,0,4,65,0,0,0,0,0
+Male,OTH,65-74,40,989548,oil,g/day,Food_price,USD,40,5,65-74,2,Male,4,OTH,0,5,0,4,65,0,0,0,0,0
+Male,OTH,65-74,40,989548,oil,g/day,FL,mrh-eq,40,5,65-74,2,Male,4,OTH,0,5,0,4,65,0,0,0,0,0
+Male,OTH,65-74,40,989548,sat_fat,g/day,CED,MJ,40,5,65-74,2,Male,4,OTH,0,5,0,4,65,0,0,0,0,0
+Male,OTH,65-74,40,989548,sat_fat,g/day,Food_price,USD,40,5,65-74,2,Male,4,OTH,0,5,0,4,65,0,0,0,0,0
+Male,OTH,65-74,40,989548,sat_fat,g/day,FL,mrh-eq,40,5,65-74,2,Male,4,OTH,0,5,0,4,65,0,0,0,0,0
+Male,OTH,75+,48,638884,added_sugar,tsp eq/day,CED,MJ,48,6,75+,2,Male,4,OTH,0,6,0,4,75,0,0,0,0,0
+Male,OTH,75+,48,638884,added_sugar,tsp eq/day,Food_price,USD,48,6,75+,2,Male,4,OTH,0,6,0,4,75,0,0,0,0,0
+Male,OTH,75+,48,638884,added_sugar,tsp eq/day,FL,mrh-eq,48,6,75+,2,Male,4,OTH,0,6,0,4,75,0,0,0,0,0
+Male,OTH,75+,48,638884,oil,g/day,CED,MJ,48,6,75+,2,Male,4,OTH,0,6,0,4,75,0,0,0,0,0
+Male,OTH,75+,48,638884,oil,g/day,Food_price,USD,48,6,75+,2,Male,4,OTH,0,6,0,4,75,0,0,0,0,0
+Male,OTH,75+,48,638884,oil,g/day,FL,mrh-eq,48,6,75+,2,Male,4,OTH,0,6,0,4,75,0,0,0,0,0
+Male,OTH,75+,48,638884,sat_fat,g/day,CED,MJ,48,6,75+,2,Male,4,OTH,0,6,0,4,75,0,0,0,0,0
+Male,OTH,75+,48,638884,sat_fat,g/day,Food_price,USD,48,6,75+,2,Male,4,OTH,0,6,0,4,75,0,0,0,0,0
+Male,OTH,75+,48,638884,sat_fat,g/day,FL,mrh-eq,48,6,75+,2,Male,4,OTH,0,6,0,4,75,0,0,0,0,0

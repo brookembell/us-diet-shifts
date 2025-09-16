@@ -1,0 +1,13 @@
+race_gp,outcome,outcome_unit,X1,X2,X3
+NHW,CED,MJ,0,0,0
+NHW,Food_price,USD,0,0,0
+NHW,FL,mrh-eq,0,0,0
+NHB,CED,MJ,0,0,0
+NHB,Food_price,USD,0,0,0
+NHB,FL,mrh-eq,0,0,0
+HIS,CED,MJ,0,0,0
+HIS,Food_price,USD,0,0,0
+HIS,FL,mrh-eq,0,0,0
+OTH,CED,MJ,0,0,0
+OTH,Food_price,USD,0,0,0
+OTH,FL,mrh-eq,0,0,0

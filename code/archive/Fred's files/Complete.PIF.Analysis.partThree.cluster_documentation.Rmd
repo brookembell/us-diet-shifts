@@ -1,0 +1,102 @@
+---
+title: "Complete.PIF.Analysis.partThree.cluster_documentation"
+author: "Fred Cudhea"
+date: "2025-05-19"
+output: html_document
+---
+
+<style>
+pre {
+  overflow-x: auto;
+}
+pre code {
+  word-wrap: normal;
+  white-space: pre;
+}
+</style>
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+This is documentation for "part 3" of the CRA code, which is for calculating the joint PIFs (attributable mort/incidence of multiple concurrent counterfactual exposures).
+
+First, some obsolete code: a function to capitalize every first letter of a word (Used to be used to convert variable names from lower case to upper case. No longer needed since variable names should be consistent at this point in the code now). 
+
+```{r capwords}
+#Complete.PAF.Analysis.partThree.r
+
+##Capitlizes every first letter of a word
+capwords <- function(s, strict = FALSE) {
+  cap <- function(s) paste(toupper(substring(s, 1, 1)),
+                           {s <- substring(s, 2); if(strict) tolower(s) else s},
+                           sep = "", collapse = " " )
+  sapply(strsplit(s, split = " "), cap, USE.NAMES = !is.null(names(s)))
+}
+
+#setwd(paste("C:\\Users\\jliu28\\Cancer R01\\CRA modelling_Fangfang\\Independent effect\\SSB effect" , sep="")) ####gms
+#setwd(paste("C:\\Users\\jliu28\\Cancer R01\\CRA_FF\\Incidence" , sep="")) ####gms
+#setwd(paste("C:\\Users\\Fred Cudhea\\Box Sync\\Juju and Fred\\Incidence Code" , sep="")) ####gms
+#setwd(paste("C:\\Users\\jliu28\\Box Sync\\Juju and Fred\\Incidence Code" , sep="")) 
+#setwd(paste("/Users/fcudhe01/Box Sync/Juju and Fred/Incidence Code" , sep="")) 
+#setwd("C:\\Users\\fcudhe01\\Box Sync\\new life\\Cancer-CRA-organized\\outputs")
+#setwd("Outputs")
+#setwd("C:\\Users\\fcudhe01\\Box\\lasting_aim_3\\data\\out\\example_cra")
+
+#setwd("C:\\Users\\fcudhe01\\Box\\lasting_aim_3\\model development\\data_new\\out")
+
+#setwd(paste("/cluster/home/f/c/fcudhe01/CRA/mort", year.vec.string, "us/", subfolder ,sep=""))
+```
+
+Define covar.vec.string (string vector of covariates of interest) so we read in the correct file (defining n.covar is obsolete).
+
+```{r define_covar.vec.string, echo=FALSE}
+#need to redefine covar.vec.string and n.covar since it changes when we do the joint PIFs (since the code for joint PAFs is for all 
+#possible covar.vec.strings)
+covar.vec.string<-paste(covar.vec, sep="", collapse="")
+n.covar<-length(covar.vec)
+if(identical(covar.vec, c("Overall")))
+  n.covar<-0
+
+# PAF.draws<-read.csv(file=paste(output_location, diet_pattern, "/all.PIFs_", year.vec.string, "_", covar.vec.string, "_", diet_pattern, ".csv", sep=""),
+#                     header=T)
+```
+
+Next, we'll define "calc.joint.PAFs", the function that is actually going to calculate the joint PIFs. It reads in a PIF simulations for a given dietary pattern, and calculates joint PIFs for the defined strata of interest. We'll break it down chunk by chunk.
+```{r start_calc.joint.PAFs, echo=FALSE}
+# REVISED FUNCTIONS BELOW
+
+# caclulates joint PAFs by specified strata (but should only choose the fully stratified option)
+calc.joint.PAFs<-function(strata)
+{
+```
+
+Read in PAF simulation file of interest. Note that the function itself only reads in strata, so output.location, diet_pattern, year.vec.string, and covar.vec.string need to be defined before calling the function.
+```{r read_in_PAF.draws, echo=FALSE}
+  PAF.draws<-read.csv(file=paste(output_location, diet_pattern, "/all.PIFs_", year.vec.string, "_", covar.vec.string, "_", diet_pattern, ".csv", sep=""),
+                      header=T)
+```
+
+If strata of interest includes one of the 4 ways of classifying disease (disease_type, disease_type1, disease_type2, disease_type3) then we get rid of the others from PAF.draws. These four are not mutually exclusive, they are different ways to the disease. Therefore, it doesn't make sense to stratify by more than one of these (Code won't work unless you take out the ones you don't use).
+```{r remove_unnecessary_disease_types}
+  # if contains disease type, then get rid of others
+  if("disease_type" %in% strata){
+    PAF.draws <- PAF.draws %>% select(-c("disease_type1", "disease_type2", "disease_type3"))
+  } else if("disease_type1" %in% strata){
+    PAF.draws <- PAF.draws %>% select(-c("disease_type", "disease_type2", "disease_type3"))
+  } else if("disease_type2" %in% strata){
+    PAF.draws <- PAF.draws %>% select(-c("disease_type", "disease_type1", "disease_type3"))
+  } else if("disease_type3" %in% strata){
+    PAF.draws <- PAF.draws %>% select(-c("disease_type", "disease_type1", "disease_type2"))
+  } else{
+    PAF.draws <- PAF.draws %>% select(-c("disease_type1", "disease_type2", "disease_type3"))
+  }
+```
+
+Define number of sims (by counting up number of variables that start with "V")
+```{r define_n.draws}
+  n.draws<-length(grep(pattern="V", x=names(PAF.draws)))
+  #PAF.draws<-PAF.draws[as.character(PAF.draws$riskfactor)!="pufa_c" & as.character(PAF.draws$riskfactor)!="sfat",]
+```
+

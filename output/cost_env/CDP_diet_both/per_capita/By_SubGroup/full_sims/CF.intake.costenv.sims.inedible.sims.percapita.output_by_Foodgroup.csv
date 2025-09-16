@@ -1,0 +1,10 @@
+Foodgroup,outcome,outcome_unit,X1,X2,X3
+added_sugar,CED,MJ,0,0,0
+added_sugar,Food_price,USD,0,0,0
+added_sugar,FL,mrh-eq,0,0,0
+oil,CED,MJ,0,0,0
+oil,Food_price,USD,0,0,0
+oil,FL,mrh-eq,0,0,0
+sat_fat,CED,MJ,0,0,0
+sat_fat,Food_price,USD,0,0,0
+sat_fat,FL,mrh-eq,0,0,0

@@ -1,0 +1,13 @@
+"pathway","disease_type1","riskfactor","V1","V2","V3"
+"direct","CMD","dairy_tot",0,0,0
+"medBMI","CMD","dairy_tot",0,0,0
+"medSBP","CMD","dairy_tot",0,0,0
+"direct","Cancer","dairy_tot",11345.5751673006,10497.9604363509,11013.1929746326
+"medBMI","Cancer","dairy_tot",0,0,0
+"medSBP","Cancer","dairy_tot",0,0,0
+"direct","CMD","leg_tot",12923.0886198358,12929.5753866687,13025.4030998628
+"medBMI","CMD","leg_tot",12961.7524564488,12832.1142576753,12716.6992270148
+"medSBP","CMD","leg_tot",0,0,0
+"direct","Cancer","leg_tot",2309.95217070199,2474.29045461598,2375.22924186627
+"medBMI","Cancer","leg_tot",5691.95883772631,5409.77900280779,5607.23086033096
+"medSBP","Cancer","leg_tot",0,0,0

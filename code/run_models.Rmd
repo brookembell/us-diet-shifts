@@ -1,0 +1,924 @@
+---
+title: "Run the models"
+author: "Fred Cudhea & Brooke Bell"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: html_document
+---
+
+<style>
+pre {
+  overflow-x: auto;
+}
+pre code {
+  word-wrap: normal;
+  white-space: pre;
+}
+</style>
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(echo = TRUE,
+                      results = "hide", 
+                      message = FALSE,
+                      warning = TRUE)
+
+```
+
+## Set up
+
+First, we clean the environment, load necessary R packages, set up pathways for code and input files.
+
+```{r initial_setup}
+
+rm(list = ls(all = TRUE)) # remove all data from memory
+
+# load packages
+library(tidyverse)
+library(data.table)
+library(foreach)
+library(doParallel)
+
+# File location
+file_location = "data/"
+
+# Code location
+code_location = "code/"
+
+# Set the seed
+set.seed(3172023)
+
+# set data version date
+version.date <- "2025-09-11"
+
+```
+
+Start clock so you can get an idea of how long the code takes to run.
+
+```{r startclock}
+
+start_time <- Sys.time()
+
+```
+
+`year.vec.string` allows us to include the specified years of interest as part of the output names. Note that this is strictly for naming output files. The code itself only uses input files that correspond to a particular time point. It does not calculate estimates for multiple time points nor should you be feeding it input files with multiple time points. If you are doing analyses for multiple time points, the easiest way to do it is to have input files for each time point of interest, and then the rerunning the code, making sure to change "year.vec" here so that the output file names differ by year. 
+
+```{r year.vec}
+
+year.vec <- 2015
+
+if(length(year.vec) > 1) {
+  
+  year.vec.string <- paste(year.vec[1], "-", year.vec[length(year.vec)], sep = "")
+  
+} else {
+  
+  year.vec.string <- as.character(year.vec)
+  
+  }
+
+```
+
+Set number of simulations to 1,000.
+
+```{r nsims}
+
+# Number of simulations
+# Set to 3 for testing
+
+nsim1 <- 3
+n.sims <- nsim1
+
+```
+
+Specify the demographic subgroups of interest. The names used for the subgroups should match what is used in the primary input file. 
+
+For the purposes of these documents let's formalize some of the terms to reduce confusion. "Subgroup" will denote the 48 unique age/sex/race combinations that we divide the population into. The "strata" are the variables used to divide up a data set. For example, the 48 subgroups are a result of dividing up the population using three strata: age, sex, race. Age/sex/race is one example of a "strata combination".
+
+```{r define_subgroups}
+
+# Covariates vector
+covar.vec <- c("Age", "Sex", "Race") # Don't mess with the order age, sex, race
+covar.vec.string <- paste(covar.vec, sep = "", collapse = "")
+n.covar <- length(covar.vec)
+
+```
+
+Identify all dietary patterns of interest here. Names should match "diet_pattern" column in the input data file (input_data.csv).
+
+```{r dietpatterns}
+
+# Vector of dietary patterns
+diet.vec <- c("HUS",
+              # "Med",              
+              # "Veg",
+              # "Vegan", 
+              "CDP"
+              )
+
+```
+
+Identify all environmental, economic, social pillar outcomes.
+
+```{r econ.outcomes.vec}
+
+econ.outcomes.vec <- c("CED", # environmental
+                     # "GHG", # environmental
+                     # "WATER", # environmental
+                     "Food_price", # economic
+                     "FL" # social
+                     )
+
+# don't change this
+all.outcomes.vec <- c(
+  "CED",
+  "GHG",
+  "WATER",
+  "BLUEWATER",
+  "Food_price",
+  "FL"
+  )
+
+```
+
+## Environmental, Economic, and Social Models
+
+Create vectors to store outcomes.
+
+```{r create_outcomes_vec}
+
+n.econ.outcomes <- length(econ.outcomes.vec)
+econ.outcomes.vec.mn <- paste("Mean", econ.outcomes.vec,  sep = "_")
+econ.outcomes.vec.se <- paste("SE", econ.outcomes.vec, sep = "_")
+econ.current.inedible.p.mn <- paste(econ.outcomes.vec, "_inedible_p", sep = "")
+econ.current.inedible.p.se <- paste(econ.outcomes.vec, "_inedible_p_se", sep = "")
+econ.counterfactual.inedible.p.mn <- paste("CF_",econ.outcomes.vec, "_inedible_p", sep = "")
+econ.counterfactual.inedible.p.se <- paste("CF_",econ.outcomes.vec, "_inedible_p_se", sep = "")
+econ.current.foodwaste.p.mn <- paste(econ.outcomes.vec, "_foodwaste_p", sep = "")
+econ.current.foodwaste.p.se <- paste(econ.outcomes.vec, "_foodwaste_p_se", sep = "")
+econ.counterfactual.foodwaste.p.mn <- paste("CF_",econ.outcomes.vec, "_foodwaste_p", sep = "")
+econ.counterfactual.foodwaste.p.se <- paste("CF_",econ.outcomes.vec, "_foodwaste_p_se", sep = "")
+num.econ.outcomes <- length(econ.outcomes.vec.mn)
+econ.outcomes.substitution.vec.mn <- paste("Mean_substitution", econ.outcomes.vec, sep = "_")
+econ.outcomes.substitution.vec.se <- paste("SE_substitution", econ.outcomes.vec, sep = "_")
+
+```
+
+List dietary vectors of interest here. Certain dietary factors are only of interest for environment/social (FCID-level), others only for cost (FNDDS-level). But all dietary factors of interest in those three pillars should be listed here. Names should match what is used in the data input file.
+
+```{r list_dietary_factors}
+
+# Dietary factors vector (for cost/env/labor)
+rfvec_costenv <- c(# Dairy
+               #     "dairy_tot", # cost
+               #     "dairy_cow", # enviro
+               #     "dairy_soy", # enviro
+               # 
+               # "gr_whole",
+               # "gr_refined",
+               # "pf_egg",
+               # 
+               # # Meat
+               # "pf_pm", # cost
+               # "pf_redm", # cost
+               # "pf_redm_tot", # enviro
+               # "pf_poultry", # cost
+               # "pf_poultry_tot", # enviro
+               # 
+               # "pf_seafood",
+               # "pf_ns",
+               # "leg_tot",
+               # 
+               # "veg_dg",
+               # "veg_ro",
+               # "veg_oth",
+               # "veg_sta",
+               # 
+               # "fruit_exc_juice",
+               # "fruit_juice",
+
+               "added_sugar",
+               "oil",
+               "sat_fat")
+
+```
+
+Import data input file and rename some variables, subset for cost/env/labor analysis.
+
+```{r import_primary_data_file}
+
+# Import exposure file
+primary_input <- read_csv(file = paste0(file_location, "input_data_", version.date, ".csv"))
+
+# rename vars
+primary_input1 <- primary_input %>% 
+    mutate(population = Population_size,
+           subgroup = subgroup_id,
+           # fix veg name
+           diet_pattern = case_match(diet_pattern,
+                                      "Vegetarian" ~ "Veg",
+                                      .default = diet_pattern))
+
+# subset to only include dietary factors for cost/env analysis
+primary_input_costenv <- subset(primary_input1, Foodgroup %in% rfvec_costenv)
+
+```
+
+Create lists to store input and locations for output (by diet pattern and grocery/non-grocery). Each element of a list corresponds to a particular dietary pattern and "datatype" (grocery vs non-grocery).  
+
+```{r input_and_outpot_loc_lists}
+
+# Create some more vectors
+costs_inputs.vec <- list()
+costs_output_loc.vec <- list()
+
+# debug
+# i=1
+for (i in 1:length(diet.vec)) {
+
+  costs_inputs.vec[[paste0(diet.vec[[i]], "_fah")]] <- 
+    subset(primary_input_costenv, diet_pattern == diet.vec[[i]] & datatype == "Grocery")
+  
+  costs_inputs.vec[[paste0(diet.vec[[i]], "_fafh")]] <- 
+    subset(primary_input_costenv, diet_pattern == diet.vec[[i]] & datatype == "Non-Grocery")
+
+  # Output locations vector
+  costs_output_loc.vec[[paste0(diet.vec[[i]], "_fah")]] <- paste0(diet.vec[[i]], "_diet_Gro")
+  costs_output_loc.vec[[paste0(diet.vec[[i]], "_fafh")]] <- paste0(diet.vec[[i]], "_diet_Oth")
+
+}
+
+```
+
+Read in subgroup-specific population numbers.
+
+```{r pop}
+
+# Population
+pop <- costs_inputs.vec[[1]] %>% 
+  mutate(Sex = as.character(Sex)) %>%
+  filter(datatype == "Grocery") %>%
+  select(subgroup, Age, Age_label, Sex, Sex_label, Race, Race_label, population) %>%
+  distinct() %>%
+  mutate(population.se = 0) %>%
+  filter(!(is.na(subgroup))) %>% 
+  arrange(subgroup)
+
+```
+
+Next, simulate distribution for total population numbers (in our cases, since population standard errors are set to 0, we're just repeating the same pop count for each simulation).
+
+```{r presim_pop}
+
+# Pre-simulate mortality/incidence numbers, to be used in CRA simulations, as well for calculating reverse-engineered PAFs
+# Also, pre-simulate total population numbers
+
+source(paste0(code_location, "source_code/presimulate_pop_draws.r"))
+
+```
+
+Run the cost/env/social simulations via a for loop (for each pair of dietary pattern and grocery/non-grocery combo)
+
+```{r run_model}
+
+for(k in 1:length(costs_inputs.vec)) {
+
+  print(k)
+  
+  source(paste0(code_location, "source_code/calculate_change.r"))
+  
+}
+
+```
+
+Create vectors used to name output files and used to define variable names in summary output files.
+
+```{r output_names}
+
+output.type.vec.sims <- c("costenv.sims.granular", 
+                          "substitution.costenv.sims.granular", 
+                          "combined.costenvs.sims.granular",
+                          "delta.costenv.sims.granular",
+                          "combined.costenvs.sims.granular.consumed",
+                          "combined.costenvs.sims.granular.unconsumed",
+                          "current.intake.costenv.sims.granular", 
+                          "CF.costenv.intake.sims.granular", 
+                          "current.intake.costenv.sims.granular.consumed",
+                          "CF.intake.costenv.sims.granular.consumed", 
+                          "current.intake.costenv.sims.granular.unconsumed", 
+                          "CF.intake.costenv.sims.granular.unconsumed",
+                          "costenv.sims.granular.inedible", 
+                          "costenv.sims.granular.wasted",
+                          "current.intake.costenv.sims.granular.inedible", 
+                          "CF.intake.costenv.sims.granular.inedible",
+                          "current.intake.costenv.sims.granular.wasted", 
+                          "CF.intake.costenv.sims.granular.wasted"
+                          )
+
+output.type.vec.summary <- c("costenv.summary.granular", 
+                             "substitution.costenv.summary.granular", 
+                             "combined.costenvs.summary.granular",
+                             "delta.costenv.summary.granular",
+                             "combined.costenvs.summary.granular.consumed",
+                             "combined.costenvs.summary.granular.unconsumed",
+                             "current.intake.costenv.summary.granular", 
+                             "CF.costenv.intake.summary.granular", 
+                             "current.intake.costenv.summary.granular.consumed",
+                             "CF.intake.costenv.summary.granular.consumed", 
+                             "current.intake.costenv.summary.granular.unconsumed", 
+                             "CF.intake.costenv.summary.granular.unconsumed",
+                             "costenv.summary.granular.inedible", 
+                             "costenv.summary.granular.wasted",
+                             "current.intake.costenv.summary.granular.inedible", 
+                             "CF.intake.costenv.summary.granular.inedible",
+                             "current.intake.costenv.summary.granular.wasted", 
+                             "CF.intake.costenv.summary.granular.wasted"
+                             )
+
+output.type.vec.sims.bystrata <- c("costenv.sims", 
+                                   "substitution.costenv.sims", 
+                                   "combined.costenvs.sims",
+                                   "delta.costenv.sims",
+                                   "combined.costenvs.sims.consumed",
+                                   "combined.costenvs.sims.unconsumed",
+                                   "current.intake.costenv.sims", 
+                                   "CF.costenv.intake.sims", 
+                                   "current.intake.costenv.sims.consumed",
+                                   "CF.intake.costenv.sims.consumed", 
+                                   "current.intake.costenv.sims.unconsumed", 
+                                   "CF.intake.costenv.sims.unconsumed",
+                                   "inedible.costenv.sims", 
+                                   "wasted.costenv.sims",
+                                   "current.intake.costenv.sims.inedible", 
+                                   "CF.intake.costenv.sims.inedible",
+                                   "current.intake.costenv.sims.wasted", 
+                                   "CF.intake.costenv.sims.wasted"
+                                   )
+
+output.type.vec.summary.bystrata <- c("costenv.summary", 
+                                      "substitution.costenv.summary", 
+                                      "combined.costenvs.summary",
+                                      "delta.costenv.summary",
+                                      "combined.costenvs.summary.consumed",
+                                      "combined.costenvs.summary.unconsumed",
+                                      "current.intake.costenv.summary", 
+                                      "CF.costenv.intake.summary", 
+                                      "current.intake.costenv.summary.consumed",
+                                      "CF.intake.costenv.summary.consumed", 
+                                      "current.intake.costenv.summary.unconsumed", 
+                                      "CF.intake.costenv.summary.unconsumed",
+                                      "inedible.costenv.summary", 
+                                      "wasted.costenv.summary",
+                                      "current.intake.costenv.summary.inedible", 
+                                      "CF.intake.costenv.summary.inedible",
+                                      "current.intake.costenv.summary.wasted", 
+                                      "CF.intake.costenv.summary.wasted"
+                                      )
+
+LB.name.vec <- c("impact_lower_bound (2.5th percentile)",
+                 "substitution_impact_lower_bound (2.5th percentile)",
+                 "combined_impact_lower_bound (2.5th percentile)",
+                 
+                 "delta_lower_bound (2.5th percentile)",
+                 "combined_consumed_impact_lower_bound (2.5th percentile)",
+                 "combined_unconsumed_impact_lower_bound (2.5th percentile)",
+                 
+                 "current_intake_impact_lower_bound (2.5th percentile)",
+                 "CF_intake_impact_lower_bound (2.5th percentile)",
+                 "current_intake_consumed_impact_lower_bound (2.5th percentile)",
+                 "CF_intake_consumed_impact_lower_bound (2.5th percentile)",
+                 "current_intake_unconsumed_impact_lower_bound (2.5th percentile)",
+                 "CF_intake_unconsumed_impact_lower_bound (2.5th percentile)",
+                 
+                 "inedible_impact_lower_bound (2.5th percentile)",
+                 "wasted_impact_lower_bound (2.5th percentile)",
+                 "current_intake_inedible_impact_lower_bound (2.5th percentile)",
+                 "CF_intake_inedible_impact_lower_bound (2.5th percentile)",
+                 "current_intake_wasted_impact_lower_bound (2.5th percentile)",
+                 "CF_intake_wasted_impact_lower_bound (2.5th percentile)"
+                 )
+
+median.name.vec <- c("impact_median",
+                     "substitution_impact_median",
+                     "combined_impact_median",
+                     
+                     "delta_median",
+                     
+                     "combined_consumed_impact_median",
+                     "combined_unconsumed_impact_median",
+                     
+                     "current_intake_impact_median",
+                     "CF_intake_impact_median",
+                     "current_intake_consumed_impact_median",
+                     "CF_intake_consumed_impact_median",
+                     "current_intake_unconsumed_impact_median",
+                     "CF_intake_unconsumed_impact_median",
+                     
+                     "inedible_impact_median",
+                     "wasted_impact_median",
+                     "current_intake_inedible_impact_median",
+                     "CF_intake_inedible_impact_median",
+                     "current_intake_wasted_impact_median",
+                     "CF_intake_wasted_impact_median"
+                     )
+
+UB.name.vec <- c("impact_upper_bound (97.5th percentile)",
+                 "substitution_impact_upper_bound  (97.5th percentile)",
+                 "combined_impact_upper_bound  (97.5th percentile)",
+                 
+                 "delta_upper_bound (97.5th percentile)",
+                 
+                 "combined_consumed_upper_bound (97.5th percentile)",
+                 "combined_unconsumed_upper_bound (97.5th percentile)",
+                 
+                 "current_intake_impact_upper_bound (97.5th percentile)",
+                 "CF_intake_impact_upper_bound  (97.5th percentile)",
+                 "current_intake_consumed_upper_bound (97.5th percentile)",
+                 "CF_intake_consumed_impact_upper_bound (97.5th percentile)",
+                 "current_intake_unconsumed_upper_bound (97.5th percentile)",
+                 "CF_intake_unconsumed_impact_upper_bound (97.5th percentile)",
+                 
+                 "inedible_upper_bound (97.5th percentile)",
+                 "wasted_unconsumed_upper_bound (97.5th percentile)",
+                 "current_intake_inedible_upper_bound (97.5th percentile)",
+                 "CF_intake_inedible_impact_upper_bound (97.5th percentile)",
+                 "current_intake_wasted_upper_bound (97.5th percentile)",
+                 "CF_intake_unconsumed_wasted_upper_bound (97.5th percentile)"
+                 )
+
+mean.name.vec <- c("impact_mean",
+                   "substitution_impact_mean",
+                   "combined_impact_mean",
+
+                   "delta_mean",
+
+                   "combined_consumed_impact_mean",
+                   "combined_unconsumed_impact_mean",
+
+                   "current_intake_impact_mean",
+                   "CF_intake_impact_mean",
+                   "current_intake_consumed_impact_mean",
+                   "CF_intake_consumed_impact_mean",
+                   "current_intake_unconsumed_impact_mean",
+                   "CF_intake_unconsumed_impact_mean",
+                 
+                   "inedible_consumed_impact_mean",
+                   "wasted_unconsumed_impact_mean",
+                   "current_intake_inedible_impact_mean",
+                   "CF_intake_inedible_impact_mean",
+                   "current_intake_wasted_impact_mean",
+                   "CF_intake_wasted_impact_mean"
+                   )
+
+SD.name.vec <- c("impact_SD",
+                 "substitution_impact_SD",
+                 "combined_impact_SD",
+                 
+                 "delta_SD",
+
+                 "combined_consumed_impact_SD",
+                 "combined_unconsumed_impact_SD",
+
+                 "current_intake_impact_SD",
+                 "CF_intake_impact_SD",
+                 "current_intake_consumed_impact_SD",
+                 "CF_intake_consumed_impact_SD",
+                 "current_intake_unconsumed_impact_SD",
+                 "CF_intake_unconsumed_impact_SD",
+                 
+                 "inedible_impact_SD",
+                 "wasted_impact_SD",
+                 "current_intake_inedible_impact_SD",
+                 "CF_intake_inedible_impact_SD",
+                 "current_intake_wasted_impact_SD",
+                 "CF_intake_wasted_impact_SD"
+                 )
+
+```
+
+Create function to revert list structure. 
+
+```{r revert_list_structure}
+
+revert_list_str_4 <- function(ls) {
+  # get sub-elements in same order
+  x <- lapply(ls, `[`, names(ls[[1]]))
+  # stack and reslice
+  apply(do.call(rbind, x), 2, as.list)
+}
+
+```
+
+For each dietary pattern and grocery/non-grocery combo, for each output type (specified in output.type.vec.sims), combine grocery and non-grocery output and save, and, for each strata combination, save summary output files (both absolute and per-capita).   
+
+First, start the loop (through the dietary patterns). For each dietary pattern we create lists (summary.list and summary.list.percapita) to store summary stats for that dietary pattern. Note that each element of the list is itself a list containing summaries for all strata combos for a given output type. 
+
+Within ll loop, loop through the different output types and extract sims and summary stats. Combine food at home and food away from home output and populate the lists. See documentation for "combine.FAH.FAFH.r" for details.
+
+```{r fah_fafh}
+
+# start ll loop
+for(ll in 1:length(diet.vec)) {
+  
+  diet <- diet.vec[ll]
+
+  # each element of the list is itself a list containing summaries for all 
+  # strata combos, for output type j
+  summary.list <- list() 
+  summary.list.percapita <- list()
+  
+  # start k loop
+  for(k in 1:length(output.type.vec.sims)) {
+    
+    summary.list[[k]] <- list()
+    summary.list.percapita[[k]] <- list()
+    
+    output.type.sims <- output.type.vec.sims[k]
+    output.type.summary <- output.type.vec.summary[k]
+    output.type.sims.bystrata <- output.type.vec.sims.bystrata[k]
+    output.type.summary.bystrata <- output.type.vec.summary.bystrata[k]
+    LB.name <- LB.name.vec[k]
+    median.name <- median.name.vec[k]
+    UB.name <- UB.name.vec[k]
+
+    mean.name <- mean.name.vec[k]
+    SD.name <- SD.name.vec[k]
+
+    source(paste0(code_location, "source_code/combine_FAH_FAFH.r"))
+    
+    }
+  
+  summary.list.by.strata.combo <- revert_list_str_4(summary.list)
+  summary.list.percapita.by.strata.combo <- revert_list_str_4(summary.list.percapita)
+
+  output_location <- paste0("output/cost_env/", diet, "_diet_both/")
+
+  for(mm in 1:length(names(summary.list[[1]]))) {
+    
+    list.names.intersect <- 
+      Reduce(intersect, lapply(summary.list.by.strata.combo[[mm]], colnames))
+    
+    merged <- 
+      Reduce(function(...) merge(..., by = list.names.intersect), 
+             summary.list.by.strata.combo[[mm]])
+    
+    write_csv(x = merged, 
+              file = paste0(output_location, 
+                          "By_SubGroup/", "summary.output_by_", 
+                          names(summary.list[[1]])[mm], ".costenv.csv"))
+    
+    list.names.intersect <- 
+      Reduce(intersect, lapply(summary.list.percapita.by.strata.combo[[mm]], colnames))
+    
+    merged.percapita <- 
+      Reduce(function(...) merge(..., by = list.names.intersect), 
+             summary.list.percapita.by.strata.combo[[mm]])
+    
+    write.csv(x = merged.percapita, 
+              file = paste0(output_location, 
+                          "per_capita/By_SubGroup/", "summary.output_by_", 
+                          names(summary.list[[1]])[mm], ".costenv.csv"))
+    
+  }
+  
+}
+
+```
+
+To output how much time it took run the cost/env/social portion of the code (find it in .txt file when you run the code).
+
+```{r end_time}
+
+ end_time1 <- Sys.time()
+
+ print("time it takes to run environmental, economic, and social models: ")
+ print(end_time1 - start_time)
+ 
+```
+
+## Health Models
+
+Now we start with CRA portion of the code. 
+
+List out dietary factors of interest and subset master input file by them.
+
+```{r dietfactors_cra}
+
+# Dietary factors vector (for CRA)
+rfvec_cra <- c("dairy_tot",
+               # "gr_whole",
+               # "pf_ns",
+               # "pf_pm",
+               # "pf_redm",
+               # "pf_seafood",
+               # "veg_exc_sta",
+               # "ssb",
+               # "sodium",
+               # "fruit_exc_juice",
+               "leg_tot")
+
+# subset to only include dietary factors for CRA
+primary_input_cra <- subset(primary_input, Foodgroup %in% rfvec_cra)
+
+```
+
+List out disease in disease vector, and create corresponding disease type vector (Cancer or CMD).
+
+```{r disease_vec}
+
+# Diseases vector
+diseases.vec <- c(# Cancers
+                  "CC", "MLPC", "LC", "UC", "BC", "KC",
+                  "SCC", "SCNC", "LVC", "PC", "ECA", "TC",
+                  "APCA", "MMC", "OC", "GC",
+                  
+                  # Cardiometabolic diseases
+                  "IHD", "ISTK", "HSTK", "OSTK", "DIAB", "HHD",
+                  "AA", "RHD", "ENDO", "OTH", "CM", "AFF", "PVD"
+                  )
+
+# Diseases type vector
+disease.type.vec <- c("Cancer", "Cancer", "Cancer", "Cancer", "Cancer", "Cancer",
+                       "Cancer", "Cancer", "Cancer", "Cancer", "Cancer", "Cancer",
+                       "Cancer", "Cancer", "Cancer", "Cancer",
+                       "CMD", "CMD", "CMD", "CMD", "CMD", "CMD",
+                       "CMD", "CMD", "CMD", "CMD", "CMD", "CMD", "CMD"
+                      )
+
+# option 1
+disease.type1.vec <- disease.type.vec
+
+# option 2
+disease.type2.vec <- c("Cancer", "Cancer", "Cancer", "Cancer", "Cancer", "Cancer",
+                       "Cancer", "Cancer", "Cancer", "Cancer", "Cancer", "Cancer",
+                       "Cancer", "Cancer", "Cancer", "Cancer",
+                       "IHD", "ISTK", "HSTK", "OSTK", "DIAB", "HHD",
+                       "Other_CVD", "Other_CVD", "Other_CVD", "Other_CVD", 
+                       "Other_CVD", "Other_CVD", "Other_CVD"
+)
+
+# option 3
+disease.type3.vec <- c("Cancer", "Cancer", "Cancer", "Cancer", "Cancer", "Cancer",
+                       "Cancer", "Cancer", "Cancer", "Cancer", "Cancer", "Cancer",
+                       "Cancer", "Cancer", "Cancer", "Cancer",
+                       "All_HD", "All_STK", "All_STK", "All_STK", "DIAB", "All_HD",
+                       "Other_CVD", "Other_CVD", "Other_CVD", "Other_CVD", 
+                       "Other_CVD", "Other_CVD", "Other_CVD"
+)
+
+
+```
+
+Create variable for number of diseases, and create various vectors and matrices for the "expanded" disease list, meaning each disease, but repeated three times for the three pathways: Direct effect, mediated by SBP, and mediated by BMI.  
+
+```{r include_mediation_pathways}
+
+# Create some vectors
+n.diseases <- length(diseases.vec)
+
+pathway.vec <- c("direct", "medBMI", "medSBP")
+pathway <- rep(pathway.vec, each = length(diseases.vec))
+
+disease.table <- cbind(diseases.vec, 
+                       disease.type.vec, 
+                       disease.type1.vec, 
+                       disease.type2.vec, 
+                       disease.type3.vec)
+
+diseases_medBMI.vec <- paste(diseases.vec, "_medBMI", sep = "")
+diseases_medSBP.vec <- paste(diseases.vec, "_medSBP", sep = "")
+
+diseases.vec <- c(diseases.vec, diseases_medBMI.vec, diseases_medSBP.vec)
+diseases.vec.mn <- paste(diseases.vec, "mn", sep = "")
+diseases.vec.se <- paste(diseases.vec, "se", sep = "")
+num.diseases <- length(diseases.vec.mn)
+
+disease.total.vec <- gsub(pattern = "_medBMI|_medSBP", replacement = "", x = diseases.vec)
+
+disease.type.total.vec <- disease.type.vec[match(disease.total.vec, disease.table)]
+disease.type1.total.vec <- disease.type1.vec[match(disease.total.vec, disease.table)]
+disease.type2.total.vec <- disease.type2.vec[match(disease.total.vec, disease.table)]
+disease.type3.total.vec <- disease.type3.vec[match(disease.total.vec, disease.table)]
+
+```
+
+Set number of exposure files and mediated effects. These should not change unless you are considering adding more mediation effects (You'd have to edit the code to add those effects those, not just this line).
+
+```{r set_ns}
+
+nsim3 <- 1  # number of exposure files
+n.mediated.effects <- 2 # number of mediated effects
+
+```
+
+Read in RRs, food to BMI effects, food to SBP effects,and TMREDs, and do a little data processing. (These inputs may also be in data input file for the sake of completeness, but the actual inputs for the code are from the files listed below.
+
+```{r read_inputs}
+
+# Import relative risk (RR) data input
+rrtotal <- read_csv(file = paste0(file_location, "rr_agesexrace_", version.date, ".csv"))
+
+# Create age categories
+# rrtotal$age <- 0
+# rrtotal$age[rrtotal$agecat==1] <- 25
+# rrtotal$age[rrtotal$agecat==2] <- 35
+# rrtotal$age[rrtotal$agecat==3] <- 45
+# rrtotal$age[rrtotal$agecat==4] <- 55
+# rrtotal$age[rrtotal$agecat==5] <- 65
+# rrtotal$age[rrtotal$agecat==6] <- 75
+
+# Import effect data inputs
+Food.to.BMI.effects <- 
+  read_csv(file = paste0(file_location, "food_to_bmi_effects_converted_", version.date, ".csv"))
+
+Food.to.SBP.effects <- 
+  read_csv(file = paste0(file_location, "food_to_sbp_effects_converted_", version.date, ".csv"))
+
+# Create theoretical minimum ('theomin') (TMRED) from data input file
+theomin <- primary_input_cra %>%
+  filter(datatype == "Total") %>%
+  select(Foodgroup, TMRED_Mean_Intake, TMRED_SD_Intake, TMRED_intake_unit) %>%
+  distinct() %>%
+  rename(Risk_factor = Foodgroup,
+         TMRED = TMRED_Mean_Intake,
+         SD = TMRED_SD_Intake,
+         Unit = TMRED_intake_unit)
+
+```
+
+Create mortality/incidence simulations.
+
+```{r presim_mort}
+
+# pre-simulate mortality/incidence numbers, to be used in CRA simulations, as well for calculating reverse-engineered PAFs
+source(paste0(code_location, "source_code/presimulate_observed_mort_draws.r"))
+
+```
+
+Create output file path.
+
+```{r cra_output_path}
+
+# create output file path
+output_location <- "output/CRA/"
+
+```
+
+Next, we set up parallel processing so we can run all five diet patterns at the same time.
+
+```{r setup_parallel_processing}
+
+# Set up parallel processing
+# Detect system type
+get_os <- function(){
+  sysinf <- Sys.info()
+  if (!is.null(sysinf)){
+    os <- sysinf['sysname']
+    if (os == 'Darwin')
+      os <- "osx"
+    if (os == "windows")
+      os <- "windows"
+  } else { # if we still don't know
+    os <- .Platform$OS.type
+    if (grepl("^darwin", R.version$os))
+      os <- "osx"
+    if (grepl("linux-gnu", R.version$os))
+      os <- "linux"
+  }
+  tolower(os)
+}
+
+# Check if we are on Windows or Mac using our function.
+cluster_type <- if (get_os() == "windows") {"PSOCK"} else {"FORK"}
+
+no_cores <- detectCores() - 1
+s = 1 # initialize iteration variable before forking
+
+cl <- makeCluster(no_cores, type = cluster_type) # Make the cluster
+registerDoParallel(cl)
+
+```
+
+Start foreach loop. Inside the loop is the code to run the CRA. Recall that diet.vec is a vector listing all dietary patterns of interest. The foreach loop allows us to run the code (in this case, the CRA code) within the loop in parallel for reach element in diet.vec. 
+
+Read in data input file, subset by dietary pattern of interest, and do some data processing. Also set seed within the for loop with the hope that any duplicated simulations will be consistent among dietary patterns.
+
+Add variable to specify number of risk factors, variable to specify length of exposure dataset for one risk factor (in our case, that's the number of subgroups) and variable specifying name of dietary of pattern. Note some of these variables needed to be added to the global environment for the code to work with parallel processing. Note also that `expos` dataframe also was added to global variable.
+
+Once we have read in everything we need, next is running the model. Part 1 actually calculates the PIFs for all diet-disease pairs of interest for all subgroups, x times depending on what you set nsim to be. The entire simulation results will be saved. Part 2 creates summary results, for all possible subgroup combinations. Part 3 calculates joint PIFs (for all subgroups).
+
+```{r run_cra}
+
+# This is the for loop that runs the CRA analysis for all dietary patterns
+foreach(ss = 1:length(diet.vec), .verbose = TRUE) %dopar% {
+
+  set.seed(359)
+
+  # Read CSV file of exposure 
+  expos <- read_csv(file = paste0(file_location, "input_data_", version.date, ".csv"))
+  
+  expos$diet_pattern[expos$diet_pattern == "Vegetarian"] <- "Veg"
+  expos <- subset(expos, Foodgroup %in% rfvec_cra)
+
+  expos <- subset(expos, diet_pattern == diet.vec[ss] & datatype == "Total")
+  expos <- expos[order(expos$Foodgroup),]
+
+  # check
+  print(as.data.frame(table(expos$Foodgroup, useNA = "always"))) # good
+
+  # Fix a bunch of variable names
+  
+  # renaming it in case name of variable ever changes in datafile.
+  expos$riskfactor <- expos$Foodgroup 
+  
+  # renaming it in case name of variable ever changes in datafile.
+  expos$diet <- expos$Foodgroup
+  
+  # change this line if you want to use total sd or unweighted sd or something else for sd.
+  expos$sd <- expos$sigma_u_wgt
+  
+  # note to self - this var doesn't exist??
+  # let's see if it runs without it
+  # change this line if you want to use total sd or unweighted sd or something else for sd.
+  # expos$sd.alt <- expos$sigma_u_wgt.alt
+  
+  expos$mean <- expos$Mean_Intake
+  expos$se <- expos$SE_Intake
+  expos$subgroup <- expos$subgroup_id
+  expos$CF_mean_intake <- expos$CF_Mean_Intake
+  expos$CF_se_intake <- expos$CF_SE_Intake
+  expos$age <- expos$Age
+  expos$agecat <- expos$Age
+  expos$race <- 0
+  expos$race[expos$Race_label == "NHW"] <- 1
+  expos$race[expos$Race_label == "NHB"] <- 2
+  expos$race[expos$Race_label == "HIS"] <- 3
+  expos$race[expos$Race_label == "OTH"] <- 4
+  expos$female <- 0
+  expos[expos$Sex == 1,]$female <- 1
+
+  # Create # of strata variable
+  n.strata <- expos %>% select(subgroup_id) %>% distinct() %>% nrow()
+
+  # Assign age
+  expos$age <- 0
+  expos$age[expos$agecat == 1] <- 25
+  expos$age[expos$agecat == 2] <- 35
+  expos$age[expos$agecat == 3] <- 45
+  expos$age[expos$agecat == 4] <- 55
+  expos$age[expos$agecat == 5] <- 65
+  expos$age[expos$agecat == 6] <- 75
+
+  expos$age.mid <- 0
+  expos$age.mid[expos$agecat == 1] <- median(c(25,35))
+  expos$age.mid[expos$agecat == 2] <- median(c(35,45))
+  expos$age.mid[expos$agecat == 3] <- median(c(45,55))
+  expos$age.mid[expos$agecat == 4] <- median(c(55,65))
+  expos$age.mid[expos$agecat == 5] <- median(c(65,75))
+  expos$age.mid[expos$agecat == 6] <- median(c(75,100))
+  .GlobalEnv$expos <- expos
+
+  # number of risk factors in the file (e.g., 1 if there is only one risk factor)
+  expos.rf <- length(unique(expos$riskfactor)) 
+
+  # length of exposure dataset for one risk factor (i.e. rows in exposure dataset: sex * age-groups * coutries)
+  nsim2 <- length(expos$mean)/expos.rf 
+
+  # add var to global environment
+  .GlobalEnv$nsim2 <- nsim2
+
+  # set diet pattern
+  diet_pattern <- diet.vec[ss]
+
+  # add var to global environment
+  .GlobalEnv$diet_pattern <- diet_pattern
+
+  # Part 1
+  # Actually runs the simulations and calculates PIF for nsim1 simulations
+  source(paste0(code_location, "source_code/PIF_analysis_part_1.r")) 
+
+  # Part 2
+  source(paste0(code_location, "source_code/PIF_analysis_part_2.r"))
+
+  # Part 3
+  # Calculates Joint PIFs for each strata and each disease
+  source(paste0(code_location, "source_code/PIF_analysis_part_3.r")) 
+
+}
+
+```
+
+We're done. End the timer, stop the set up to run simultaneously, and print how much time it took to run the code.
+
+```{r end}
+
+end_time2 <- Sys.time()
+
+stopCluster(cl)
+
+print("Time it takes to run health models: ")
+
+# print(end_time2 - end_time1)
+print(end_time2 - start_time)
+
+```
+
