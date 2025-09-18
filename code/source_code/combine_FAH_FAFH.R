@@ -22,13 +22,12 @@
 
 library(data.table)
 
-
-FAH.output <- read_csv(paste0("output/cost_env/", 
+FAH.output <- read_csv(paste0("output/envecosoc/", 
                               diet, "_diet_Gro/", 
                               output.type.sims, ".csv"))
 
 
-FAFH.output <- read_csv(paste0("output/cost_env/", 
+FAFH.output <- read_csv(paste0("output/envecosoc/", 
                                diet, "_diet_Oth/", 
                                output.type.sims, ".csv"))
 
@@ -47,13 +46,13 @@ keep <- c("Foodgroup", "sex_gp", "race_gp","age_gp", "subgroup_id", "population"
 all.output <- sims.data.table[,lapply(.SD, sum), by = keep, .SDcols = cols.to.sum]
 
 # first create directory if it doesn't already exist
-ifelse(!dir.exists(file.path(paste0("output/cost_env/", diet, "_diet_both"))),
-       dir.create(file.path(paste0("output/cost_env/", diet, "_diet_both"))),
+ifelse(!dir.exists(file.path(paste0("output/envecosoc/", diet, "_diet_both"))),
+       dir.create(file.path(paste0("output/envecosoc/", diet, "_diet_both"))),
        "Directory Exists")
 
 # export
 write_csv(x = all.output, 
-          file = paste0("output/cost_env/", diet, 
+          file = paste0("output/envecosoc/", diet, 
                       "_diet_both/", output.type.sims, 
                       ".csv"))
 
@@ -71,14 +70,14 @@ percapita.all <-
 
 
 # first create directory if it doesn't already exist
-ifelse(!dir.exists(file.path(paste0("output/cost_env/", diet, 
+ifelse(!dir.exists(file.path(paste0("output/envecosoc/", diet, 
                                     "_diet_both/per_capita"))),
-       dir.create(file.path(paste0("output/cost_env/", diet, 
+       dir.create(file.path(paste0("output/envecosoc/", diet, 
                                    "_diet_both/per_capita"))),
        "Directory Exists")
 
 fwrite(x = all.output, 
-       file = paste0("output/cost_env/", diet, 
+       file = paste0("output/envecosoc/", diet, 
                    "_diet_both/per_capita/", 
                    output.type.sims, 
                    ".percapita.csv"))
@@ -89,7 +88,7 @@ combined.summary <- get.summary.stats.simple(impact.sims = as.data.frame(all.out
                                              vars = paste("X", 1:n.sims, sep = ""))
 
 write_csv(x = combined.summary, 
-          file = paste0("output/cost_env/", diet, 
+          file = paste0("output/envecosoc/", diet, 
                       "_diet_both/", output.type.summary, ".csv"))
 
 combined.summary.percapita <- 
@@ -97,7 +96,7 @@ combined.summary.percapita <-
                            vars = paste("X", 1:n.sims, sep = ""))
 
 write_csv(x = combined.summary.percapita, 
-          file = paste0("output/cost_env/", diet, 
+          file = paste0("output/envecosoc/", diet, 
                       "_diet_both/per_capita/", output.type.summary, 
                       ".percapita.csv"))
 
@@ -139,9 +138,9 @@ strata.combos["null"] <- list(NULL)
 # 2 = sims, 3 = per capita summary stats, 4 = per capita sims. Each list is a list 
 # with an element for each strata combo. 
 
-output_location <- paste0("output/cost_env/", diet, "_diet_both/")
+output_location <- paste0("output/envecosoc/", diet, "_diet_both/")
 
-summ.stats.by.strata.cost <- 
+summ.stats.by.strata.envecosoc <- 
   summary.stats.by.strata(impact.sims.allgroups = all.output, 
                           strata.combos.list = strata.combos, 
                           pop.sims = pop.sims)
@@ -154,45 +153,45 @@ summ.stats.by.strata.cost <-
 # corresponds the "null" strata combo summing over all subgroups).
 
 # first create directory if it doesn't already exist
-ifelse(!dir.exists(file.path(paste0("output/cost_env/", 
+ifelse(!dir.exists(file.path(paste0("output/envecosoc/", 
                                     diet, "_diet_both/By_Subgroup"))),
-       dir.create(file.path(paste0("output/cost_env/", 
+       dir.create(file.path(paste0("output/envecosoc/", 
                                    diet, "_diet_both/By_Subgroup"))),
        "Directory Exists")
 
-ifelse(!dir.exists(file.path(paste0("output/cost_env/", 
+ifelse(!dir.exists(file.path(paste0("output/envecosoc/", 
                                     diet, "_diet_both/By_Subgroup/full_sims"))),
-       dir.create(file.path(paste0("output/cost_env/", 
+       dir.create(file.path(paste0("output/envecosoc/", 
                                    diet, "_diet_both/By_Subgroup/full_sims"))),
        "Directory Exists")
 
-ifelse(!dir.exists(file.path(paste0("output/cost_env/", 
+ifelse(!dir.exists(file.path(paste0("output/envecosoc/", 
                                     diet, "_diet_both/per_capita/By_SubGroup"))),
-       dir.create(file.path(paste0("output/cost_env/", 
+       dir.create(file.path(paste0("output/envecosoc/", 
                                    diet, "_diet_both/per_capita/By_SubGroup"))),
        "Directory Exists")
 
-ifelse(!dir.exists(file.path(paste0("output/cost_env/", 
+ifelse(!dir.exists(file.path(paste0("output/envecosoc/", 
                                     diet, "_diet_both/per_capita/By_SubGroup/full_sims"))),
-       dir.create(file.path(paste0("output/cost_env/", 
+       dir.create(file.path(paste0("output/envecosoc/", 
                                    diet, "_diet_both/per_capita/By_SubGroup/full_sims"))),
        "Directory Exists")
 
 for(j in 1:length(strata.combos)){
   
-  fwrite(x = summ.stats.by.strata.cost[[2]][[j]], 
+  fwrite(x = summ.stats.by.strata.envecosoc[[2]][[j]], 
          file = paste0(output_location, "By_SubGroup/full_sims/", 
                      output.type.sims.bystrata,".sims.output_by_", 
                      paste(strata.combos[[j]], collapse = '_'), ".csv"))
   
-  fwrite(x = summ.stats.by.strata.cost[[4]][[j]], 
+  fwrite(x = summ.stats.by.strata.envecosoc[[4]][[j]], 
          file = paste0(output_location, "per_capita/By_SubGroup/full_sims/", 
                      output.type.sims.bystrata, ".sims.percapita.output_by_", 
                      paste(strata.combos[[j]], collapse = '_'), ".csv"))
   
   names(
-    summ.stats.by.strata.cost[[1]][[j]])[which(names(
-      summ.stats.by.strata.cost[[1]][[j]]) %in% c("lower_bound (2.5th percentile)", 
+    summ.stats.by.strata.envecosoc[[1]][[j]])[which(names(
+      summ.stats.by.strata.envecosoc[[1]][[j]]) %in% c("lower_bound (2.5th percentile)", 
                                                   "median", 
                                                   "upper_bound  (97.5th percentile)", 
                                                   "mean", 
@@ -200,17 +199,17 @@ for(j in 1:length(strata.combos)){
     c(LB.name, median.name, UB.name, mean.name, SD.name)
   
   names(
-    summ.stats.by.strata.cost[[3]][[j]])[which(names(
-      summ.stats.by.strata.cost[[3]][[j]]) %in% c("lower_bound (2.5th percentile)", 
+    summ.stats.by.strata.envecosoc[[3]][[j]])[which(names(
+      summ.stats.by.strata.envecosoc[[3]][[j]]) %in% c("lower_bound (2.5th percentile)", 
                                                   "median", 
                                                   "upper_bound  (97.5th percentile)", 
                                                   "mean", 
                                                   "SD"))] <- 
     c(LB.name, median.name, UB.name, mean.name, SD.name)
   
-  summary.list[[k]][[j]] <- summ.stats.by.strata.cost[[1]][[j]]
+  summary.list[[k]][[j]] <- summ.stats.by.strata.envecosoc[[1]][[j]]
   
-  summary.list.percapita[[k]][[j]] <- summ.stats.by.strata.cost[[3]][[j]]
+  summary.list.percapita[[k]][[j]] <- summ.stats.by.strata.envecosoc[[3]][[j]]
   
 }
 

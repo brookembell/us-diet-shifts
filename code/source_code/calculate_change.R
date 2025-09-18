@@ -24,19 +24,21 @@ source(paste0(code_location, "functions/change_functions.r"))
 
 # Define output location.
 
-output_location <- paste0("output/cost_env/", costs_output_loc.vec[k], "/")
+output_location <- paste0("output/envecosoc/", envecosoc_output_loc.vec[k], "/")
 
-# Read in relevant inputs (population draws, costs and impact factors of dietary 
+print(output_location)
+
+# Read in relevant inputs (population draws, envecosoc and impact factors of dietary 
 # factors) and do some minor data processing. Remember, the "impact factors" for 
-# cost is the cost for that dietary factor. We are not speculating how much costs 
+# cost is the cost for that dietary factor. We are not speculating how much envecosoc 
 # for each dietary factor change as intake changes, just how much total spend on 
-# food would change (assuming costs stay the same). 
+# food would change (assuming envecosoc stay the same). 
 
 pop.sims <- read_csv(paste0(file_location, "observed.pop.draws.csv"))
 
-cost.inputs <- costs_inputs.vec[[k]]
+envecosoc.inputs <- envecosoc_inputs.vec[[k]]
 
-merged <- merge(cost.inputs, pop.sims, by = "subgroup_id")
+merged <- merge(envecosoc.inputs, pop.sims, by = "subgroup_id")
 merged$Sex <- merged$Sex.y
 merged$population <- merged$population.y
 
@@ -91,7 +93,7 @@ list.of.CF.intake.impact.sims.wasted <- list()
 # Rename some variables.
 
 n.sims <- nsim1
-impact.factor.names <- econ.outcomes.vec
+impact.factor.names <- envecosoc.outcomes.vec
 
 # Start for loop. We are going to be traversing the "merged" file row by row and 
 # calculating impacts. Each row should correspond to a subgroup and dietary factor.
@@ -125,8 +127,8 @@ for(i in 1:dim(merged)[1]){ # for each row in the input file (corresponding to f
   current.se <- merged[i, "SE_Intake"]
   counterfactual.mean <- merged[i, "CF_Mean_Intake"]
   counterfactual.se <- merged[i, "CF_SE_Intake"]
-  impact.factor.means <- merged[i, econ.outcomes.vec.mn]
-  impact.factor.ses <- merged[i, econ.outcomes.vec.se]
+  impact.factor.means <- merged[i, envecosoc.outcomes.vec.mn]
+  impact.factor.ses <- merged[i, envecosoc.outcomes.vec.se]
   
   RRunit <- merged %>% 
     select(c(paste0(impact.factor.names, "_to_intake_conversion"))) %>% 
@@ -140,18 +142,18 @@ for(i in 1:dim(merged)[1]){ # for each row in the input file (corresponding to f
   
   print(population.sims)
   
-  substitution.impact.factor.means <- merged[i, econ.outcomes.substitution.vec.mn]
-  substitution.impact.factor.ses <- merged[i, econ.outcomes.substitution.vec.se]
+  substitution.impact.factor.means <- merged[i, envecosoc.outcomes.substitution.vec.mn]
+  substitution.impact.factor.ses <- merged[i, envecosoc.outcomes.substitution.vec.se]
   substitution_unit <- merged[i, "substitution_unit"] 
   
-  current_inedible_p <- merged[i,econ.current.inedible.p.mn]
-  current_inedible_p_se <- merged[i,econ.current.inedible.p.se]
-  current_foodwaste_p <- merged[i,econ.current.foodwaste.p.mn]
-  current_foodwaste_p_se <- merged[i,econ.current.foodwaste.p.se]
-  counterfactual_inedible_p <- merged[i,econ.counterfactual.inedible.p.mn]
-  counterfactual_inedible_p_se <- merged[i,econ.counterfactual.inedible.p.se]
-  counterfactual_foodwaste_p <- merged[i,econ.counterfactual.foodwaste.p.mn]
-  counterfactual_foodwaste_p_se <- merged[i,econ.counterfactual.foodwaste.p.se]
+  current_inedible_p <- merged[i, envecosoc.current.inedible.p.mn]
+  current_inedible_p_se <- merged[i, envecosoc.current.inedible.p.se]
+  current_foodwaste_p <- merged[i, envecosoc.current.foodwaste.p.mn]
+  current_foodwaste_p_se <- merged[i, envecosoc.current.foodwaste.p.se]
+  counterfactual_inedible_p <- merged[i, envecosoc.counterfactual.inedible.p.mn]
+  counterfactual_inedible_p_se <- merged[i, envecosoc.counterfactual.inedible.p.se]
+  counterfactual_foodwaste_p <- merged[i, envecosoc.counterfactual.foodwaste.p.mn]
+  counterfactual_foodwaste_p_se <- merged[i, envecosoc.counterfactual.foodwaste.p.se]
   
   # Take the above inputs and feed it into function that simulates the impact 
   # (simulate.impact). The resulting "b" is a list of 31 matrices with simulation 
@@ -617,82 +619,82 @@ ifelse(!dir.exists(file.path(output_location)),
 # export as CSVs
 
 fwrite(x = impact.sims.total.allgroups, 
-       file = paste0(output_location, "costenv.sims.granular.csv"))
+       file = paste0(output_location, "envecosoc.sims.granular.csv"))
 
 fwrite(x = substitution.impact.sims.total.allgroups, 
-       file = paste0(output_location, "substitution.costenv.sims.granular.csv"))
+       file = paste0(output_location, "substitution.envecosoc.sims.granular.csv"))
 
 fwrite(x = combined.impact.sims.total.allgroups, 
-       file = paste0(output_location, "combined.costenvs.sims.granular.csv"))
+       file = paste0(output_location, "combined.envecosoc.sims.granular.csv"))
 
 fwrite(x = delta.sims.total.allgroups, 
-       file = paste0(output_location, "delta.costenv.sims.granular.csv"))
+       file = paste0(output_location, "delta.envecosoc.sims.granular.csv"))
 
 fwrite(x = impact.sims.consumed.allgroups, 
-       file = paste0(output_location, "costenv.sims.granular.consumed.csv"))
+       file = paste0(output_location, "envecosoc.sims.granular.consumed.csv"))
 
 fwrite(x = substitution.impact.sims.consumed.allgroups, 
-       file = paste0(output_location, "substitution.costenv.sims.granular.consumed.csv"))
+       file = paste0(output_location, "substitution.envecosoc.sims.granular.consumed.csv"))
 
 fwrite(x = combined.impact.sims.consumed.allgroups, 
-       file = paste0(output_location, "combined.costenvs.sims.granular.consumed.csv"))
+       file = paste0(output_location, "combined.envecosoc.sims.granular.consumed.csv"))
 
 fwrite(x = impact.sims.unconsumed.allgroups, 
-       file = paste0(output_location, "costenv.sims.granular.unconsumed.csv"))
+       file = paste0(output_location, "envecosoc.sims.granular.unconsumed.csv"))
 
 fwrite(x = substitution.impact.sims.unconsumed.allgroups, 
-       file = paste0(output_location, "substitution.costenv.sims.granular.unconsumed.csv"))
+       file = paste0(output_location, "substitution.envecosoc.sims.granular.unconsumed.csv"))
 
 fwrite(x = combined.impact.sims.unconsumed.allgroups, 
-       file = paste0(output_location, "combined.costenvs.sims.granular.unconsumed.csv"))
+       file = paste0(output_location, "combined.envecosoc.sims.granular.unconsumed.csv"))
 
 fwrite(x = current.intake.impact.sims.total.allgroups, 
-       file = paste0(output_location, "current.intake.costenv.sims.granular.csv"))
+       file = paste0(output_location, "current.intake.envecosoc.sims.granular.csv"))
 
 fwrite(x = CF.intake.impact.sims.total.allgroups, 
-       file = paste0(output_location, "CF.costenv.intake.sims.granular.csv"))
+       file = paste0(output_location, "CF.envecosoc.intake.sims.granular.csv"))
 
 fwrite(x = current.intake.impact.sims.consumed.allgroups, 
-       file = paste0(output_location, "current.intake.costenv.sims.granular.consumed.csv"))
+       file = paste0(output_location, "current.intake.envecosoc.sims.granular.consumed.csv"))
 
 fwrite(x = CF.intake.impact.sims.consumed.allgroups, 
-       file = paste0(output_location, "CF.intake.costenv.sims.granular.consumed.csv"))
+       file = paste0(output_location, "CF.intake.envecosoc.sims.granular.consumed.csv"))
 
 fwrite(x = current.intake.impact.sims.unconsumed.allgroups, 
-       file = paste0(output_location, "current.intake.costenv.sims.granular.unconsumed.csv"))
+       file = paste0(output_location, "current.intake.envecosoc.sims.granular.unconsumed.csv"))
 
 fwrite(x = CF.intake.impact.sims.unconsumed.allgroups, 
-       file = paste0(output_location, "CF.intake.costenv.sims.granular.unconsumed.csv"))
+       file = paste0(output_location, "CF.intake.envecosoc.sims.granular.unconsumed.csv"))
 
 fwrite(x = impact.sims.inedible.allgroups, 
-       file = paste0(output_location, "costenv.sims.granular.inedible.csv"))
+       file = paste0(output_location, "envecosoc.sims.granular.inedible.csv"))
 
 fwrite(x = substitution.impact.sims.inedible.allgroups, 
-       file = paste0(output_location, "substitution.costenv.sims.granular.inedible.csv"))
+       file = paste0(output_location, "substitution.envecosoc.sims.granular.inedible.csv"))
 
 fwrite(x = combined.impact.sims.inedible.allgroups, 
-       file = paste0(output_location, "combined.costenvs.sims.granular.inedible.csv"))
+       file = paste0(output_location, "combined.envecosoc.sims.granular.inedible.csv"))
 
 fwrite(x = impact.sims.wasted.allgroups, 
-       file = paste0(output_location, "costenv.sims.granular.wasted.csv"))
+       file = paste0(output_location, "envecosoc.sims.granular.wasted.csv"))
 
 fwrite(x = substitution.impact.sims.wasted.allgroups, 
-       file = paste0(output_location, "substitution.costenv.sims.granular.wasted.csv"))
+       file = paste0(output_location, "substitution.envecosoc.sims.granular.wasted.csv"))
 
 fwrite(x = combined.impact.sims.wasted.allgroups, 
-       file = paste0(output_location, "combined.costenvs.sims.granular.wasted.csv"))
+       file = paste0(output_location, "combined.envecosoc.sims.granular.wasted.csv"))
 
 fwrite(x = current.intake.impact.sims.inedible.allgroups, 
-       file = paste0(output_location, "current.intake.costenv.sims.granular.inedible.csv"))
+       file = paste0(output_location, "current.intake.envecosoc.sims.granular.inedible.csv"))
 
 fwrite(x = CF.intake.impact.sims.inedible.allgroups, 
-       file = paste0(output_location, "CF.intake.costenv.sims.granular.inedible.csv"))
+       file = paste0(output_location, "CF.intake.envecosoc.sims.granular.inedible.csv"))
 
 fwrite(x = current.intake.impact.sims.wasted.allgroups, 
-       file = paste0(output_location, "current.intake.costenv.sims.granular.wasted.csv"))
+       file = paste0(output_location, "current.intake.envecosoc.sims.granular.wasted.csv"))
 
 fwrite(x = CF.intake.impact.sims.wasted.allgroups, 
-       file = paste0(output_location, "CF.intake.costenv.sims.granular.wasted.csv"))
+       file = paste0(output_location, "CF.intake.envecosoc.sims.granular.wasted.csv"))
 
 # All of what we just did pertains to population level impact. Next. we get per 
 # capita sims for all outputs of interest. 
@@ -898,107 +900,107 @@ ifelse(!dir.exists(file.path(output_capita_location)),
 
 fwrite(x = impact.sims.percapita.total.allgroups, 
        file = paste0(output_capita_location, 
-                   "costenv.sims.percapita.granular.csv"))
+                   "envecosoc.sims.percapita.granular.csv"))
 
 fwrite(x = substitution.impact.sims.percapita.total.allgroups, 
        file = paste0(output_capita_location, 
-                   "substitution.costenv.sims.percapita.granular.csv"))
+                   "substitution.envecosoc.sims.percapita.granular.csv"))
 
 fwrite(x = combined.impact.percapita.total.allgroups, 
        file = paste0(output_capita_location, 
-                   "combined.costenv.sims.percapita.granular.csv"))
+                   "combined.envecosoc.sims.percapita.granular.csv"))
 
 fwrite(x = delta.percapita.allgroups, 
        file = paste0(output_capita_location, 
-                   "delta.costenv.sims.percapita.granular.csv"))
+                   "delta.envecosoc.sims.percapita.granular.csv"))
 
 fwrite(x = impact.sims.percapita.consumed.allgroups, 
        file = paste0(output_capita_location, 
-                   "costenv.sims.percapita.consumed.granular.csv"))
+                   "envecosoc.sims.percapita.consumed.granular.csv"))
 
 fwrite(x = substitution.impact.sims.percapita.consumed.allgroups, 
        file = paste0(output_capita_location, 
-                   "substitution.costenv.sims.percapita.consumed.granular.csv"))
+                   "substitution.envecosoc.sims.percapita.consumed.granular.csv"))
 
 fwrite(x = combined.impact.percapita.consumed.allgroups, 
        file = paste0(output_capita_location, 
-                   "combined.costenv.sims.percapita.consumed.granular.csv"))
+                   "combined.envecosoc.sims.percapita.consumed.granular.csv"))
 
 fwrite(x = impact.sims.percapita.unconsumed.allgroups, 
        file = paste0(output_capita_location, 
-                   "costenv.sims.percapita.unconsumed.granular.csv"))
+                   "envecosoc.sims.percapita.unconsumed.granular.csv"))
 
 fwrite(x = substitution.impact.sims.percapita.unconsumed.allgroups, 
        file = paste0(output_capita_location, 
-                   "substitution.costenv.sims.percapita.unconsumed.granular.csv"))
+                   "substitution.envecosoc.sims.percapita.unconsumed.granular.csv"))
 
 fwrite(x = combined.impact.percapita.unconsumed.allgroups, 
        file = paste0(output_capita_location, 
-                   "combined.costenv.sims.percapita.unconsumed.granular.csv"))
+                   "combined.envecosoc.sims.percapita.unconsumed.granular.csv"))
 
 fwrite(x = current.intake.impact.sims.percapita.total.allgroups, 
        file = paste0(output_capita_location, 
-                   "current.intake.costenv.sims.percapita.granular.csv"))
+                   "current.intake.envecosoc.sims.percapita.granular.csv"))
 
 fwrite(x = CF.intake.impact.sims.percapita.total.allgroups, 
        file = paste0(output_capita_location, 
-                   "CF.costenv.intake.sims.percapita.granular.csv"))
+                   "CF.envecosoc.intake.sims.percapita.granular.csv"))
 
 fwrite(x = current.intake.impact.sims.percapita.consumed.allgroups, 
        file = paste0(output_capita_location, 
-                   "current.intake.costenv.sims.percapita.granular.consumed.csv"))
+                   "current.intake.envecosoc.sims.percapita.granular.consumed.csv"))
 
 fwrite(x = CF.intake.impact.sims.percapita.consumed.allgroups, 
        file = paste0(output_capita_location, 
-                   "CF.intake.costenv.sims.percapita.granular.consumed.csv"))
+                   "CF.intake.envecosoc.sims.percapita.granular.consumed.csv"))
 
 fwrite(x = current.intake.impact.sims.percapita.unconsumed.allgroups, 
        file = paste0(output_capita_location, 
-                   "current.intake.costenv.sims.percapita.granular.unconsumed.csv"))
+                   "current.intake.envecosoc.sims.percapita.granular.unconsumed.csv"))
 
 fwrite(x = CF.intake.impact.sims.percapita.unconsumed.allgroups, 
        file = paste0(output_capita_location, 
-                   "CF.intake.costenv.sims.percapita.granular.unconsumed.csv"))
+                   "CF.intake.envecosoc.sims.percapita.granular.unconsumed.csv"))
 
 fwrite(x = impact.sims.percapita.consumed.allgroups, 
        file = paste0(output_capita_location, 
-                   "costenv.sims.percapita.inedible.granular.csv"))
+                   "envecosoc.sims.percapita.inedible.granular.csv"))
 
 fwrite(x = substitution.impact.sims.percapita.consumed.allgroups, 
        file = paste0(output_capita_location, 
-                   "substitution.costenv.sims.percapita.inedible.granular.csv"))
+                   "substitution.envecosoc.sims.percapita.inedible.granular.csv"))
 
 fwrite(x = combined.impact.percapita.consumed.allgroups, 
        file = paste0(output_capita_location, 
-                   "combined.costenv.sims.percapita.inedible.granular.csv"))
+                   "combined.envecosoc.sims.percapita.inedible.granular.csv"))
 
 fwrite(x = impact.sims.percapita.consumed.allgroups, 
        file = paste0(output_capita_location, 
-                   "costenv.sims.percapita.wasted.granular.csv"))
+                   "envecosoc.sims.percapita.wasted.granular.csv"))
 
 fwrite(x = substitution.impact.sims.percapita.consumed.allgroups, 
        file = paste0(output_capita_location, 
-                   "substitution.costenv.sims.percapita.wasted.granular.csv"))
+                   "substitution.envecosoc.sims.percapita.wasted.granular.csv"))
 
 fwrite(x = combined.impact.percapita.consumed.allgroups, 
        file = paste0(output_capita_location, 
-                   "combined.costenv.sims.percapita.wasted.granular.csv"))
+                   "combined.envecosoc.sims.percapita.wasted.granular.csv"))
 
 fwrite(x = current.intake.impact.sims.percapita.consumed.allgroups, 
        file = paste0(output_capita_location, 
-                   "current.intake.costenv.sims.percapita.granular.inedible.csv"))
+                   "current.intake.envecosoc.sims.percapita.granular.inedible.csv"))
 
 fwrite(x = CF.intake.impact.sims.percapita.consumed.allgroups, 
        file = paste0(output_capita_location, 
-                   "CF.intake.costenv.sims.percapita.granular.inedible.csv"))
+                   "CF.intake.envecosoc.sims.percapita.granular.inedible.csv"))
 
 fwrite(x = current.intake.impact.sims.percapita.unconsumed.allgroups, 
        file = paste0(output_capita_location, 
-                   "current.intake.costenv.sims.percapita.granular.wasted.csv"))
+                   "current.intake.envecosoc.sims.percapita.granular.wasted.csv"))
 
 fwrite(x = CF.intake.impact.sims.percapita.unconsumed.allgroups, 
        file = paste0(output_capita_location, 
-                   "CF.intake.costenv.sims.percapita.granular.wasted.csv"))
+                   "CF.intake.envecosoc.sims.percapita.granular.wasted.csv"))
 
 # Get summary stats from simulations (mean, median, standard deviation, 
 # uncertainty intervals, the things you'll be reporting in your manuscript) for 
@@ -1036,10 +1038,8 @@ all.impact.sims.summary <-
     CF.intake.impact.sims.wasted = CF.intake.impact.sims.wasted.allgroups,
     vars = paste("X", 1:n.sims, sep = ""))
 
-# setwd(output_location)
-
 write_csv(x = all.impact.sims.summary, 
-          file = paste0(output_location, "costenv.summary.granular.csv"))
+          file = paste0(output_location, "envecosoc.summary.granular.csv"))
 
 # now use the function for per capita results
 all.impact.sims.percapita.summary <- 
@@ -1057,6 +1057,7 @@ all.impact.sims.percapita.summary <-
     current.intake.impact.sims = current.intake.impact.sims.percapita.total.allgroups, 
     current.intake.impact.sims.consumed = current.intake.impact.sims.percapita.consumed.allgroups, 
     current.intake.impact.sims.unconsumed = current.intake.impact.sims.percapita.unconsumed.allgroups, 
+    CF.intake.impact.sims = CF.intake.impact.sims.percapita.total.allgroups,
     CF.intake.impact.sims.consumed = CF.intake.impact.sims.percapita.consumed.allgroups, 
     CF.intake.impact.sims.unconsumed = CF.intake.impact.sims.percapita.unconsumed.allgroups,
     impact.sims.inedible = impact.sims.percapita.inedible.allgroups, 
@@ -1074,7 +1075,7 @@ all.impact.sims.percapita.summary <-
 # setwd(output_location)
 write_csv(x = all.impact.sims.percapita.summary, 
           file = paste0(output_capita_location, 
-                      "costenv.percapita.summary.granular.csv"))
+                      "envecosoc.percapita.summary.granular.csv"))
 
 # Next, we want to get summary stat for all possible strata combinations (not 
 # just the most granular, age/sex/race/foodgroup).
@@ -1108,94 +1109,94 @@ strata.combos["null"] <- list(NULL)
 # (each one denoting outcome type), and each of those 4 lists is itself a list of 
 # 48 data frames, one for each subgroup. 
 
-summ.stats.by.strata.cost <- 
+summ.stats.by.strata.envecosoc <- 
   summary.stats.by.strata(impact.sims.allgroups = impact.sims.total.allgroups, 
                           strata.combos.list = strata.combos, 
                           pop.sims = pop.sims)
 
-summ.stats.by.strata.substitution.cost <- 
+summ.stats.by.strata.substitution.envecosoc <- 
   summary.stats.by.strata(impact.sims.allgroups = substitution.impact.sims.total.allgroups, 
                           strata.combos.list = strata.combos, 
                           pop.sims = pop.sims)
 
-summ.stats.by.strata.combined.cost <- 
+summ.stats.by.strata.combined.envecosoc <- 
   summary.stats.by.strata(impact.sims.allgroups = combined.impact.sims.total.allgroups, 
                           strata.combos.list = strata.combos, 
                           pop.sims = pop.sims)
 
-summ.stats.by.strata.delta_forcost <- 
+summ.stats.by.strata.delta_forenvecosoc <- 
   summary.stats.by.strata(impact.sims.allgroups = delta.sims.total.allgroups, 
                           strata.combos.list = strata.combos, 
                           pop.sims = pop.sims)
 
-summ.stats.by.strata.combined.consumed.cost <- 
+summ.stats.by.strata.combined.consumed.envecosoc <- 
   summary.stats.by.strata(impact.sims.allgroups = combined.impact.sims.consumed.allgroups, 
                           strata.combos.list = strata.combos, 
                           pop.sims = pop.sims)
 
-summ.stats.by.strata.combined.unconsumed.cost <- 
+summ.stats.by.strata.combined.unconsumed.envecosoc <- 
   summary.stats.by.strata(impact.sims.allgroups = combined.impact.sims.unconsumed.allgroups, 
                           strata.combos.list = strata.combos, 
                           pop.sims = pop.sims)
 
-summ.stats.by.strata.current.intake.cost <- 
+summ.stats.by.strata.current.intake.envecosoc <- 
   summary.stats.by.strata(impact.sims.allgroups = current.intake.impact.sims.total.allgroups, 
                           strata.combos.list = strata.combos, 
                           pop.sims = pop.sims)
 
-summ.stats.by.strata.CF.intake.cost <- 
+summ.stats.by.strata.CF.intake.envecosoc <- 
   summary.stats.by.strata(impact.sims.allgroups = CF.intake.impact.sims.total.allgroups, 
                           strata.combos.list = strata.combos, 
                           pop.sims = pop.sims)
 
-summ.stats.by.strata.current.intake.consumed.cost <- 
+summ.stats.by.strata.current.intake.consumed.envecosoc <- 
   summary.stats.by.strata(impact.sims.allgroups = current.intake.impact.sims.consumed.allgroups, 
                           strata.combos.list = strata.combos, 
                           pop.sims = pop.sims)
 
-summ.stats.by.strata.CF.intake.consumed.cost <- 
+summ.stats.by.strata.CF.intake.consumed.envecosoc <- 
   summary.stats.by.strata(impact.sims.allgroups = CF.intake.impact.sims.consumed.allgroups, 
                           strata.combos.list = strata.combos, 
                           pop.sims = pop.sims)
 
-summ.stats.by.strata.current.intake.unconsumed.cost <- 
+summ.stats.by.strata.current.intake.unconsumed.envecosoc <- 
   summary.stats.by.strata(impact.sims.allgroups = current.intake.impact.sims.unconsumed.allgroups, 
                           strata.combos.list = strata.combos, 
                           pop.sims = pop.sims)
 
-summ.stats.by.strata.CF.intake.unconsumed.cost <- 
+summ.stats.by.strata.CF.intake.unconsumed.envecosoc <- 
   summary.stats.by.strata(impact.sims.allgroups = CF.intake.impact.sims.unconsumed.allgroups, 
                           strata.combos.list = strata.combos, 
                           pop.sims = pop.sims)
 
 # inedible and wasted
 
-summ.stats.by.strata.combined.inedible.cost <- 
+summ.stats.by.strata.combined.inedible.envecosoc <- 
   summary.stats.by.strata(impact.sims.allgroups = combined.impact.sims.inedible.allgroups, 
                           strata.combos.list = strata.combos, 
                           pop.sims = pop.sims)
 
-summ.stats.by.strata.combined.wasted.cost <- 
+summ.stats.by.strata.combined.wasted.envecosoc <- 
   summary.stats.by.strata(impact.sims.allgroups = combined.impact.sims.wasted.allgroups, 
                           strata.combos.list = strata.combos, 
                           pop.sims = pop.sims)
 
-summ.stats.by.strata.current.intake.inedible.cost <- 
+summ.stats.by.strata.current.intake.inedible.envecosoc <- 
   summary.stats.by.strata(impact.sims.allgroups = current.intake.impact.sims.inedible.allgroups, 
                           strata.combos.list = strata.combos, 
                           pop.sims = pop.sims)
 
-summ.stats.by.strata.CF.intake.inedible.cost <- 
+summ.stats.by.strata.CF.intake.inedible.envecosoc <- 
   summary.stats.by.strata(impact.sims.allgroups = CF.intake.impact.sims.inedible.allgroups, 
                           strata.combos.list = strata.combos, 
                           pop.sims = pop.sims)
 
-summ.stats.by.strata.current.intake.wasted.cost <- 
+summ.stats.by.strata.current.intake.wasted.envecosoc <- 
   summary.stats.by.strata(impact.sims.allgroups = current.intake.impact.sims.wasted.allgroups, 
                           strata.combos.list = strata.combos, 
                           pop.sims = pop.sims)
 
-summ.stats.by.strata.CF.intake.wasted.cost <- 
+summ.stats.by.strata.CF.intake.wasted.envecosoc <- 
   summary.stats.by.strata(impact.sims.allgroups = CF.intake.impact.sims.wasted.allgroups, 
                           strata.combos.list = strata.combos, 
                           pop.sims = pop.sims)
@@ -1234,34 +1235,34 @@ for(j in 1:length(strata.combos)) {
   
   # First, save full sim outputs for total and per capita
   
-  fwrite(x = summ.stats.by.strata.cost[[2]][[j]], 
+  fwrite(x = summ.stats.by.strata.envecosoc[[2]][[j]], 
          file = paste0(output_subgroup_location, 
-                     "full_sims/full.costenv.sims.output_by_", 
+                     "full_sims/full.envecosoc.sims.output_by_", 
                     paste(strata.combos[[j]], collapse = '_'), ".csv"))
   
-  fwrite(x = summ.stats.by.strata.substitution.cost[[2]][[j]], 
+  fwrite(x = summ.stats.by.strata.substitution.envecosoc[[2]][[j]], 
          file = paste0(output_subgroup_location, 
-                     "full_sims/full.costenv.sims.substitution.output_by_", 
+                     "full_sims/full.envecosoc.sims.substitution.output_by_", 
                     paste(strata.combos[[j]], collapse = '_'), ".csv"))
   
-  fwrite(x = summ.stats.by.strata.combined.cost[[2]][[j]], 
+  fwrite(x = summ.stats.by.strata.combined.envecosoc[[2]][[j]], 
          file = paste0(output_subgroup_location, 
-                     "full_sims/full.costenv.sims.combined.output_by_", 
+                     "full_sims/full.envecosoc.sims.combined.output_by_", 
                     paste(strata.combos[[j]], collapse = '_'), ".csv"))
   
-  fwrite(x = summ.stats.by.strata.cost[[4]][[j]], 
+  fwrite(x = summ.stats.by.strata.envecosoc[[4]][[j]], 
          file = paste0(output_capita_location, 
-                     "By_SubGroup/full_sims/full.costenv.sims.percapita.output_by_", 
+                     "By_SubGroup/full_sims/full.envecosoc.sims.percapita.output_by_", 
                     paste(strata.combos[[j]], collapse = '_'), ".csv"))
   
-  fwrite(x = summ.stats.by.strata.substitution.cost[[4]][[j]], 
+  fwrite(x = summ.stats.by.strata.substitution.envecosoc[[4]][[j]], 
          file = paste0(output_capita_location, 
-                     "By_SubGroup/full_sims/full.costenv.sims.percapita.substitution.output_by_", 
+                     "By_SubGroup/full_sims/full.envecosoc.sims.percapita.substitution.output_by_", 
                     paste(strata.combos[[j]], collapse = '_'), ".csv"))
   
-  fwrite(x = summ.stats.by.strata.combined.cost[[4]][[j]], 
+  fwrite(x = summ.stats.by.strata.combined.envecosoc[[4]][[j]], 
          file = paste0(output_capita_location, 
-                     "By_SubGroup/full_sims/full.costenv.sims.percapita.combined.output_by_", 
+                     "By_SubGroup/full_sims/full.envecosoc.sims.percapita.combined.output_by_", 
                     paste(strata.combos[[j]], collapse = '_'), ".csv"))
   
   # Next, create outcome names to be used as variable names, and put relevant 
@@ -1297,49 +1298,49 @@ for(j in 1:length(strata.combos)) {
                      "current_intake_wasted_impact", 
                      "CF_intake_wasted_impact")
   
-  outcome.data <- list(summ.stats.by.strata.cost[[1]][[j]],
-                       summ.stats.by.strata.substitution.cost[[1]][[j]],
-                       summ.stats.by.strata.combined.cost[[1]][[j]],
-                       summ.stats.by.strata.delta_forcost[[1]][[j]],
-                       summ.stats.by.strata.combined.consumed.cost[[1]][[j]],
-                       summ.stats.by.strata.combined.unconsumed.cost[[1]][[j]],
-                       summ.stats.by.strata.current.intake.cost[[1]][[j]],
-                       summ.stats.by.strata.CF.intake.cost[[1]][[j]],
-                       summ.stats.by.strata.current.intake.consumed.cost[[1]][[j]],
-                       summ.stats.by.strata.CF.intake.consumed.cost[[1]][[j]],
-                       summ.stats.by.strata.current.intake.unconsumed.cost[[1]][[j]],
-                       summ.stats.by.strata.CF.intake.unconsumed.cost[[1]][[j]],
+  outcome.data <- list(summ.stats.by.strata.envecosoc[[1]][[j]],
+                       summ.stats.by.strata.substitution.envecosoc[[1]][[j]],
+                       summ.stats.by.strata.combined.envecosoc[[1]][[j]],
+                       summ.stats.by.strata.delta_forenvecosoc[[1]][[j]],
+                       summ.stats.by.strata.combined.consumed.envecosoc[[1]][[j]],
+                       summ.stats.by.strata.combined.unconsumed.envecosoc[[1]][[j]],
+                       summ.stats.by.strata.current.intake.envecosoc[[1]][[j]],
+                       summ.stats.by.strata.CF.intake.envecosoc[[1]][[j]],
+                       summ.stats.by.strata.current.intake.consumed.envecosoc[[1]][[j]],
+                       summ.stats.by.strata.CF.intake.consumed.envecosoc[[1]][[j]],
+                       summ.stats.by.strata.current.intake.unconsumed.envecosoc[[1]][[j]],
+                       summ.stats.by.strata.CF.intake.unconsumed.envecosoc[[1]][[j]],
                        
                        # inedible, wasted
-                       summ.stats.by.strata.combined.inedible.cost[[1]][[j]],
-                       summ.stats.by.strata.combined.wasted.cost[[1]][[j]],
-                       summ.stats.by.strata.current.intake.inedible.cost[[1]][[j]],
-                       summ.stats.by.strata.CF.intake.inedible.cost[[1]][[j]],
-                       summ.stats.by.strata.current.intake.wasted.cost[[1]][[j]],
-                       summ.stats.by.strata.CF.intake.wasted.cost[[1]][[j]]
+                       summ.stats.by.strata.combined.inedible.envecosoc[[1]][[j]],
+                       summ.stats.by.strata.combined.wasted.envecosoc[[1]][[j]],
+                       summ.stats.by.strata.current.intake.inedible.envecosoc[[1]][[j]],
+                       summ.stats.by.strata.CF.intake.inedible.envecosoc[[1]][[j]],
+                       summ.stats.by.strata.current.intake.wasted.envecosoc[[1]][[j]],
+                       summ.stats.by.strata.CF.intake.wasted.envecosoc[[1]][[j]]
                        )
   
   outcome.data.per.capita <- list(
-    summ.stats.by.strata.cost[[3]][[j]],
-    summ.stats.by.strata.substitution.cost[[3]][[j]],
-    summ.stats.by.strata.combined.cost[[3]][[j]],
-    summ.stats.by.strata.delta_forcost[[3]][[j]],
-    summ.stats.by.strata.combined.consumed.cost[[3]][[j]],
-    summ.stats.by.strata.combined.unconsumed.cost[[3]][[j]],
-    summ.stats.by.strata.current.intake.cost[[3]][[j]],
-    summ.stats.by.strata.CF.intake.cost[[3]][[j]],
-    summ.stats.by.strata.current.intake.consumed.cost[[3]][[j]],
-    summ.stats.by.strata.CF.intake.consumed.cost[[3]][[j]],
-    summ.stats.by.strata.current.intake.unconsumed.cost[[3]][[j]],
-    summ.stats.by.strata.CF.intake.unconsumed.cost[[3]][[j]],
+    summ.stats.by.strata.envecosoc[[3]][[j]],
+    summ.stats.by.strata.substitution.envecosoc[[3]][[j]],
+    summ.stats.by.strata.combined.envecosoc[[3]][[j]],
+    summ.stats.by.strata.delta_forenvecosoc[[3]][[j]],
+    summ.stats.by.strata.combined.consumed.envecosoc[[3]][[j]],
+    summ.stats.by.strata.combined.unconsumed.envecosoc[[3]][[j]],
+    summ.stats.by.strata.current.intake.envecosoc[[3]][[j]],
+    summ.stats.by.strata.CF.intake.envecosoc[[3]][[j]],
+    summ.stats.by.strata.current.intake.consumed.envecosoc[[3]][[j]],
+    summ.stats.by.strata.CF.intake.consumed.envecosoc[[3]][[j]],
+    summ.stats.by.strata.current.intake.unconsumed.envecosoc[[3]][[j]],
+    summ.stats.by.strata.CF.intake.unconsumed.envecosoc[[3]][[j]],
                                   
     # inedible, wasted
-    summ.stats.by.strata.combined.inedible.cost[[3]][[j]],
-    summ.stats.by.strata.combined.wasted.cost[[3]][[j]],
-    summ.stats.by.strata.current.intake.inedible.cost[[3]][[j]],
-    summ.stats.by.strata.CF.intake.inedible.cost[[3]][[j]],
-    summ.stats.by.strata.current.intake.wasted.cost[[3]][[j]],
-    summ.stats.by.strata.CF.intake.wasted.cost[[3]][[j]]
+    summ.stats.by.strata.combined.inedible.envecosoc[[3]][[j]],
+    summ.stats.by.strata.combined.wasted.envecosoc[[3]][[j]],
+    summ.stats.by.strata.current.intake.inedible.envecosoc[[3]][[j]],
+    summ.stats.by.strata.CF.intake.inedible.envecosoc[[3]][[j]],
+    summ.stats.by.strata.current.intake.wasted.envecosoc[[3]][[j]],
+    summ.stats.by.strata.CF.intake.wasted.envecosoc[[3]][[j]]
     )
   
   for(k in 1:length(outcome.names)){
@@ -1390,13 +1391,13 @@ for(j in 1:length(strata.combos)) {
             file = paste0(output_subgroup_location, 
                         "summary.output_by_", 
                         paste(strata.combos[[j]], collapse = '_'), 
-                        ".costenv.csv"))
+                        ".envecosoc.csv"))
   
   write_csv(x = all.summ.stats.by.strata.per.capita, 
             file = paste0(output_capita_location, 
                         "By_SubGroup/summary.output.percapita_by_", 
                         paste(strata.combos[[j]], collapse = '_'), 
-                        ".costenv.csv"))
+                        ".envecosoc.csv"))
   
 } # end of loop
 

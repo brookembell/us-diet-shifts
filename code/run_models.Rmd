@@ -54,9 +54,25 @@ version.date <- "2025-09-11"
 
 Start clock so you can get an idea of how long the code takes to run.
 
-```{r startclock}
+```{r start_clock}
 
 start_time <- Sys.time()
+
+```
+
+Create output folders.
+
+```{r create_dirs}
+
+# output from environmental, economic, and social (`envecosoc`) models
+ifelse(!dir.exists(file.path("output/envecosoc")),
+       dir.create(file.path("output/envecosoc")),
+       "Directory Exists")
+
+# output from comparative risk assessments (`cra`)
+ifelse(!dir.exists(file.path("output/CRA")),
+       dir.create(file.path("output/CRA")),
+       "Directory Exists")
 
 ```
 
@@ -85,7 +101,7 @@ Set number of simulations to 1,000.
 # Number of simulations
 # Set to 3 for testing
 
-nsim1 <- 3
+nsim1 <- 2
 n.sims <- nsim1
 
 ```
@@ -105,27 +121,30 @@ n.covar <- length(covar.vec)
 
 Identify all dietary patterns of interest here. Names should match "diet_pattern" column in the input data file (input_data.csv).
 
-```{r dietpatterns}
+```{r diet_patterns}
 
 # Vector of dietary patterns
-diet.vec <- c("HUS",
+diet.vec <- c("HUS")
+              # ,
               # "Med",              
               # "Veg",
               # "Vegan", 
-              "CDP"
-              )
+              # "CDP"
+              # )
 
 ```
 
 Identify all environmental, economic, social pillar outcomes.
 
-```{r econ.outcomes.vec}
+```{r envecosoc.outcomes.vec}
 
-econ.outcomes.vec <- c("CED", # environmental
-                     # "GHG", # environmental
+envecosoc.outcomes.vec <- c(
+                     # "CED", # environmental
+                     "GHG"
+                     # , # environmental
                      # "WATER", # environmental
-                     "Food_price", # economic
-                     "FL" # social
+                     # "Food_price", # economic
+                     # "FL" # social
                      )
 
 # don't change this
@@ -140,26 +159,26 @@ all.outcomes.vec <- c(
 
 ```
 
-## Environmental, Economic, and Social Models
+## Environmental, Economic, and Social (env-eco-soc) Models
 
 Create vectors to store outcomes.
 
 ```{r create_outcomes_vec}
 
-n.econ.outcomes <- length(econ.outcomes.vec)
-econ.outcomes.vec.mn <- paste("Mean", econ.outcomes.vec,  sep = "_")
-econ.outcomes.vec.se <- paste("SE", econ.outcomes.vec, sep = "_")
-econ.current.inedible.p.mn <- paste(econ.outcomes.vec, "_inedible_p", sep = "")
-econ.current.inedible.p.se <- paste(econ.outcomes.vec, "_inedible_p_se", sep = "")
-econ.counterfactual.inedible.p.mn <- paste("CF_",econ.outcomes.vec, "_inedible_p", sep = "")
-econ.counterfactual.inedible.p.se <- paste("CF_",econ.outcomes.vec, "_inedible_p_se", sep = "")
-econ.current.foodwaste.p.mn <- paste(econ.outcomes.vec, "_foodwaste_p", sep = "")
-econ.current.foodwaste.p.se <- paste(econ.outcomes.vec, "_foodwaste_p_se", sep = "")
-econ.counterfactual.foodwaste.p.mn <- paste("CF_",econ.outcomes.vec, "_foodwaste_p", sep = "")
-econ.counterfactual.foodwaste.p.se <- paste("CF_",econ.outcomes.vec, "_foodwaste_p_se", sep = "")
-num.econ.outcomes <- length(econ.outcomes.vec.mn)
-econ.outcomes.substitution.vec.mn <- paste("Mean_substitution", econ.outcomes.vec, sep = "_")
-econ.outcomes.substitution.vec.se <- paste("SE_substitution", econ.outcomes.vec, sep = "_")
+n.envecosoc.outcomes <- length(envecosoc.outcomes.vec)
+envecosoc.outcomes.vec.mn <- paste("Mean", envecosoc.outcomes.vec,  sep = "_")
+envecosoc.outcomes.vec.se <- paste("SE", envecosoc.outcomes.vec, sep = "_")
+envecosoc.current.inedible.p.mn <- paste(envecosoc.outcomes.vec, "_inedible_p", sep = "")
+envecosoc.current.inedible.p.se <- paste(envecosoc.outcomes.vec, "_inedible_p_se", sep = "")
+envecosoc.counterfactual.inedible.p.mn <- paste("CF_",envecosoc.outcomes.vec, "_inedible_p", sep = "")
+envecosoc.counterfactual.inedible.p.se <- paste("CF_",envecosoc.outcomes.vec, "_inedible_p_se", sep = "")
+envecosoc.current.foodwaste.p.mn <- paste(envecosoc.outcomes.vec, "_foodwaste_p", sep = "")
+envecosoc.current.foodwaste.p.se <- paste(envecosoc.outcomes.vec, "_foodwaste_p_se", sep = "")
+envecosoc.counterfactual.foodwaste.p.mn <- paste("CF_",envecosoc.outcomes.vec, "_foodwaste_p", sep = "")
+envecosoc.counterfactual.foodwaste.p.se <- paste("CF_",envecosoc.outcomes.vec, "_foodwaste_p_se", sep = "")
+num.envecosoc.outcomes <- length(envecosoc.outcomes.vec.mn)
+envecosoc.outcomes.substitution.vec.mn <- paste("Mean_substitution", envecosoc.outcomes.vec, sep = "_")
+envecosoc.outcomes.substitution.vec.se <- paste("SE_substitution", envecosoc.outcomes.vec, sep = "_")
 
 ```
 
@@ -168,7 +187,7 @@ List dietary vectors of interest here. Certain dietary factors are only of inter
 ```{r list_dietary_factors}
 
 # Dietary factors vector (for cost/env/labor)
-rfvec_costenv <- c(# Dairy
+rfvec_envecosoc <- c(# Dairy
                #     "dairy_tot", # cost
                #     "dairy_cow", # enviro
                #     "dairy_soy", # enviro
@@ -193,12 +212,14 @@ rfvec_costenv <- c(# Dairy
                # "veg_oth",
                # "veg_sta",
                # 
-               # "fruit_exc_juice",
+               "fruit_exc_juice"
+               # ,
                # "fruit_juice",
 
-               "added_sugar",
-               "oil",
-               "sat_fat")
+               # "added_sugar",
+               # "oil",
+               # "sat_fat"
+               )
 
 ```
 
@@ -219,7 +240,7 @@ primary_input1 <- primary_input %>%
                                       .default = diet_pattern))
 
 # subset to only include dietary factors for cost/env analysis
-primary_input_costenv <- subset(primary_input1, Foodgroup %in% rfvec_costenv)
+primary_input_envecosoc <- subset(primary_input1, Foodgroup %in% rfvec_envecosoc)
 
 ```
 
@@ -228,22 +249,20 @@ Create lists to store input and locations for output (by diet pattern and grocer
 ```{r input_and_outpot_loc_lists}
 
 # Create some more vectors
-costs_inputs.vec <- list()
-costs_output_loc.vec <- list()
+envecosoc_inputs.vec <- list()
+envecosoc_output_loc.vec <- list()
 
-# debug
-# i=1
 for (i in 1:length(diet.vec)) {
 
-  costs_inputs.vec[[paste0(diet.vec[[i]], "_fah")]] <- 
-    subset(primary_input_costenv, diet_pattern == diet.vec[[i]] & datatype == "Grocery")
+  envecosoc_inputs.vec[[paste0(diet.vec[[i]], "_fah")]] <- 
+    subset(primary_input_envecosoc, diet_pattern == diet.vec[[i]] & datatype == "Grocery")
   
-  costs_inputs.vec[[paste0(diet.vec[[i]], "_fafh")]] <- 
-    subset(primary_input_costenv, diet_pattern == diet.vec[[i]] & datatype == "Non-Grocery")
+  envecosoc_inputs.vec[[paste0(diet.vec[[i]], "_fafh")]] <- 
+    subset(primary_input_envecosoc, diet_pattern == diet.vec[[i]] & datatype == "Non-Grocery")
 
   # Output locations vector
-  costs_output_loc.vec[[paste0(diet.vec[[i]], "_fah")]] <- paste0(diet.vec[[i]], "_diet_Gro")
-  costs_output_loc.vec[[paste0(diet.vec[[i]], "_fafh")]] <- paste0(diet.vec[[i]], "_diet_Oth")
+  envecosoc_output_loc.vec[[paste0(diet.vec[[i]], "_fah")]] <- paste0(diet.vec[[i]], "_diet_Gro")
+  envecosoc_output_loc.vec[[paste0(diet.vec[[i]], "_fafh")]] <- paste0(diet.vec[[i]], "_diet_Oth")
 
 }
 
@@ -254,7 +273,7 @@ Read in subgroup-specific population numbers.
 ```{r pop}
 
 # Population
-pop <- costs_inputs.vec[[1]] %>% 
+pop <- envecosoc_inputs.vec[[1]] %>% 
   mutate(Sex = as.character(Sex)) %>%
   filter(datatype == "Grocery") %>%
   select(subgroup, Age, Age_label, Sex, Sex_label, Race, Race_label, population) %>%
@@ -269,7 +288,6 @@ Next, simulate distribution for total population numbers (in our cases, since po
 
 ```{r presim_pop}
 
-# Pre-simulate mortality/incidence numbers, to be used in CRA simulations, as well for calculating reverse-engineered PAFs
 # Also, pre-simulate total population numbers
 
 source(paste0(code_location, "source_code/presimulate_pop_draws.r"))
@@ -278,9 +296,9 @@ source(paste0(code_location, "source_code/presimulate_pop_draws.r"))
 
 Run the cost/env/social simulations via a for loop (for each pair of dietary pattern and grocery/non-grocery combo)
 
-```{r run_model}
+```{r run_model, results='hide'}
 
-for(k in 1:length(costs_inputs.vec)) {
+for(k in 1:length(envecosoc_inputs.vec)) {
 
   print(k)
   
@@ -294,84 +312,84 @@ Create vectors used to name output files and used to define variable names in su
 
 ```{r output_names}
 
-output.type.vec.sims <- c("costenv.sims.granular", 
-                          "substitution.costenv.sims.granular", 
-                          "combined.costenvs.sims.granular",
-                          "delta.costenv.sims.granular",
-                          "combined.costenvs.sims.granular.consumed",
-                          "combined.costenvs.sims.granular.unconsumed",
-                          "current.intake.costenv.sims.granular", 
-                          "CF.costenv.intake.sims.granular", 
-                          "current.intake.costenv.sims.granular.consumed",
-                          "CF.intake.costenv.sims.granular.consumed", 
-                          "current.intake.costenv.sims.granular.unconsumed", 
-                          "CF.intake.costenv.sims.granular.unconsumed",
-                          "costenv.sims.granular.inedible", 
-                          "costenv.sims.granular.wasted",
-                          "current.intake.costenv.sims.granular.inedible", 
-                          "CF.intake.costenv.sims.granular.inedible",
-                          "current.intake.costenv.sims.granular.wasted", 
-                          "CF.intake.costenv.sims.granular.wasted"
+output.type.vec.sims <- c("envecosoc.sims.granular", 
+                          "substitution.envecosoc.sims.granular", 
+                          "combined.envecosoc.sims.granular",
+                          "delta.envecosoc.sims.granular",
+                          "combined.envecosoc.sims.granular.consumed",
+                          "combined.envecosoc.sims.granular.unconsumed",
+                          "current.intake.envecosoc.sims.granular", 
+                          "CF.envecosoc.intake.sims.granular", 
+                          "current.intake.envecosoc.sims.granular.consumed",
+                          "CF.intake.envecosoc.sims.granular.consumed", 
+                          "current.intake.envecosoc.sims.granular.unconsumed", 
+                          "CF.intake.envecosoc.sims.granular.unconsumed",
+                          "envecosoc.sims.granular.inedible", 
+                          "envecosoc.sims.granular.wasted",
+                          "current.intake.envecosoc.sims.granular.inedible", 
+                          "CF.intake.envecosoc.sims.granular.inedible",
+                          "current.intake.envecosoc.sims.granular.wasted", 
+                          "CF.intake.envecosoc.sims.granular.wasted"
                           )
 
-output.type.vec.summary <- c("costenv.summary.granular", 
-                             "substitution.costenv.summary.granular", 
-                             "combined.costenvs.summary.granular",
-                             "delta.costenv.summary.granular",
-                             "combined.costenvs.summary.granular.consumed",
-                             "combined.costenvs.summary.granular.unconsumed",
-                             "current.intake.costenv.summary.granular", 
-                             "CF.costenv.intake.summary.granular", 
-                             "current.intake.costenv.summary.granular.consumed",
-                             "CF.intake.costenv.summary.granular.consumed", 
-                             "current.intake.costenv.summary.granular.unconsumed", 
-                             "CF.intake.costenv.summary.granular.unconsumed",
-                             "costenv.summary.granular.inedible", 
-                             "costenv.summary.granular.wasted",
-                             "current.intake.costenv.summary.granular.inedible", 
-                             "CF.intake.costenv.summary.granular.inedible",
-                             "current.intake.costenv.summary.granular.wasted", 
-                             "CF.intake.costenv.summary.granular.wasted"
+output.type.vec.summary <- c("envecosoc.summary.granular", 
+                             "substitution.envecosoc.summary.granular", 
+                             "combined.envecosoc.summary.granular",
+                             "delta.envecosoc.summary.granular",
+                             "combined.envecosoc.summary.granular.consumed",
+                             "combined.envecosoc.summary.granular.unconsumed",
+                             "current.intake.envecosoc.summary.granular", 
+                             "CF.envecosoc.intake.summary.granular", 
+                             "current.intake.envecosoc.summary.granular.consumed",
+                             "CF.intake.envecosoc.summary.granular.consumed", 
+                             "current.intake.envecosoc.summary.granular.unconsumed", 
+                             "CF.intake.envecosoc.summary.granular.unconsumed",
+                             "envecosoc.summary.granular.inedible", 
+                             "envecosoc.summary.granular.wasted",
+                             "current.intake.envecosoc.summary.granular.inedible", 
+                             "CF.intake.envecosoc.summary.granular.inedible",
+                             "current.intake.envecosoc.summary.granular.wasted", 
+                             "CF.intake.envecosoc.summary.granular.wasted"
                              )
 
-output.type.vec.sims.bystrata <- c("costenv.sims", 
-                                   "substitution.costenv.sims", 
-                                   "combined.costenvs.sims",
-                                   "delta.costenv.sims",
-                                   "combined.costenvs.sims.consumed",
-                                   "combined.costenvs.sims.unconsumed",
-                                   "current.intake.costenv.sims", 
-                                   "CF.costenv.intake.sims", 
-                                   "current.intake.costenv.sims.consumed",
-                                   "CF.intake.costenv.sims.consumed", 
-                                   "current.intake.costenv.sims.unconsumed", 
-                                   "CF.intake.costenv.sims.unconsumed",
-                                   "inedible.costenv.sims", 
-                                   "wasted.costenv.sims",
-                                   "current.intake.costenv.sims.inedible", 
-                                   "CF.intake.costenv.sims.inedible",
-                                   "current.intake.costenv.sims.wasted", 
-                                   "CF.intake.costenv.sims.wasted"
+output.type.vec.sims.bystrata <- c("envecosoc.sims", 
+                                   "substitution.envecosoc.sims", 
+                                   "combined.envecosoc.sims",
+                                   "delta.envecosoc.sims",
+                                   "combined.envecosoc.sims.consumed",
+                                   "combined.envecosoc.sims.unconsumed",
+                                   "current.intake.envecosoc.sims", 
+                                   "CF.envecosoc.intake.sims", 
+                                   "current.intake.envecosoc.sims.consumed",
+                                   "CF.intake.envecosoc.sims.consumed", 
+                                   "current.intake.envecosoc.sims.unconsumed", 
+                                   "CF.intake.envecosoc.sims.unconsumed",
+                                   "inedible.envecosoc.sims", 
+                                   "wasted.envecosoc.sims",
+                                   "current.intake.envecosoc.sims.inedible", 
+                                   "CF.intake.envecosoc.sims.inedible",
+                                   "current.intake.envecosoc.sims.wasted", 
+                                   "CF.intake.envecosoc.sims.wasted"
                                    )
 
-output.type.vec.summary.bystrata <- c("costenv.summary", 
-                                      "substitution.costenv.summary", 
-                                      "combined.costenvs.summary",
-                                      "delta.costenv.summary",
-                                      "combined.costenvs.summary.consumed",
-                                      "combined.costenvs.summary.unconsumed",
-                                      "current.intake.costenv.summary", 
-                                      "CF.costenv.intake.summary", 
-                                      "current.intake.costenv.summary.consumed",
-                                      "CF.intake.costenv.summary.consumed", 
-                                      "current.intake.costenv.summary.unconsumed", 
-                                      "CF.intake.costenv.summary.unconsumed",
-                                      "inedible.costenv.summary", 
-                                      "wasted.costenv.summary",
-                                      "current.intake.costenv.summary.inedible", 
-                                      "CF.intake.costenv.summary.inedible",
-                                      "current.intake.costenv.summary.wasted", 
-                                      "CF.intake.costenv.summary.wasted"
+output.type.vec.summary.bystrata <- c("envecosoc.summary", 
+                                      "substitution.envecosoc.summary", 
+                                      "combined.envecosoc.summary",
+                                      "delta.envecosoc.summary",
+                                      "combined.envecosoc.summary.consumed",
+                                      "combined.envecosoc.summary.unconsumed",
+                                      "current.intake.envecosoc.summary", 
+                                      "CF.envecosoc.intake.summary", 
+                                      "current.intake.envecosoc.summary.consumed",
+                                      "CF.intake.envecosoc.summary.consumed", 
+                                      "current.intake.envecosoc.summary.unconsumed", 
+                                      "CF.intake.envecosoc.summary.unconsumed",
+                                      "inedible.envecosoc.summary", 
+                                      "wasted.envecosoc.summary",
+                                      "current.intake.envecosoc.summary.inedible", 
+                                      "CF.intake.envecosoc.summary.inedible",
+                                      "current.intake.envecosoc.summary.wasted", 
+                                      "CF.intake.envecosoc.summary.wasted"
                                       )
 
 LB.name.vec <- c("impact_lower_bound (2.5th percentile)",
@@ -514,7 +532,9 @@ First, start the loop (through the dietary patterns). For each dietary pattern w
 
 Within ll loop, loop through the different output types and extract sims and summary stats. Combine food at home and food away from home output and populate the lists. See documentation for "combine.FAH.FAFH.r" for details.
 
-```{r fah_fafh}
+```{r fah_fafh, results='hide'}
+
+# ll=1
 
 # start ll loop
 for(ll in 1:length(diet.vec)) {
@@ -550,7 +570,7 @@ for(ll in 1:length(diet.vec)) {
   summary.list.by.strata.combo <- revert_list_str_4(summary.list)
   summary.list.percapita.by.strata.combo <- revert_list_str_4(summary.list.percapita)
 
-  output_location <- paste0("output/cost_env/", diet, "_diet_both/")
+  output_location <- paste0("output/envecosoc/", diet, "_diet_both/")
 
   for(mm in 1:length(names(summary.list[[1]]))) {
     
@@ -564,7 +584,7 @@ for(ll in 1:length(diet.vec)) {
     write_csv(x = merged, 
               file = paste0(output_location, 
                           "By_SubGroup/", "summary.output_by_", 
-                          names(summary.list[[1]])[mm], ".costenv.csv"))
+                          names(summary.list[[1]])[mm], ".envecosoc.csv"))
     
     list.names.intersect <- 
       Reduce(intersect, lapply(summary.list.percapita.by.strata.combo[[mm]], colnames))
@@ -576,7 +596,7 @@ for(ll in 1:length(diet.vec)) {
     write.csv(x = merged.percapita, 
               file = paste0(output_location, 
                           "per_capita/By_SubGroup/", "summary.output_by_", 
-                          names(summary.list[[1]])[mm], ".costenv.csv"))
+                          names(summary.list[[1]])[mm], ".envecosoc.csv"))
     
   }
   
@@ -586,7 +606,7 @@ for(ll in 1:length(diet.vec)) {
 
 To output how much time it took run the cost/env/social portion of the code (find it in .txt file when you run the code).
 
-```{r end_time}
+```{r end_time, include=TRUE}
 
  end_time1 <- Sys.time()
 
@@ -601,20 +621,23 @@ Now we start with CRA portion of the code.
 
 List out dietary factors of interest and subset master input file by them.
 
-```{r dietfactors_cra}
+```{r diet_factors_cra}
 
 # Dietary factors vector (for CRA)
-rfvec_cra <- c("dairy_tot",
+rfvec_cra <- c(
+               # "dairy_tot",
                # "gr_whole",
                # "pf_ns",
                # "pf_pm",
                # "pf_redm",
                # "pf_seafood",
-               # "veg_exc_sta",
+               "veg_exc_sta",
                # "ssb",
                # "sodium",
-               # "fruit_exc_juice",
-               "leg_tot")
+               "fruit_exc_juice"
+               # ,
+               # "leg_tot"
+               )
 
 # subset to only include dietary factors for CRA
 primary_input_cra <- subset(primary_input, Foodgroup %in% rfvec_cra)
@@ -747,10 +770,10 @@ theomin <- primary_input_cra %>%
 
 Create mortality/incidence simulations.
 
-```{r presim_mort}
+```{r presim_disease, results='hide'}
 
 # pre-simulate mortality/incidence numbers, to be used in CRA simulations, as well for calculating reverse-engineered PAFs
-source(paste0(code_location, "source_code/presimulate_observed_mort_draws.r"))
+source(paste0(code_location, "source_code/presimulate_observed_disease_draws.r"))
 
 ```
 
@@ -806,7 +829,9 @@ Add variable to specify number of risk factors, variable to specify length of ex
 
 Once we have read in everything we need, next is running the model. Part 1 actually calculates the PIFs for all diet-disease pairs of interest for all subgroups, x times depending on what you set nsim to be. The entire simulation results will be saved. Part 2 creates summary results, for all possible subgroup combinations. Part 3 calculates joint PIFs (for all subgroups).
 
-```{r run_cra}
+```{r run_cra, results='hide'}
+
+ss=1
 
 # This is the for loop that runs the CRA analysis for all dietary patterns
 foreach(ss = 1:length(diet.vec), .verbose = TRUE) %dopar% {
@@ -909,7 +934,7 @@ foreach(ss = 1:length(diet.vec), .verbose = TRUE) %dopar% {
 
 We're done. End the timer, stop the set up to run simultaneously, and print how much time it took to run the code.
 
-```{r end}
+```{r end, include=TRUE}
 
 end_time2 <- Sys.time()
 

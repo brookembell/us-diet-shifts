@@ -14,19 +14,19 @@
 ############################################################################
 
 # First, read in relevant files, including the PIFs/attributable mortality sims 
-# file (allmort), observed mortality/incidence sims file (total mort), and 
+# file (alldisease), observed mortality/incidence sims file (total disease), and 
 # observed population sims file (pop.draws).
 
-allmort <- read_csv(file = paste0(output_location, diet_pattern, 
-                               "/all.incidence.draws_", year.vec.string, 
+alldisease <- read_csv(file = paste0(output_location, diet_pattern, 
+                               "/all.disease.draws_", year.vec.string, 
                                "_", covar.vec.string, "_", diet_pattern, 
                                ".csv"))
 
 
-allmort <- allmort[order(allmort$riskfactor, allmort$outcome, 
-                         allmort$female, allmort$age, allmort$race),]
+alldisease <- alldisease[order(alldisease$riskfactor, alldisease$outcome, 
+                         alldisease$female, alldisease$age, alldisease$race),]
 
-totalmort <- read_csv(paste0(file_location, "observed.cancer.mortality.draws.csv"))
+totaldisease <- read_csv(paste0(file_location, "observed.disease.burden.draws.csv"))
 
 pop.draws <- read_csv(paste0(file_location, "observed.pop.draws.csv"))
 
@@ -35,25 +35,25 @@ pop.draws <- read_csv(paste0(file_location, "observed.pop.draws.csv"))
 
 names(pop.draws) <- gsub("X", "Y", names(pop.draws))
 
-# Recode demographic variables in totalmort (to match with "allmort", the 
+# Recode demographic variables in totaldisease (to match with "alldisease", the 
 # output created in part one).
 
-totalmort <- totalmort[order(totalmort$disease, totalmort$subgroup),]
-totalmort$age <- 0
-totalmort$age[totalmort$Age_label == "20-34"] <- 25
-totalmort$age[totalmort$Age_label == "35-44"] <- 35
-totalmort$age[totalmort$Age_label == "45-54"] <- 45
-totalmort$age[totalmort$Age_label == "55-64"] <- 55
-totalmort$age[totalmort$Age_label == "65-74"] <- 65
-totalmort$age[totalmort$Age_label == "75+"] <- 75
+totaldisease <- totaldisease[order(totaldisease$disease, totaldisease$subgroup),]
+totaldisease$age <- 0
+totaldisease$age[totaldisease$Age_label == "20-34"] <- 25
+totaldisease$age[totaldisease$Age_label == "35-44"] <- 35
+totaldisease$age[totaldisease$Age_label == "45-54"] <- 45
+totaldisease$age[totaldisease$Age_label == "55-64"] <- 55
+totaldisease$age[totaldisease$Age_label == "65-74"] <- 65
+totaldisease$age[totaldisease$Age_label == "75+"] <- 75
 
-totalmort$female[totalmort$Sex == 1] <- 1
-totalmort$female[totalmort$Sex == 2] <- 0
+totaldisease$female[totaldisease$Sex == 1] <- 1
+totaldisease$female[totaldisease$Sex == 2] <- 0
 
-totalmort$race[totalmort$Race_label == "NHW"] <- 1
-totalmort$race[totalmort$Race_label == "NHB"] <- 2
-totalmort$race[totalmort$Race_label == "HIS"] <- 3
-totalmort$race[totalmort$Race_label == "OTH"] <- 4
+totaldisease$race[totaldisease$Race_label == "NHW"] <- 1
+totaldisease$race[totaldisease$Race_label == "NHB"] <- 2
+totaldisease$race[totaldisease$Race_label == "HIS"] <- 3
+totaldisease$race[totaldisease$Race_label == "OTH"] <- 4
 
 # Recall that, for the purposes of calculating the PIFs, we treat each 
 # outcome/pathway as a distinct outcome (direct effect, mediated by BMI, and 
@@ -61,12 +61,12 @@ totalmort$race[totalmort$Race_label == "OTH"] <- 4
 # joint PIFs), it's better to have the outcomes and pathway separated into two 
 # different variables. Below is code do that. 
 
-totalmort[!grepl("_", totalmort$disease, fixed = TRUE),]$disease <- 
-  paste(totalmort[!grepl("_", totalmort$disease, fixed = TRUE),]$disease, "_direct", sep = "")
+totaldisease[!grepl("_", totaldisease$disease, fixed = TRUE),]$disease <- 
+  paste(totaldisease[!grepl("_", totaldisease$disease, fixed = TRUE),]$disease, "_direct", sep = "")
 
-totalmort <-totalmort %>% separate(col = disease, into = c("outcome", "pathway"), sep = "_")
-totalmort <- totalmort[totalmort$pathway  == "direct",]
-totalmort <- subset(totalmort, outcome %in% diseases.vec, select = -c(pathway))
+totaldisease <-totaldisease %>% separate(col = disease, into = c("outcome", "pathway"), sep = "_")
+totaldisease <- totaldisease[totaldisease$pathway  == "direct",]
+totaldisease <- subset(totaldisease, outcome %in% diseases.vec, select = -c(pathway))
 
 # Recall, we also have three broader outcome categories of interest (denoted as 
 # disease type 1, diseaes type 2, disease type 3), and have mapped each outcome 
@@ -74,26 +74,26 @@ totalmort <- subset(totalmort, outcome %in% diseases.vec, select = -c(pathway))
 # in disease.table. Code below uses that mapping to create variables for the 
 # three disease type categories.
 
-totalmort$disease_type <- 
-  disease.type.vec[match(totalmort$outcome[totalmort$outcome %in% diseases.vec], 
+totaldisease$disease_type <- 
+  disease.type.vec[match(totaldisease$outcome[totaldisease$outcome %in% diseases.vec], 
                          disease.table)]
 
-totalmort$disease_type1 <- 
-  disease.type1.vec[match(totalmort$outcome[totalmort$outcome %in% diseases.vec], 
+totaldisease$disease_type1 <- 
+  disease.type1.vec[match(totaldisease$outcome[totaldisease$outcome %in% diseases.vec], 
                           disease.table)]
 
-totalmort$disease_type2 <- 
-  disease.type2.vec[match(totalmort$outcome[totalmort$outcome %in% diseases.vec], 
+totaldisease$disease_type2 <- 
+  disease.type2.vec[match(totaldisease$outcome[totaldisease$outcome %in% diseases.vec], 
                           disease.table)]
 
-totalmort$disease_type3 <- 
-  disease.type3.vec[match(totalmort$outcome[totalmort$outcome %in% diseases.vec], 
+totaldisease$disease_type3 <- 
+  disease.type3.vec[match(totaldisease$outcome[totaldisease$outcome %in% diseases.vec], 
                           disease.table)]
 
 # Get rid of unused demo vars (we'll be using the new recoded ones we created earlier).
 
-totalmort <- 
-  totalmort[, -which(names(totalmort) %in% c("X", "disease", "Sex", 
+totaldisease <- 
+  totaldisease[, -which(names(totaldisease) %in% c("X", "disease", "Sex", 
                                             "age_gp", "race_gp", "agecat"))]
 
 # Read in PIF sims file.
@@ -104,17 +104,17 @@ pif <- read_csv(file = paste0(output_location, diet_pattern, "/all.PIFs_",
 
 # Read in script that defines functions for summing up by demographic variables.
 
-source(paste0(code_location, "functions/sum.by.strata.redone.r"))
+source(paste0(code_location, "functions/sum_by_strata.r"))
 
 # Get summary stats of attributable mortality/incidence for each 
 # subgroup/dietary-factor+pathway/outcome. Rename certain variables of 
 # resulting variables for clarity.
 
-sum.stats.attr.mort.PIF <- sum.stats.maker(allmort = allmort)
+sum.stats.attr.disease.PIF <- sum.stats.maker(alldisease = alldisease)
 
-sum.stats.PIF <- sum.stats.maker(allmort = pif)
+sum.stats.PIF <- sum.stats.maker(alldisease = pif)
 
-names(sum.stats.attr.mort.PIF)[(1 + length(covar.vec)):(6 + length(covar.vec))] <- 
+names(sum.stats.attr.disease.PIF)[(1 + length(covar.vec)):(6 + length(covar.vec))] <- 
   c("mean (food)", "se (food)", "sd (food)", "mean (food, counterfactual)", 
     "se (food, counterfactual)", "sd (food, counterfactual)")
 
@@ -127,16 +127,16 @@ names(sum.stats.PIF)[(1 + length(covar.vec)):(6 + length(covar.vec))] <-
 # defined by age, sex and race.
 
 # Read CSV file of exposure
-mort.dat <- read_csv(file = paste0(file_location, "nhanes1518_agesexrace_merged_", 
+disease.dat <- read_csv(file = paste0(file_location, "nhanes1518_agesexrace_merged_", 
                                  version.date ,".csv"))
 
-mort.dat <- mort.dat[order(mort.dat$diet),]
+disease.dat <- disease.dat[order(disease.dat$diet),]
 
 if(identical(covar.vec, c("Age", "Sex", "Race"))) {
   
-  l <- length(table(mort.dat$agecat)) *
-    length(table(mort.dat$female)) *
-    length(table(mort.dat$race))
+  l <- length(table(disease.dat$agecat)) *
+    length(table(disease.dat$female)) *
+    length(table(disease.dat$race))
   
 }
 
@@ -147,22 +147,22 @@ if(identical(covar.vec, c("Age", "Sex", "Race"))) {
 # results for the population, etc... as opposed results by each 
 # age/sex/race/outcome/etc..). 
 
-# First, we merge "allmort", "totalmort" and "pop.draws" into one file, and 
+# First, we merge "alldisease", "totaldisease" and "pop.draws" into one file, and 
 # identify the column index where part starts in this new dataframe.
 
-merged <- reduce(list(allmort, totalmort, pop.draws), merge)
+merged <- reduce(list(alldisease, totaldisease, pop.draws), merge)
 
-allmort.starting.point <- which(names(merged) == "V1")
-allmort.ending.point <- which(names(merged) == paste("V", nsim1, sep = ""))
-totalmort.starting.point <- which(names(merged) == "X1")
-totalmort.ending.point <- which(names(merged) == paste("X", nsim1, sep = ""))
+alldisease.starting.point <- which(names(merged) == "V1")
+alldisease.ending.point <- which(names(merged) == paste("V", nsim1, sep = ""))
+totaldisease.starting.point <- which(names(merged) == "X1")
+totaldisease.ending.point <- which(names(merged) == paste("X", nsim1, sep = ""))
 pop.starting.point <- which(names(merged) == "Y1")
 pop.ending.point <- which(names(merged) == paste("Y", nsim1, sep = ""))
 
 # Create a new matrix with "reverse-engineered" PIFs calculated by dividing 
-# "allmort" values (attributable mort) by "totalmort" values (observed mort). 
+# "alldisease" values (attributable disease) by "totaldisease" values (observed disease). 
 # Order it (by risk factor, disease type, outcome, sex, age, race). If any NAs 
-# (from observed mort values being zero for whatever reason), change to 0. Save. 
+# (from observed disease values being zero for whatever reason), change to 0. Save. 
 
 RE.PIFs <- cbind(merged[, which(names(merged) %in% c("age", 
                                                     "female", 
@@ -174,8 +174,8 @@ RE.PIFs <- cbind(merged[, which(names(merged) %in% c("age",
                                                     "disease_type2", 
                                                     "disease_type3",
                                                     "riskfactor"))], 
-                 merged[, allmort.starting.point:allmort.ending.point] / 
-                   merged[, totalmort.starting.point:totalmort.ending.point])
+                 merged[, alldisease.starting.point:alldisease.ending.point] / 
+                   merged[, totaldisease.starting.point:totaldisease.ending.point])
 
 RE.PIFs <- RE.PIFs[order(RE.PIFs$riskfactor, 
                          RE.PIFs$disease_type, 
@@ -187,15 +187,15 @@ RE.PIFs <- RE.PIFs[order(RE.PIFs$riskfactor,
 RE.PIFs[is.na(RE.PIFs)] <- 0
 
 write_csv(x = RE.PIFs, 
-          file = paste0(output_location, diet_pattern, "/all.mort.draws_RE.PIFs_", 
+          file = paste0(output_location, diet_pattern, "/all.disease.draws_RE.PIFs_", 
                      year.vec.string, "_", covar.vec.string, "_", diet_pattern, 
                      ".csv"))
 
 # Next, we use the same idea to get "standardized mortality", as in, the number 
 # of people saved (if at the counterfactual) per 100,000 people. So now, we take 
-# attributable mort, divide by total population, then multiply by 100,000.
+# attributable disease, divide by total population, then multiply by 100,000.
 
-standardized.mort.info <- merged[,which(names(merged) %in% c("age", 
+standardized.disease.info <- merged[,which(names(merged) %in% c("age", 
                                                              "female", 
                                                              "race", 
                                                              "outcome", 
@@ -206,60 +206,60 @@ standardized.mort.info <- merged[,which(names(merged) %in% c("age",
                                                              "disease_type3",
                                                              "riskfactor"))]
 
-standardized.mort <- 
-  cbind(standardized.mort.info, 
-        merged[, allmort.starting.point:allmort.ending.point] /
+standardized.disease <- 
+  cbind(standardized.disease.info, 
+        merged[, alldisease.starting.point:alldisease.ending.point] /
           merged[, pop.starting.point:pop.ending.point] * 100000)
 
-standardized.mort <- 
-  standardized.mort[order(standardized.mort$riskfactor, 
-                          standardized.mort$outcome, 
-                          standardized.mort$disease_type, 
-                          standardized.mort$female, 
-                          standardized.mort$age, 
-                          standardized.mort$race),]
+standardized.disease <- 
+  standardized.disease[order(standardized.disease$riskfactor, 
+                          standardized.disease$outcome, 
+                          standardized.disease$disease_type, 
+                          standardized.disease$female, 
+                          standardized.disease$age, 
+                          standardized.disease$race),]
 
-standardized.mort[is.na(standardized.mort)] <- 0
+standardized.disease[is.na(standardized.disease)] <- 0
 
-write_csv(x = standardized.mort, 
-          file = paste0(output_location, diet_pattern, "/standardized.mort_", 
+write_csv(x = standardized.disease, 
+          file = paste0(output_location, diet_pattern, "/standardized.disease_", 
                      year.vec.string, "_", covar.vec.string, "_", 
                      diet_pattern, ".csv"))
 
 # Now we have a distribution of "reverse-engineered" PIFs and events prevented 
 # per 100,000 for all subgroups. Now we take those and get summary stats (and 
-# edit var names for standardized.mort.sum.stats file for clarity).
+# edit var names for standardized.disease.sum.stats file for clarity).
 
 RE.PIFs.sum.stats <- sum.stats.maker.RE.PAFs(RE.PIFs)
 
-standardized.mort.sum.stats <- sum.stats.maker(standardized.mort)
+standardized.disease.sum.stats <- sum.stats.maker(standardized.disease)
 
-names(standardized.mort.sum.stats)[(length(names(standardized.mort.sum.stats)) - 4):
-                                     length(names(standardized.mort.sum.stats))] <- 
-  paste0("mort.per.100k.", 
-         names(standardized.mort.sum.stats)[(length(names(standardized.mort.sum.stats)) - 4):
-                                              length(names(standardized.mort.sum.stats))])
+names(standardized.disease.sum.stats)[(length(names(standardized.disease.sum.stats)) - 4):
+                                     length(names(standardized.disease.sum.stats))] <- 
+  paste0("disease.per.100k.", 
+         names(standardized.disease.sum.stats)[(length(names(standardized.disease.sum.stats)) - 4):
+                                              length(names(standardized.disease.sum.stats))])
 
-# Merge the summary stats files for attributable mort/incidence, 
-# "reverse-engineered" PIFs, and standardized attributable mort/incidence, and 
+# Merge the summary stats files for attributable mortality/incidence, 
+# "reverse-engineered" PIFs, and standardized attributable mortality/incidence, and 
 # save it. Also, save the summary stats file for the actual PIFs 
 # (not "reverse-engineered") we made earlier.
 
-sum.stats.attr.mort.merged <- 
-  reduce(list(sum.stats.attr.mort.PIF, 
+sum.stats.attr.disease.merged <- 
+  reduce(list(sum.stats.attr.disease.PIF, 
               RE.PIFs.sum.stats, 
-              standardized.mort.sum.stats), 
+              standardized.disease.sum.stats), 
          merge)
 
-write.csv(x = sum.stats.attr.mort.merged, 
+write.csv(x = sum.stats.attr.disease.merged, 
           file = paste0(output_location, diet_pattern, 
-                     "/summarystats_attributable_USmortality_", 
-                     covar.vec.string, "_",year.vec.string, "_", 
+                     "/summarystats_attributable_USdisease_", 
+                     covar.vec.string, "_", year.vec.string, "_", 
                      diet_pattern, ".csv"), row.names = FALSE)
 
 write.csv(x = sum.stats.PIF, 
           file = paste0(output_location, diet_pattern, "/summarystats_PIFs_", 
-                     covar.vec.string, "_",year.vec.string, "_", 
+                     covar.vec.string, "_", year.vec.string, "_", 
                      diet_pattern, ".csv"), row.names = FALSE)
 
 # Ok, now that we've done that. Let's get to making output for the manuscript. 
@@ -303,6 +303,9 @@ for(i in 1:length(strata)) {
 # (from CMDs). Good point! You got me! (Generally, I recommend not mixing 
 # cancer mortality and CMD incidence when reporting results)
 
+# debug
+# i = 6
+
 strata.combos.of.interest.boolean <- c()
 
 for(i in 1:length(strata.combos)) {
@@ -320,8 +323,7 @@ for(i in 1:length(strata.combos)) {
                                   "disease_type", 
                                   "disease_type1", 
                                   "disease_type2", 
-                                  "disease_type3")) & 
-    (disease_overlap_count < 2)
+                                  "disease_type3")) & (disease_overlap_count < 2)
   
 }
 
@@ -332,17 +334,28 @@ print(strata.combos.of.interest.index)
 
 # Having identifying the index for each strata combo of interest, we can loop 
 # through them and apply the Sum.by.strata command which takes as inputs the 
-# attributable mort sims, total mort sims, total pop sims, and the stratas of 
+# attributable disease sims, total disease sims, total pop sims, and the stratas of 
 # interest, and uses that to calculate 4 output files  of interest: 
 #   
-# 1: summary stats of attributable mort/incidence  +  "reverse engineered" PIFs 
-#  +  standardized preventable mort/incidence by specified strata, 
+# 1: summary stats of attributable mortality/incidence  +  "reverse engineered" PIFs 
+#  +  standardized preventable mortality/incidence by specified strata, 
 # 
-# 2: entire simulation of attributable mort/incidence by specified strata, 
+# 2: entire simulation of attributable mortality/incidence by specified strata, 
 # 
 # 3: entire simulation of observed deaths by specified strata, 
 # 
 # 4: entire simulation of "reverse engineered" PIFs by specified strata.
+
+# debug
+# i=5
+
+# for(i in strata.combos.of.interest.index) {
+#   
+#   print(i)
+#   print(strata.combos[[i]])
+#   print("")
+#   
+# }
 
 for(i in strata.combos.of.interest.index) {
   
@@ -350,34 +363,34 @@ for(i in strata.combos.of.interest.index) {
   print(strata.combos[[i]])
   print("")
   
-  sum.stats.byX.attr.mort <- 
-    Sum.by.strata(allmort = allmort, 
-                  totalmort = totalmort, 
+  sum.stats.byX.attr.disease <- 
+    Sum.by.strata(alldisease = alldisease, 
+                  totaldisease = totaldisease, 
                   pop = pop.draws, 
                   covar = strata.combos[[i]])
   
-  write.csv(x = sum.stats.byX.attr.mort[[1]], 
+  write.csv(x = sum.stats.byX.attr.disease[[1]], 
             file = paste0(output_location, diet_pattern, 
-                       "/summarystats_attributable_USmortality_", 
+                       "/summarystats_attributable_USdisease_", 
                        "by_", paste(strata.combos[[i]], sep = "", collapse = "_"), 
                        "_", year.vec.string, "_", diet_pattern,".csv"), 
             row.names = FALSE)
   
-  write.csv(x = sum.stats.byX.attr.mort[[2]], 
+  write.csv(x = sum.stats.byX.attr.disease[[2]], 
             file = paste0(output_location, diet_pattern, 
-                       "/attributable_USmortality_draws_", 
+                       "/attributable_USdisease_draws_", 
                        "by_", paste(strata.combos[[i]], sep = "", collapse = "_"), 
                        "_", year.vec.string, "_", diet_pattern, ".csv"), 
             row.names = FALSE)
   
-  write.csv(x = sum.stats.byX.attr.mort[[3]], 
+  write.csv(x = sum.stats.byX.attr.disease[[3]], 
             file = paste0(output_location, diet_pattern, 
-                       "/total_USmortality_draws_", 
+                       "/total_USdisease_draws_", 
                        "by_", paste(strata.combos[[i]], sep = "", collapse = "_"), 
                        "_", year.vec.string, "_", diet_pattern, ".csv"), 
             row.names = FALSE)
   
-  write.csv(x = sum.stats.byX.attr.mort[[4]], 
+  write.csv(x = sum.stats.byX.attr.disease[[4]], 
             file = paste0(output_location, diet_pattern, 
                        "/RE_PIFs_draws_", 
                        "by_", paste(strata.combos[[i]], sep = "", collapse = "_"), 

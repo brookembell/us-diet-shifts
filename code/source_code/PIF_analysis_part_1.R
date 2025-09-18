@@ -24,8 +24,8 @@
 # First, we create various R objects where we store final output, as well as 
 # intermediate outputs needed to calculate the PIFs.
 
-# list of morts draws, one element per dietary factor
-mort.list <- list()  
+# list of diseases draws, one element per dietary factor
+disease.list <- list()  
 
 # a list of lists, giving the calculated PAFs by riskfactor, disease, strata, and iteration
 PIF.list <- list() 
@@ -61,16 +61,16 @@ p <- list()
 p.alt <- list()
 
 pif <- replicate(num.diseases, matrix(NA, nsim2, nsim1), simplify = F)
-mort <- replicate(num.diseases, matrix(NA, nsim2, nsim1), simplify = F)
-observed.mort <- replicate(num.diseases, matrix(NA, nsim2, nsim1), simplify = F)
+disease <- replicate(num.diseases, matrix(NA, nsim2, nsim1), simplify = F)
+observed.disease <- replicate(num.diseases, matrix(NA, nsim2, nsim1), simplify = F)
 
 final_mat_pif <-  matrix (NA, nsim2, 12)
-final_mat_mort <-  matrix (NA, nsim2, 12) # matrix with final mortality estimates
+final_mat_disease <-  matrix (NA, nsim2, 12) # matrix with final mortality estimates
 
 m <- list()
 s <- list()
-m_mort <- list()
-s_mort <- list()
+m_disease <- list()
+s_disease <- list()
 
 # We are going to be using nested for loops to traverse through everything we need.
 
@@ -79,6 +79,8 @@ s_mort <- list()
 
 # First Loop for Each Risk Factor 
 # this loop runs for each risk factor in the vector rfvec
+
+# r=1
 
 for (r in 1:length(rfvec_cra)) {  # Start risk factor loop
   
@@ -113,12 +115,16 @@ for (r in 1:length(rfvec_cra)) {  # Start risk factor loop
   # Start file loop: loop through exposure datasets (there is usually just 1 
   # exposure file so in that case this is redundant)
   
+  # l=1
+  
   for (l in 1:nsim3) {   
     
     data0 <- expos # data0 will be the exposure file 
     
+    # subset to dietary factor
     data01 <- subset(data0, diet == rfvec_cra[r]) 
     
+    # reorder
     data1 <- data01[order(data01$subgroup),] 
     
     # The purpose of the ordering is to make the risk factor / death data input 
@@ -146,6 +152,8 @@ for (r in 1:length(rfvec_cra)) {  # Start risk factor loop
     # Within the r-l loop, we are starting a new loop, which we will call the i 
     # loop. Here, we are traversing through each subgroup (for each dietary factor, 
     # since we are nested within the r-l loop). 
+    
+    # i=1
   
     # This loop will be repeated for the length of age/sex subgroups for each risk factor
     for (i in 1:nsim2) {
@@ -170,49 +178,51 @@ for (r in 1:length(rfvec_cra)) {  # Start risk factor loop
         
         beta <- list()
         samp_beta <- list()
-        mort.samp <- list()
+        disease.samp <- list()
         
         # Still within the i-loop: Create draws (from normal distribution) for 
         # current and counterfactual mean intake.
         
         mm1 = rnorm(n = nsim1, mean = data1$mean[i], sd = data1$se[i])
-        mm2 = rnorm(n = nsim1, mean = data1$CF_mean_intake[i], sd = data1$CF_se_intake[i])
+        mm2 = rnorm(n = nsim1, mean = data1$CF_mean_intake[i], sd = data1$CF_SE_Intake[i])
         
         # Still within the i-loop: we recode some variables (age and sex) and 
         # simulate draws for certain inputs relevant for mediated effects.
         
         # get prevalence of BMI > 25
         overweight.prev <- rnorm(n = nsim1, 
-                                 mean = data01$overweight_rate[i], 
-                                 sd = data01$overweight_rate_se[i]) / 100
+                                 mean = data1$overweight_rate[i], 
+                                 sd = data1$overweight_rate_se[i]) / 100
         
         overweight.prev[overweight.prev < 0] <- 0
         overweight.prev[overweight.prev > 1] <- 1
         
         # define the variables necessary for modifying the linear effect of Na on BP (age, rage, htn..)
-        gender = data01$female[i] + 1 # gender = female + 1 in this hypertension model
-        agemid <- data01$age.mid[i] # agemid predefined in input data
+        gender = data1$female[i] + 1 # gender = female + 1 in this hypertension model
+        agemid <- data1$age.mid[i] # agemid predefined in input data
         
-        htn.prev <- rnorm(n = nsim1, mean = data01$hbp[i], sd = data01$hbp_se[i])
+        htn.prev <- rnorm(n = nsim1, mean = data1$hbp[i], sd = data1$hbp_se[i])
         htn.prev[htn.prev < 0] <- 0
         htn.prev[htn.prev > 1] <- 1
         
         # similarly, we use 'Black' prevalence obtained from NHANES
-        black <- rnorm(n = nsim1, mean = data01$nhb[i], sd = data01$nhb_se[i])
+        black <- rnorm(n = nsim1, mean = data1$nhb[i], sd = data1$nhb_se[i])
         black[black < 0] <- 0
         black[black > 1] <- 1
         
         # use proportion of high sbp (over 115) to get overall sodium to sbp 
         # effect for each subpopulation
         high.SBP.prev <- rnorm(n = nsim1, 
-                               mean = data01$highSBP_rate[i], 
-                               sd = data01$highSBP_rate_se[i]) / 100
+                               mean = data1$highSBP_rate[i], 
+                               sd = data1$highSBP_rate_se[i]) / 100
         
         high.SBP.prev[overweight.prev < 0] <- 0
         high.SBP.prev[overweight.prev > 1] <- 1
         
         # Nested within the r,l,i loop, we are now starting the j-loop, looping 
         # through the diseases/pathways (for subgroup i and exposure r).
+        
+        # j=1
         
         for(j in 1:num.diseases){
           
@@ -253,7 +263,7 @@ for (r in 1:length(rfvec_cra)) {  # Start risk factor loop
           # Sodium effects on blood pressure:
           
           # Main effects
-          maineffect =  rnorm (n = nsim1, 
+          maineffect =  rnorm(n = nsim1, 
                                mean = food.to.SBP$main.effect.mean, 
                                sd = food.to.SBP$main.effect.se)
           
@@ -299,23 +309,23 @@ for (r in 1:length(rfvec_cra)) {  # Start risk factor loop
           food.to.sbp.effect <- adjeffect.a.r.h * high.SBP.prev #+0 * (1-high.sbp.prev)
           
           # Still within the j-loop: extract mortality/incidence draws for 
-          # disease j (and subgroup i) and store them into the observed.mort 
+          # disease j (and subgroup i) and store them into the observed.disease 
           # list created earlier. 
           
-          subset.observed.mort.draws <- 
-            subset(observed.mort.draws, 
-                   observed.mort.draws$disease == diseases.vec[j] & 
-                     observed.mort.draws$subgroup == data1$subgroup[i])
+          subset.observed.disease.draws <- 
+            subset(observed.disease.draws, 
+                   observed.disease.draws$disease == diseases.vec[j] & 
+                     observed.disease.draws$subgroup == data1$subgroup[i])
           
-          observed.mort.draws.start.point <- 
-            which(names(subset.observed.mort.draws) == "X1")
+          observed.disease.draws.start.point <- 
+            which(names(subset.observed.disease.draws) == "X1")
           
-          observed.mort.draws.end.point <- 
-            which(names(subset.observed.mort.draws) == paste0("X", nsim1))
+          observed.disease.draws.end.point <- 
+            which(names(subset.observed.disease.draws) == paste0("X", nsim1))
           
-          observed.mort[[j]][i,] <- 
-            t(subset.observed.mort.draws[,observed.mort.draws.start.point:
-                                           observed.mort.draws.end.point])
+          observed.disease[[j]][i,] <- 
+            t(subset.observed.disease.draws[,observed.disease.draws.start.point:
+                                           observed.disease.draws.end.point])
           
           # Now, still within the j-loop, we start the k-loop, which loops 
           # through all simulated draws (for a given disease/pathway and risk 
@@ -323,6 +333,8 @@ for (r in 1:length(rfvec_cra)) {  # Start risk factor loop
           # 1000 in run_models.r, but you can set it whatever you want. For 
           # testing purposes, you'll probably want to set it to something 
           # much smaller initially). 
+          
+          # k=1
           
           for (k in 1:nsim1){ # Start Simulation Loop
             
@@ -589,7 +601,7 @@ for (r in 1:length(rfvec_cra)) {  # Start risk factor loop
             # observed mortality/incidence to attributable mortality/incidence.  
             
             # multiply by the corresponding ith sampled mortality here
-            mort[[j]][i, k] = pif[[j]][i, k] * observed.mort[[j]][i, k]
+            disease[[j]][i, k] = pif[[j]][i, k] * observed.disease[[j]][i, k]
             
           } # Close the k-loop.
           
@@ -624,19 +636,19 @@ for (r in 1:length(rfvec_cra)) {  # Start risk factor loop
   # First extract subgroup info (subgroup + current and counterfactual exposure).
   # Then create lists to store intermediate output.
   
-  a = paste("mortdraw.", seq(1, nsim1, by = 1), sep = '')
+  a = paste("diseasedraw.", seq(1, nsim1, by = 1), sep = '')
   
   if(identical(covar.vec, c("Age", "Sex", "Race")))
     id = data1[,c("age", "female", "race", "mean", "se", "sd", 
                   "CF_mean_intake", "CF_se_intake", "CF_sd_intake")]
   
-  mort.df <- list()
-  mort.df2 <- list()
+  disease.df <- list()
+  disease.df2 <- list()
   
   PIF.df <- list()
   PIF.df2 <- list()
   
-  # Next, we will loop through mort.df and pif.df (both lists where each element 
+  # Next, we will loop through disease.df and pif.df (both lists where each element 
   # is a matrix that contains the attributable mortality/incidence (the 
   # mort/incidence attributed to  the population being at the current exposure 
   # distribution rather than the counterfactual exposure distribution) or PIF 
@@ -645,22 +657,24 @@ for (r in 1:length(rfvec_cra)) {  # Start risk factor loop
   # exposure distribution) sims for a disease/pathway), turning each matrix into 
   # a data frame and outcome of interest, pathway, and disease type. We then bind 
   # the subgroup level info we extracted earlier and call the new data frame 
-  # mort2 (or pif2). So mort2 and pif2 are lists where each element is a data 
+  # disease2 (or pif2). So disease2 and pif2 are lists where each element is a data 
   # frame containing all the simulations for risk factor r and disease/pathway ii 
   # with proper labeling of rows and info specific to the disease/pathway and 
   # risk factor.
   
+  # ii=1
+  
   for(ii in 1:num.diseases){
     
-    mort.df[[ii]] <- as.data.frame(mort[[ii]])
-    mort.df[[ii]]$outcome <- disease.total.vec[[ii]]
-    mort.df[[ii]]$pathway <- pathway[[ii]]
-    mort.df[[ii]]$disease_type <- disease.type.total.vec[[ii]]
-    mort.df[[ii]]$disease_type1 <- disease.type1.total.vec[[ii]]
-    mort.df[[ii]]$disease_type2 <- disease.type2.total.vec[[ii]]
-    mort.df[[ii]]$disease_type3 <- disease.type3.total.vec[[ii]]
+    disease.df[[ii]] <- as.data.frame(disease[[ii]])
+    disease.df[[ii]]$outcome <- disease.total.vec[[ii]]
+    disease.df[[ii]]$pathway <- pathway[[ii]]
+    disease.df[[ii]]$disease_type <- disease.type.total.vec[[ii]]
+    disease.df[[ii]]$disease_type1 <- disease.type1.total.vec[[ii]]
+    disease.df[[ii]]$disease_type2 <- disease.type2.total.vec[[ii]]
+    disease.df[[ii]]$disease_type3 <- disease.type3.total.vec[[ii]]
     
-    mort.df2[[ii]] <- cbind(id, mort.df[[ii]])
+    disease.df2[[ii]] <- cbind(id, disease.df[[ii]])
     
     PIF.df[[ii]] <- as.data.frame(PIF.list[[r]][[ii]])
     PIF.df[[ii]]$outcome <- disease.total.vec[[ii]]
@@ -676,55 +690,62 @@ for (r in 1:length(rfvec_cra)) {  # Start risk factor loop
   
   # We now bind all the elements for each list together so we have one giant 
   # file with all disease-pathways in one file, by looping through each element 
-  # of mort.df2 / PIF.df2 and concatenating to allmort / allPIF.
+  # of disease.df2 / PIF.df2 and concatenating to alldisease / allPIF.
   
-  allmort <- mort.df2[[1]]
+  alldisease <- disease.df2[[1]]
   allPIF <- PIF.df2[[1]]
+  
+  # jj=2
   
   for(jj in 2:num.diseases) {
     
-    allmort <- rbind(allmort, mort.df2[[jj]])
+    alldisease <- rbind(alldisease, disease.df2[[jj]])
     allPIF <- rbind(allPIF, PIF.df2[[jj]])
     
   }
   
-  allmort$riskfactor = rfvec_cra[r]
+  alldisease$riskfactor = rfvec_cra[r]
   allPIF$riskfactor = rfvec_cra[r]
   
-  allmort <- as.data.frame(allmort)
+  alldisease <- as.data.frame(alldisease)
   
   # "n" is the number disease/pathways. Used later when summarizing results 
   # but defined here
-  n <- dim(allmort)[1] / (n.mediated.effects + 1)
+  n <- dim(alldisease)[1] / (n.mediated.effects + 1)
   
-  # One last thing before we close the r-loop. Store the data frame allmort 
+  # One last thing before we close the r-loop. Store the data frame alldisease 
   # (attributable mortality/incidence sims for all subgroups and disease/pathways 
   # for riskfactor r) and allPIF (PIF sims for all subgroups and disease/pathways 
-  # for riskfactor r) as element r in lists "mort.list" and "PIFs" respectively. 
+  # for riskfactor r) as element r in lists "disease.list" and "PIFs" respectively. 
   # So we'll have all relevant output results housed in these two objects (as 
   # opposed to scattered r objects, or r*n objects, etc..). Useful because it 
   # will make code for later tasks easier to read and write.
   
-  mort.list[[r]] <- allmort
+  disease.list[[r]] <- alldisease
   PIFs[[r]] <- allPIF
   
 } # End the r-loop.
 
-# Bind all the data frames in "mort.list" and "PIFs" into one data frame (in a 
+# Bind all the data frames in "disease.list" and "PIFs" into one data frame (in a 
 # cringy old-fashioned way, but it works). Also, update some column names for 
 # clarity.
 
-all.mortdraws <- mort.list[[1]]
+all.diseasedraws <- disease.list[[1]]
 all.PIFs <- PIFs[[1]]
 
-for(r in 2:length(rfvec_cra)) {
+# f=1
+
+# brooke - why does this start at 2?
+# changing to 1 for now
+# this means you have to run a minimum of 2 dietary factors...
+for(f in 2:length(rfvec_cra)) {
   
-  all.mortdraws <- rbind(all.mortdraws, mort.list[[r]])
-  all.PIFs <- rbind(all.PIFs, PIFs[[r]])
+  all.diseasedraws <- rbind(all.diseasedraws, disease.list[[f]])
+  all.PIFs <- rbind(all.PIFs, PIFs[[f]])
   
 }
 
-names(all.mortdraws)[(1 + length(covar.vec)):(6 + length(covar.vec))] <- 
+names(all.diseasedraws)[(1 + length(covar.vec)):(6 + length(covar.vec))] <- 
   c("mean (food)", "se (food)", "sd (food)", "mean (food, counterfactual)", 
     "se (food, counterfactual)", "sd (food, counterfactual)")
 
@@ -744,8 +765,8 @@ ifelse(!dir.exists(file.path(paste0(output_location, diet_pattern))),
        dir.create(file.path(paste0(output_location, diet_pattern))),
        "Directory Exists")
 
-write.csv(x = all.mortdraws, 
-          file = paste(output_location, diet_pattern, "/all.incidence.draws_", 
+write.csv(x = all.diseasedraws, 
+          file = paste(output_location, diet_pattern, "/all.disease.draws_", 
                      year.vec.string, "_", covar.vec.string, "_", diet_pattern, 
                      ".csv", sep = ""), row.names = FALSE)
 
@@ -754,5 +775,5 @@ write.csv(x = all.PIFs,
                      year.vec.string, "_", covar.vec.string, "_", diet_pattern, 
                      ".csv", sep = ""), row.names = FALSE)
 
-rm(all.mortdraws, all.PIFs)
+rm(all.diseasedraws, all.PIFs)
 

@@ -1,4 +1,4 @@
-# Title: Presimulate observed mortality draws
+# Title: Presimulate observed disease burden (cancer incidence; CMD mortality) draws
 # Authors: Fred Cudhea & Brooke Bell
 # Last Updated: 09-14-2025
 
@@ -37,57 +37,66 @@ raw.file <- raw.file %>% rename("disease" = "diseases")
 vars.to.keep <- c("disease", "subgroup", "Sex", "Age_label", "Race_label", 
                   "count", "se")
 
-mort <- raw.file[, vars.to.keep]
+disease <- raw.file[, vars.to.keep]
 
 # Loop through each row and generate mortality/incidence sims based on mean and 
 # standard error for each subgroup. 
 
-observed.mort.draws <- matrix(data = NA, nrow = dim(mort)[1], ncol = nsim1)
+observed.disease.draws_mat <- matrix(data = NA, nrow = dim(disease)[1], ncol = nsim1)
 
-for(i in 1:dim(mort)[1]) {
+for(i in 1:dim(disease)[1]) {
   
-  temp <- rnorm(n = nsim1, mean = mort$count[i], sd = mort$se[i])
+  temp <- rnorm(n = nsim1, mean = disease$count[i], sd = disease$se[i])
   temp[temp < 0] <- 0
-  observed.mort.draws[i,] <- temp
+  observed.disease.draws_mat[i,] <- temp
   
 }
 
-observed.mort.draws <- cbind(mort, observed.mort.draws)
+print(observed.disease.draws_mat)
+
+# change to data frame
+observed.disease.draws_df <- as.data.frame(observed.disease.draws_mat)
+
+print(observed.disease.draws_df)
+
+# change variable names to start with "X"
+observed.disease.draws_df1 <- observed.disease.draws_df %>% 
+  rename_with(~gsub("V", "X", .x))
+
+# bind
+observed.disease.draws_df2 <- cbind(disease, observed.disease.draws_df1)
+
+print(observed.disease.draws_df2)
 
 # Duplicate the sims to use for estimating effects from mediated pathways, as 
 # well as combined effects (as in, combining direct and mediated pahways). 
 # Combine the duplicated sims into one file.  
 
-medBMI.observed.mort.draws <- observed.mort.draws
-medBMI.observed.mort.draws$disease <- paste(observed.mort.draws$disease, 
+medBMI.observed.disease.draws <- observed.disease.draws_df2
+medBMI.observed.disease.draws$disease <- paste(observed.disease.draws_df2$disease, 
                                             "_medBMI", sep = "")
 
-medSBP.observed.mort.draws <- observed.mort.draws
-medSBP.observed.mort.draws$disease <- paste(observed.mort.draws$disease, 
+medSBP.observed.disease.draws <- observed.disease.draws_df2
+medSBP.observed.disease.draws$disease <- paste(observed.disease.draws_df2$disease, 
                                             "_medSBP", sep = "")
 
-total.observed.mort.draws <- observed.mort.draws
-total.observed.mort.draws$disease <- paste(observed.mort.draws$disease, 
+total.observed.disease.draws <- observed.disease.draws_df2
+total.observed.disease.draws$disease <- paste(observed.disease.draws_df2$disease, 
                                            "_total", sep = "")
 
-observed.mort.draws <- rbind(observed.mort.draws, 
-                             medBMI.observed.mort.draws, 
-                             medSBP.observed.mort.draws, 
-                             total.observed.mort.draws)
-
-# fix variable name
-observed.mort.draws <- observed.mort.draws %>% 
-  rename("X1" = `1`,
-         "X2" = `2`,
-         "X3" = `3`)
+# final dataset
+observed.disease.draws <- rbind(observed.disease.draws_df2, 
+                             medBMI.observed.disease.draws, 
+                             medSBP.observed.disease.draws, 
+                             total.observed.disease.draws)
 
 # Save sims as a csv file. Don't be confused by the file name, it's just another 
 # artifact from the days the code was used for the cancer CRA project. 
-# "observed.mort.draws" contains simulation draws for morality/incidence counts 
+# "observed.disease.draws" contains simulation draws for morality/incidence counts 
 # of the subgroups for CMD/Cancer, by subgroup of interest.
 
-write_csv(x = observed.mort.draws, 
-          file = paste0(file_location, "observed.cancer.mortality.draws.csv"))
+write_csv(x = observed.disease.draws, 
+          file = paste0(file_location, "observed.disease.burden.draws.csv"))
 
 
 

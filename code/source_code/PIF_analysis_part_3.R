@@ -7,7 +7,7 @@
 ### Documentation for R script ###
 
 # This is documentation for "part 3" of the CRA code, which is for calculating 
-# the joint PIFs (attributable mort/incidence of multiple concurrent 
+# the joint PIFs (attributable mortality/incidence of multiple concurrent 
 # counterfactual exposures).
 
 ############################################################################
@@ -107,20 +107,20 @@ calc.joint.PAFs <- function(strata) {
   
 }
 
-# caclulates joint mort, by multilpying joint paf with total mort
-calc.joint.mort <- function(joint.paf.draws, total.mort.draws, strata) {
+# caclulates joint disease, by multilpying joint paf with total disease
+calc.joint.disease <- function(joint.paf.draws, total.disease.draws, strata) {
   
-  merged <- merge(joint.paf.draws, total.mort.draws)
+  merged <- merge(joint.paf.draws, total.disease.draws)
   
   Joint.PAF.starting.point <- which(names(merged) == "V1")
   Joint.PAF.ending.point <- which(names(merged) == paste("V", nsim1, sep = ""))
-  totalmort.starting.point <- which(names(merged) == "X1")
-  totalmort.ending.point <- which(names(merged) == paste("X", nsim1, sep = ""))
+  totaldisease.starting.point <- which(names(merged) == "X1")
+  totaldisease.ending.point <- which(names(merged) == paste("X", nsim1, sep = ""))
   
-  joint.mort <- cbind(merged[,c(strata)],
+  joint.disease <- cbind(merged[,c(strata)],
                       merged[,Joint.PAF.starting.point:Joint.PAF.ending.point] * 
-                        merged[,totalmort.starting.point:totalmort.ending.point])
-  return(joint.mort)
+                        merged[,totaldisease.starting.point:totaldisease.ending.point])
+  return(joint.disease)
   
 }
 
@@ -141,8 +141,8 @@ strata_list
 library(magrittr)
 
 joint.PAFs.all.draws <- list()
-total.mort <- list()
-joint.mort.all.draws <- list()
+total.disease <- list()
+joint.disease.all.draws <- list()
 
 # create 'joint' directory if it doesn't exist
 ifelse(!dir.exists(file.path(paste0(output_location, diet_pattern, "/joint"))),
@@ -162,23 +162,23 @@ for (i in 1:length(strata_list)) {
                        "/joint/joint_PIFs_all_draws_", paste(strata, collapse = "_"), 
                        "_", year.vec.string, "_", diet_pattern, ".csv", sep = ""))
   
-  total.mort[[i]] <- read.csv(paste0(output_location, 
+  total.disease[[i]] <- read.csv(paste0(output_location, 
                                     diet_pattern, 
-                                    "/total_USmortality_draws_by_", 
+                                    "/total_USdisease_draws_by_", 
                                     strata %>% 
                                       # setdiff(., "pathway") %>%
                                       paste(collapse = "_"),
                                     "_", year.vec, "_", 
                                     diet_pattern, ".csv"))
   
-  joint.mort.all.draws[[i]] <- 
-    calc.joint.mort(joint.paf.draws = joint.PAFs.all.draws[[i]], 
-                    total.mort.draws = total.mort[[i]], 
+  joint.disease.all.draws[[i]] <- 
+    calc.joint.disease(joint.paf.draws = joint.PAFs.all.draws[[i]], 
+                    total.disease.draws = total.disease[[i]], 
                     strata = strata)
   
-  write.csv(x = joint.mort.all.draws[[i]], 
+  write.csv(x = joint.disease.all.draws[[i]], 
             file = paste0(output_location, diet_pattern, 
-                       "/joint/joint_mort_all_draws_", 
+                       "/joint/joint_disease_all_draws_", 
                        paste(strata, collapse = "_"), "_", 
                        year.vec.string, "_", diet_pattern, 
                        ".csv"))
@@ -218,34 +218,34 @@ calculate_combos <- function(my.strata.combos, x) {
     print(my.strata.combos[[i]])
     print("")
     
-    sum.stats.byX.joint.attr.mort <- 
-      Sum.by.strata.joint(allmort = joint.mort.all.draws[[x]], 
-                          totalmort = totalmort, 
+    sum.stats.byX.joint.attr.disease <- 
+      Sum.by.strata.joint(alldisease = joint.disease.all.draws[[x]], 
+                          totaldisease = totaldisease, 
                           pop = pop.draws, 
                           covar = my.strata.combos[[i]])
     
-    write.csv(x = sum.stats.byX.joint.attr.mort[[1]], 
+    write.csv(x = sum.stats.byX.joint.attr.disease[[1]], 
               file = paste0(output_location, diet_pattern, 
-                         "/joint/summarystats_joint_attributable_USmortality_", 
+                         "/joint/summarystats_joint_attributable_USdisease_", 
                          "by_", paste(my.strata.combos[[i]], sep = "", collapse = "_"), 
                          "_", year.vec.string, "_", diet_pattern, "_new.csv"), 
               row.names = FALSE)
     
-    write.csv(x = sum.stats.byX.joint.attr.mort[[2]], 
+    write.csv(x = sum.stats.byX.joint.attr.disease[[2]], 
               file = paste0(output_location, diet_pattern, 
-                         "/joint/joint_attributable_USmortality_draws_", 
+                         "/joint/joint_attributable_USdisease_draws_", 
                          "by_", paste(my.strata.combos[[i]], sep = "", collapse = "_"), 
                          "_", year.vec.string, "_", diet_pattern, ".csv"), 
               row.names = FALSE)
     
-    write.csv(x = sum.stats.byX.joint.attr.mort[[3]], 
+    write.csv(x = sum.stats.byX.joint.attr.disease[[3]], 
               file = paste0(output_location, diet_pattern, 
                          "/joint/RE_joint_PIFs_draws_", 
                          "by_", paste(my.strata.combos[[i]], sep = "", collapse = "_"), 
                          "_", year.vec.string, "_", diet_pattern, ".csv"), 
               row.names = FALSE)
     
-    write.csv(x = sum.stats.byX.attr.mort[[4]], 
+    write.csv(x = sum.stats.byX.attr.disease[[4]], 
               file = paste0(output_location, diet_pattern, 
                          "/joint/RE_joint_PIFs_draws_", 
                          "by_", paste(my.strata.combos[[i]], sep = "", collapse = "_"), 

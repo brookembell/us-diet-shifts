@@ -351,7 +351,7 @@ display: none;
 
 <h1 class="title toc-ignore">Run the models</h1>
 <h4 class="author">Fred Cudhea &amp; Brooke Bell</h4>
-<h4 class="date">15 September, 2025</h4>
+<h4 class="date">18 September, 2025</h4>
 
 </div>
 
@@ -369,49 +369,16 @@ white-space: pre;
 <h2>Set up</h2>
 <p>First, we clean the environment, load necessary R packages, set up
 pathways for code and input files.</p>
-<pre class="r"><code>rm(list=ls(all=TRUE)) # remove all data from memory
+<pre class="r"><code>rm(list = ls(all = TRUE)) # remove all data from memory
 
 # load packages
-library(tidyverse)</code></pre>
-<pre><code>## ── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
-## ✔ dplyr     1.1.4     ✔ readr     2.1.5
-## ✔ forcats   1.0.0     ✔ stringr   1.5.1
-## ✔ ggplot2   3.5.1     ✔ tibble    3.2.1
-## ✔ lubridate 1.9.3     ✔ tidyr     1.3.1
-## ✔ purrr     1.0.2     
-## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
-## ✖ dplyr::filter() masks stats::filter()
-## ✖ dplyr::lag()    masks stats::lag()
-## ℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors</code></pre>
-<pre class="r"><code>library(data.table)</code></pre>
-<pre><code>## 
-## Attaching package: &#39;data.table&#39;
-## 
-## The following objects are masked from &#39;package:lubridate&#39;:
-## 
-##     hour, isoweek, mday, minute, month, quarter, second, wday, week,
-##     yday, year
-## 
-## The following objects are masked from &#39;package:dplyr&#39;:
-## 
-##     between, first, last
-## 
-## The following object is masked from &#39;package:purrr&#39;:
-## 
-##     transpose</code></pre>
-<pre class="r"><code>library(foreach)</code></pre>
-<pre><code>## 
-## Attaching package: &#39;foreach&#39;
-## 
-## The following objects are masked from &#39;package:purrr&#39;:
-## 
-##     accumulate, when</code></pre>
-<pre class="r"><code>library(doParallel)</code></pre>
-<pre><code>## Loading required package: iterators
-## Loading required package: parallel</code></pre>
-<pre class="r"><code># File location
+library(tidyverse)
+library(data.table)
+library(foreach)
+library(doParallel)
+
+# File location
 file_location = &quot;data/&quot;
-# setwd(file_location)
 
 # Code location
 code_location = &quot;code/&quot;
@@ -424,29 +391,44 @@ version.date &lt;- &quot;2025-09-11&quot;</code></pre>
 <p>Start clock so you can get an idea of how long the code takes to
 run.</p>
 <pre class="r"><code>start_time &lt;- Sys.time()</code></pre>
-<p>year.vec.string allows us to include the specified years of interest
-as part of the output names. Note that this is strictly for naming
-output files. The code itself only uses input files that correspond to a
-particular time point. It does not calculate estimates for multiple time
-points nor should you be feeding it input files with multiple time
-points. If you are doing analyses for multiple time points, the easiest
-way to do it is to have input files for each time point of interest, and
-then the rerunning the code, making sure to change “year.vec” here so
-that the output file names differe by year.</p>
+<p>Create output folders.</p>
+<pre class="r"><code># output from environmental, economic, and social (`envecosoc`) models
+ifelse(!dir.exists(file.path(&quot;output/envecosoc&quot;)),
+       dir.create(file.path(&quot;output/envecosoc&quot;)),
+       &quot;Directory Exists&quot;)
+
+# output from comparative risk assessments (`cra`)
+ifelse(!dir.exists(file.path(&quot;output/CRA&quot;)),
+       dir.create(file.path(&quot;output/CRA&quot;)),
+       &quot;Directory Exists&quot;)</code></pre>
+<p><code>year.vec.string</code> allows us to include the specified years
+of interest as part of the output names. Note that this is strictly for
+naming output files. The code itself only uses input files that
+correspond to a particular time point. It does not calculate estimates
+for multiple time points nor should you be feeding it input files with
+multiple time points. If you are doing analyses for multiple time
+points, the easiest way to do it is to have input files for each time
+point of interest, and then the rerunning the code, making sure to
+change “year.vec” here so that the output file names differ by year.</p>
 <pre class="r"><code>year.vec &lt;- 2015
 
 if(length(year.vec) &gt; 1) {
-  year.vec.string&lt;-paste(year.vec[1], &quot;-&quot;, year.vec[length(year.vec)], sep=&quot;&quot;)
+  
+  year.vec.string &lt;- paste(year.vec[1], &quot;-&quot;, year.vec[length(year.vec)], sep = &quot;&quot;)
+  
 } else {
-  year.vec.string &lt;- as.character(year.vec)}</code></pre>
+  
+  year.vec.string &lt;- as.character(year.vec)
+  
+  }</code></pre>
 <p>Set number of simulations to 1,000.</p>
 <pre class="r"><code># Number of simulations
 # Set to 3 for testing
 
-nsim1 &lt;- 3
+nsim1 &lt;- 2
 n.sims &lt;- nsim1</code></pre>
 <p>Specify the demographic subgroups of interest. The names used for the
-subgroups should match what is used in the mega input file.</p>
+subgroups should match what is used in the primary input file.</p>
 <p>For the purposes of these documents let’s formalize some of the terms
 to reduce confusion. “Subgroup” will denote the 48 unique age/sex/race
 combinations that we divide the population into. The “strata” are the
@@ -455,25 +437,29 @@ are a result of dividing up the population using three strata: age, sex,
 race. Age/sex/race is one example of a “strata combination”.</p>
 <pre class="r"><code># Covariates vector
 covar.vec &lt;- c(&quot;Age&quot;, &quot;Sex&quot;, &quot;Race&quot;) # Don&#39;t mess with the order age, sex, race
-covar.vec.string &lt;- paste(covar.vec, sep=&quot;&quot;, collapse=&quot;&quot;)
+covar.vec.string &lt;- paste(covar.vec, sep = &quot;&quot;, collapse = &quot;&quot;)
 n.covar &lt;- length(covar.vec)</code></pre>
 <p>Identify all dietary patterns of interest here. Names should match
 “diet_pattern” column in the input data file (input_data.csv).</p>
 <pre class="r"><code># Vector of dietary patterns
-diet.vec &lt;- c(&quot;HUS&quot;,
+diet.vec &lt;- c(&quot;HUS&quot;)
+              # ,
               # &quot;Med&quot;,              
               # &quot;Veg&quot;,
               # &quot;Vegan&quot;, 
-              &quot;CDP&quot;
-              )</code></pre>
+              # &quot;CDP&quot;
+              # )</code></pre>
 <p>Identify all environmental, economic, social pillar outcomes.</p>
-<pre class="r"><code>econ.outcomes.vec &lt;- c(&quot;CED&quot;, # environmental
-                     # &quot;GHG&quot;, # environmental
+<pre class="r"><code>envecosoc.outcomes.vec &lt;- c(
+                     # &quot;CED&quot;, # environmental
+                     &quot;GHG&quot;
+                     # , # environmental
                      # &quot;WATER&quot;, # environmental
-                     &quot;Food_price&quot;, # economic
-                     &quot;FL&quot; # social
+                     # &quot;Food_price&quot;, # economic
+                     # &quot;FL&quot; # social
                      )
 
+# don&#39;t change this
 all.outcomes.vec &lt;- c(
   &quot;CED&quot;,
   &quot;GHG&quot;,
@@ -483,30 +469,30 @@ all.outcomes.vec &lt;- c(
   &quot;FL&quot;
   )</code></pre>
 </div>
-<div id="environmental-economic-and-social-models" class="section level2">
-<h2>Environmental, Economic, and Social Models</h2>
+<div id="environmental-economic-and-social-env-eco-soc-models" class="section level2">
+<h2>Environmental, Economic, and Social (env-eco-soc) Models</h2>
 <p>Create vectors to store outcomes.</p>
-<pre class="r"><code>n.econ.outcomes &lt;- length(econ.outcomes.vec)
-econ.outcomes.vec.mn &lt;- paste(&quot;Mean&quot;, econ.outcomes.vec,  sep=&quot;_&quot;)
-econ.outcomes.vec.se &lt;- paste(&quot;SE&quot;, econ.outcomes.vec, sep=&quot;_&quot;)
-econ.current.inedible.p.mn &lt;- paste(econ.outcomes.vec, &quot;_inedible_p&quot;, sep=&quot;&quot;)
-econ.current.inedible.p.se &lt;- paste(econ.outcomes.vec, &quot;_inedible_p_se&quot;, sep=&quot;&quot;)
-econ.counterfactual.inedible.p.mn &lt;- paste(&quot;CF_&quot;,econ.outcomes.vec, &quot;_inedible_p&quot;, sep=&quot;&quot;)
-econ.counterfactual.inedible.p.se &lt;- paste(&quot;CF_&quot;,econ.outcomes.vec, &quot;_inedible_p_se&quot;, sep=&quot;&quot;)
-econ.current.foodwaste.p.mn &lt;- paste(econ.outcomes.vec, &quot;_foodwaste_p&quot;, sep=&quot;&quot;)
-econ.current.foodwaste.p.se &lt;- paste(econ.outcomes.vec, &quot;_foodwaste_p_se&quot;, sep=&quot;&quot;)
-econ.counterfactual.foodwaste.p.mn &lt;- paste(&quot;CF_&quot;,econ.outcomes.vec, &quot;_foodwaste_p&quot;, sep=&quot;&quot;)
-econ.counterfactual.foodwaste.p.se &lt;- paste(&quot;CF_&quot;,econ.outcomes.vec, &quot;_foodwaste_p_se&quot;, sep=&quot;&quot;)
-num.econ.outcomes &lt;- length(econ.outcomes.vec.mn)
-econ.outcomes.substitution.vec.mn &lt;- paste(&quot;Mean_substitution&quot;, econ.outcomes.vec, sep=&quot;_&quot;)
-econ.outcomes.substitution.vec.se &lt;- paste(&quot;SE_substitution&quot;, econ.outcomes.vec,sep=&quot;_&quot;)</code></pre>
+<pre class="r"><code>n.envecosoc.outcomes &lt;- length(envecosoc.outcomes.vec)
+envecosoc.outcomes.vec.mn &lt;- paste(&quot;Mean&quot;, envecosoc.outcomes.vec,  sep = &quot;_&quot;)
+envecosoc.outcomes.vec.se &lt;- paste(&quot;SE&quot;, envecosoc.outcomes.vec, sep = &quot;_&quot;)
+envecosoc.current.inedible.p.mn &lt;- paste(envecosoc.outcomes.vec, &quot;_inedible_p&quot;, sep = &quot;&quot;)
+envecosoc.current.inedible.p.se &lt;- paste(envecosoc.outcomes.vec, &quot;_inedible_p_se&quot;, sep = &quot;&quot;)
+envecosoc.counterfactual.inedible.p.mn &lt;- paste(&quot;CF_&quot;,envecosoc.outcomes.vec, &quot;_inedible_p&quot;, sep = &quot;&quot;)
+envecosoc.counterfactual.inedible.p.se &lt;- paste(&quot;CF_&quot;,envecosoc.outcomes.vec, &quot;_inedible_p_se&quot;, sep = &quot;&quot;)
+envecosoc.current.foodwaste.p.mn &lt;- paste(envecosoc.outcomes.vec, &quot;_foodwaste_p&quot;, sep = &quot;&quot;)
+envecosoc.current.foodwaste.p.se &lt;- paste(envecosoc.outcomes.vec, &quot;_foodwaste_p_se&quot;, sep = &quot;&quot;)
+envecosoc.counterfactual.foodwaste.p.mn &lt;- paste(&quot;CF_&quot;,envecosoc.outcomes.vec, &quot;_foodwaste_p&quot;, sep = &quot;&quot;)
+envecosoc.counterfactual.foodwaste.p.se &lt;- paste(&quot;CF_&quot;,envecosoc.outcomes.vec, &quot;_foodwaste_p_se&quot;, sep = &quot;&quot;)
+num.envecosoc.outcomes &lt;- length(envecosoc.outcomes.vec.mn)
+envecosoc.outcomes.substitution.vec.mn &lt;- paste(&quot;Mean_substitution&quot;, envecosoc.outcomes.vec, sep = &quot;_&quot;)
+envecosoc.outcomes.substitution.vec.se &lt;- paste(&quot;SE_substitution&quot;, envecosoc.outcomes.vec, sep = &quot;_&quot;)</code></pre>
 <p>List dietary vectors of interest here. Certain dietary factors are
 only of interest for environment/social (FCID-level), others only for
 cost (FNDDS-level). But all dietary factors of interest in those three
 pillars should be listed here. Names should match what is used in the
 data input file.</p>
 <pre class="r"><code># Dietary factors vector (for cost/env/labor)
-rfvec_costenv &lt;- c(# Dairy
+rfvec_envecosoc &lt;- c(# Dairy
                #     &quot;dairy_tot&quot;, # cost
                #     &quot;dairy_cow&quot;, # enviro
                #     &quot;dairy_soy&quot;, # enviro
@@ -531,25 +517,20 @@ rfvec_costenv &lt;- c(# Dairy
                # &quot;veg_oth&quot;,
                # &quot;veg_sta&quot;,
                # 
-               # &quot;fruit_exc_juice&quot;,
+               &quot;fruit_exc_juice&quot;
+               # ,
                # &quot;fruit_juice&quot;,
 
-               &quot;added_sugar&quot;,
-               &quot;oil&quot;,
-               &quot;sat_fat&quot;)</code></pre>
+               # &quot;added_sugar&quot;,
+               # &quot;oil&quot;,
+               # &quot;sat_fat&quot;
+               )</code></pre>
 <p>Import data input file and rename some variables, subset for
 cost/env/labor analysis.</p>
 <pre class="r"><code># Import exposure file
-primary_input &lt;- read_csv(file = paste0(file_location, &quot;input_data_&quot;, version.date, &quot;.csv&quot;))</code></pre>
-<pre><code>## Rows: 19440 Columns: 139
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr  (23): Age_label, Sex_label, Race_label, Foodgroup, datatype, diet_patte...
-## dbl (116): subgroup_id, Age, Sex, Race, Mean_Intake, SE_Intake, sigma_u_wgt,...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
-<pre class="r"><code># rename vars
+primary_input &lt;- read_csv(file = paste0(file_location, &quot;input_data_&quot;, version.date, &quot;.csv&quot;))
+
+# rename vars
 primary_input1 &lt;- primary_input %&gt;% 
     mutate(population = Population_size,
            subgroup = subgroup_id,
@@ -559,32 +540,30 @@ primary_input1 &lt;- primary_input %&gt;%
                                       .default = diet_pattern))
 
 # subset to only include dietary factors for cost/env analysis
-primary_input_costenv &lt;- subset(primary_input1, Foodgroup %in% rfvec_costenv)</code></pre>
+primary_input_envecosoc &lt;- subset(primary_input1, Foodgroup %in% rfvec_envecosoc)</code></pre>
 <p>Create lists to store input and locations for output (by diet pattern
 and grocery/non-grocery). Each element of a list corresponds to a
 particular dietary pattern and “datatype” (grocery vs non-grocery).</p>
 <pre class="r"><code># Create some more vectors
-costs_inputs.vec &lt;- list()
-costs_output_loc.vec &lt;- list()
+envecosoc_inputs.vec &lt;- list()
+envecosoc_output_loc.vec &lt;- list()
 
-# debug
-# i=1
 for (i in 1:length(diet.vec)) {
 
-  costs_inputs.vec[[paste0(diet.vec[[i]], &quot;_fah&quot;)]] &lt;- 
-    subset(primary_input_costenv, diet_pattern == diet.vec[[i]] &amp; datatype == &quot;Grocery&quot;)
+  envecosoc_inputs.vec[[paste0(diet.vec[[i]], &quot;_fah&quot;)]] &lt;- 
+    subset(primary_input_envecosoc, diet_pattern == diet.vec[[i]] &amp; datatype == &quot;Grocery&quot;)
   
-  costs_inputs.vec[[paste0(diet.vec[[i]], &quot;_fafh&quot;)]] &lt;- 
-    subset(primary_input_costenv, diet_pattern == diet.vec[[i]] &amp; datatype == &quot;Non-Grocery&quot;)
+  envecosoc_inputs.vec[[paste0(diet.vec[[i]], &quot;_fafh&quot;)]] &lt;- 
+    subset(primary_input_envecosoc, diet_pattern == diet.vec[[i]] &amp; datatype == &quot;Non-Grocery&quot;)
 
   # Output locations vector
-  costs_output_loc.vec[[paste0(diet.vec[[i]], &quot;_fah&quot;)]] &lt;- paste0(diet.vec[[i]], &quot;_diet_Gro&quot;)
-  costs_output_loc.vec[[paste0(diet.vec[[i]], &quot;_fafh&quot;)]] &lt;- paste0(diet.vec[[i]], &quot;_diet_Oth&quot;)
+  envecosoc_output_loc.vec[[paste0(diet.vec[[i]], &quot;_fah&quot;)]] &lt;- paste0(diet.vec[[i]], &quot;_diet_Gro&quot;)
+  envecosoc_output_loc.vec[[paste0(diet.vec[[i]], &quot;_fafh&quot;)]] &lt;- paste0(diet.vec[[i]], &quot;_diet_Oth&quot;)
 
 }</code></pre>
 <p>Read in subgroup-specific population numbers.</p>
 <pre class="r"><code># Population
-pop &lt;- costs_inputs.vec[[1]] %&gt;% 
+pop &lt;- envecosoc_inputs.vec[[1]] %&gt;% 
   mutate(Sex = as.character(Sex)) %&gt;%
   filter(datatype == &quot;Grocery&quot;) %&gt;%
   select(subgroup, Age, Age_label, Sex, Sex_label, Race, Race_label, population) %&gt;%
@@ -595,31 +574,18 @@ pop &lt;- costs_inputs.vec[[1]] %&gt;%
 <p>Next, simulate distribution for total population numbers (in our
 cases, since population standard errors are set to 0, we’re just
 repeating the same pop count for each simulation).</p>
-<pre class="r"><code># Pre-simulate mortality/incidence numbers, to be used in CRA simulations, as well for calculating reverse-engineered PAFs
-# Also, pre-simulate total population numbers
+<pre class="r"><code># Also, pre-simulate total population numbers
 
 source(paste0(code_location, &quot;source_code/presimulate_pop_draws.r&quot;))</code></pre>
 <p>Run the cost/env/social simulations via a for loop (for each pair of
 dietary pattern and grocery/non-grocery combo)</p>
-<pre class="r"><code># setwd(&quot;/cluster/tufts/lasting/shared/LASTING/Code/cluster_code&quot;)
+<pre class="r"><code>for(k in 1:length(envecosoc_inputs.vec)) {
 
-for(k in 1:length(costs_inputs.vec)){
-
-  # setwd(code_location)
-  
   print(k)
   
-  source(paste0(code_location, &quot;source_code/Calculate_change.r&quot;))
+  source(paste0(code_location, &quot;source_code/calculate_change.r&quot;))
   
 }</code></pre>
-<pre><code>## Rows: 48 Columns: 20
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr  (6): Age_label, Sex_label, Race_label, age_gp, sex_gp, race_gp
-## dbl (14): subgroup, Age, Sex, Race, population, population.se, agecat, femal...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
 <pre><code>## Warning: Using an external vector in selections was deprecated in tidyselect 1.1.0.
 ## ℹ Please use `all_of()` or `any_of()` instead.
 ##   # Was:
@@ -632,110 +598,86 @@ for(k in 1:length(costs_inputs.vec)){
 ## This warning is displayed once every 8 hours.
 ## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
 ## generated.</code></pre>
-<pre><code>## Rows: 48 Columns: 20
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr  (6): Age_label, Sex_label, Race_label, age_gp, sex_gp, race_gp
-## dbl (14): subgroup, Age, Sex, Race, population, population.se, agecat, femal...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 48 Columns: 20
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr  (6): Age_label, Sex_label, Race_label, age_gp, sex_gp, race_gp
-## dbl (14): subgroup, Age, Sex, Race, population, population.se, agecat, femal...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 48 Columns: 20
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr  (6): Age_label, Sex_label, Race_label, age_gp, sex_gp, race_gp
-## dbl (14): subgroup, Age, Sex, Race, population, population.se, agecat, femal...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
 <p>Create vectors used to name output files and used to define variable
 names in summary output files.</p>
-<pre class="r"><code>output.type.vec.sims &lt;- c(&quot;costenv.sims.granular&quot;, 
-                          &quot;substitution.costenv.sims.granular&quot;, 
-                          &quot;combined.costenvs.sims.granular&quot;,
-                          &quot;delta.costenv.sims.granular&quot;,
-                          &quot;combined.costenvs.sims.granular.consumed&quot;,
-                          &quot;combined.costenvs.sims.granular.unconsumed&quot;,
-                          &quot;current.intake.costenv.sims.granular&quot;, 
-                          &quot;CF.costenv.intake.sims.granular&quot;, 
-                          &quot;current.intake.costenv.sims.granular.consumed&quot;,
-                          &quot;CF.intake.costenv.sims.granular.consumed&quot;, 
-                          &quot;current.intake.costenv.sims.granular.unconsumed&quot;, 
-                          &quot;CF.intake.costenv.sims.granular.unconsumed&quot;,
-                          &quot;costenv.sims.granular.inedible&quot;, 
-                          &quot;costenv.sims.granular.wasted&quot;,
-                          &quot;current.intake.costenv.sims.granular.inedible&quot;, 
-                          &quot;CF.intake.costenv.sims.granular.inedible&quot;,
-                          &quot;current.intake.costenv.sims.granular.wasted&quot;, 
-                          &quot;CF.intake.costenv.sims.granular.wasted&quot;
+<pre class="r"><code>output.type.vec.sims &lt;- c(&quot;envecosoc.sims.granular&quot;, 
+                          &quot;substitution.envecosoc.sims.granular&quot;, 
+                          &quot;combined.envecosoc.sims.granular&quot;,
+                          &quot;delta.envecosoc.sims.granular&quot;,
+                          &quot;combined.envecosoc.sims.granular.consumed&quot;,
+                          &quot;combined.envecosoc.sims.granular.unconsumed&quot;,
+                          &quot;current.intake.envecosoc.sims.granular&quot;, 
+                          &quot;CF.envecosoc.intake.sims.granular&quot;, 
+                          &quot;current.intake.envecosoc.sims.granular.consumed&quot;,
+                          &quot;CF.intake.envecosoc.sims.granular.consumed&quot;, 
+                          &quot;current.intake.envecosoc.sims.granular.unconsumed&quot;, 
+                          &quot;CF.intake.envecosoc.sims.granular.unconsumed&quot;,
+                          &quot;envecosoc.sims.granular.inedible&quot;, 
+                          &quot;envecosoc.sims.granular.wasted&quot;,
+                          &quot;current.intake.envecosoc.sims.granular.inedible&quot;, 
+                          &quot;CF.intake.envecosoc.sims.granular.inedible&quot;,
+                          &quot;current.intake.envecosoc.sims.granular.wasted&quot;, 
+                          &quot;CF.intake.envecosoc.sims.granular.wasted&quot;
                           )
 
-output.type.vec.summary &lt;- c(&quot;costenv.summary.granular&quot;, 
-                             &quot;substitution.costenv.summary.granular&quot;, 
-                             &quot;combined.costenvs.summary.granular&quot;,
-                             &quot;delta.costenv.summary.granular&quot;,
-                             &quot;combined.costenvs.summary.granular.consumed&quot;,
-                             &quot;combined.costenvs.summary.granular.unconsumed&quot;,
-                             &quot;current.intake.costenv.summary.granular&quot;, 
-                             &quot;CF.costenv.intake.summary.granular&quot;, 
-                             &quot;current.intake.costenv.summary.granular.consumed&quot;,
-                             &quot;CF.intake.costenv.summary.granular.consumed&quot;, 
-                             &quot;current.intake.costenv.summary.granular.unconsumed&quot;, 
-                             &quot;CF.intake.costenv.summary.granular.unconsumed&quot;,
-                             &quot;costenv.summary.granular.inedible&quot;, 
-                             &quot;costenv.summary.granular.wasted&quot;,
-                             &quot;current.intake.costenv.summary.granular.inedible&quot;, 
-                             &quot;CF.intake.costenv.summary.granular.inedible&quot;,
-                             &quot;current.intake.costenv.summary.granular.wasted&quot;, 
-                             &quot;CF.intake.costenv.summary.granular.wasted&quot;
+output.type.vec.summary &lt;- c(&quot;envecosoc.summary.granular&quot;, 
+                             &quot;substitution.envecosoc.summary.granular&quot;, 
+                             &quot;combined.envecosoc.summary.granular&quot;,
+                             &quot;delta.envecosoc.summary.granular&quot;,
+                             &quot;combined.envecosoc.summary.granular.consumed&quot;,
+                             &quot;combined.envecosoc.summary.granular.unconsumed&quot;,
+                             &quot;current.intake.envecosoc.summary.granular&quot;, 
+                             &quot;CF.envecosoc.intake.summary.granular&quot;, 
+                             &quot;current.intake.envecosoc.summary.granular.consumed&quot;,
+                             &quot;CF.intake.envecosoc.summary.granular.consumed&quot;, 
+                             &quot;current.intake.envecosoc.summary.granular.unconsumed&quot;, 
+                             &quot;CF.intake.envecosoc.summary.granular.unconsumed&quot;,
+                             &quot;envecosoc.summary.granular.inedible&quot;, 
+                             &quot;envecosoc.summary.granular.wasted&quot;,
+                             &quot;current.intake.envecosoc.summary.granular.inedible&quot;, 
+                             &quot;CF.intake.envecosoc.summary.granular.inedible&quot;,
+                             &quot;current.intake.envecosoc.summary.granular.wasted&quot;, 
+                             &quot;CF.intake.envecosoc.summary.granular.wasted&quot;
                              )
 
-output.type.vec.sims.bystrata &lt;- c(&quot;costenv.sims&quot;, 
-                                   &quot;substitution.costenv.sims&quot;, 
-                                   &quot;combined.costenvs.sims&quot;,
-                                   &quot;delta.costenv.sims&quot;,
-                                   &quot;combined.costenvs.sims.consumed&quot;,
-                                   &quot;combined.costenvs.sims.unconsumed&quot;,
-                                   &quot;current.intake.costenv.sims&quot;, 
-                                   &quot;CF.costenv.intake.sims&quot;, 
-                                   &quot;current.intake.costenv.sims.consumed&quot;,
-                                   &quot;CF.intake.costenv.sims.consumed&quot;, 
-                                   &quot;current.intake.costenv.sims.unconsumed&quot;, 
-                                   &quot;CF.intake.costenv.sims.unconsumed&quot;,
-                                   &quot;inedible.costenv.sims&quot;, 
-                                   &quot;wasted.costenv.sims&quot;,
-                                   &quot;current.intake.costenv.sims.inedible&quot;, 
-                                   &quot;CF.intake.costenv.sims.inedible&quot;,
-                                   &quot;current.intake.costenv.sims.wasted&quot;, 
-                                   &quot;CF.intake.costenv.sims.wasted&quot;
+output.type.vec.sims.bystrata &lt;- c(&quot;envecosoc.sims&quot;, 
+                                   &quot;substitution.envecosoc.sims&quot;, 
+                                   &quot;combined.envecosoc.sims&quot;,
+                                   &quot;delta.envecosoc.sims&quot;,
+                                   &quot;combined.envecosoc.sims.consumed&quot;,
+                                   &quot;combined.envecosoc.sims.unconsumed&quot;,
+                                   &quot;current.intake.envecosoc.sims&quot;, 
+                                   &quot;CF.envecosoc.intake.sims&quot;, 
+                                   &quot;current.intake.envecosoc.sims.consumed&quot;,
+                                   &quot;CF.intake.envecosoc.sims.consumed&quot;, 
+                                   &quot;current.intake.envecosoc.sims.unconsumed&quot;, 
+                                   &quot;CF.intake.envecosoc.sims.unconsumed&quot;,
+                                   &quot;inedible.envecosoc.sims&quot;, 
+                                   &quot;wasted.envecosoc.sims&quot;,
+                                   &quot;current.intake.envecosoc.sims.inedible&quot;, 
+                                   &quot;CF.intake.envecosoc.sims.inedible&quot;,
+                                   &quot;current.intake.envecosoc.sims.wasted&quot;, 
+                                   &quot;CF.intake.envecosoc.sims.wasted&quot;
                                    )
 
-output.type.vec.summary.bystrata &lt;- c(&quot;costenv.summary&quot;, 
-                                      &quot;substitution.costenv.summary&quot;, 
-                                      &quot;combined.costenvs.summary&quot;,
-                                      &quot;delta.costenv.summary&quot;,
-                                      &quot;combined.costenvs.summary.consumed&quot;,
-                                      &quot;combined.costenvs.summary.unconsumed&quot;,
-                                      &quot;current.intake.costenv.summary&quot;, 
-                                      &quot;CF.costenv.intake.summary&quot;, 
-                                      &quot;current.intake.costenv.summary.consumed&quot;,
-                                      &quot;CF.intake.costenv.summary.consumed&quot;, 
-                                      &quot;current.intake.costenv.summary.unconsumed&quot;, 
-                                      &quot;CF.intake.costenv.summary.unconsumed&quot;,
-                                      &quot;inedible.costenv.summary&quot;, 
-                                      &quot;wasted.costenv.summary&quot;,
-                                      &quot;current.intake.costenv.summary.inedible&quot;, 
-                                      &quot;CF.intake.costenv.summary.inedible&quot;,
-                                      &quot;current.intake.costenv.summary.wasted&quot;, 
-                                      &quot;CF.intake.costenv.summary.wasted&quot;
+output.type.vec.summary.bystrata &lt;- c(&quot;envecosoc.summary&quot;, 
+                                      &quot;substitution.envecosoc.summary&quot;, 
+                                      &quot;combined.envecosoc.summary&quot;,
+                                      &quot;delta.envecosoc.summary&quot;,
+                                      &quot;combined.envecosoc.summary.consumed&quot;,
+                                      &quot;combined.envecosoc.summary.unconsumed&quot;,
+                                      &quot;current.intake.envecosoc.summary&quot;, 
+                                      &quot;CF.envecosoc.intake.summary&quot;, 
+                                      &quot;current.intake.envecosoc.summary.consumed&quot;,
+                                      &quot;CF.intake.envecosoc.summary.consumed&quot;, 
+                                      &quot;current.intake.envecosoc.summary.unconsumed&quot;, 
+                                      &quot;CF.intake.envecosoc.summary.unconsumed&quot;,
+                                      &quot;inedible.envecosoc.summary&quot;, 
+                                      &quot;wasted.envecosoc.summary&quot;,
+                                      &quot;current.intake.envecosoc.summary.inedible&quot;, 
+                                      &quot;CF.intake.envecosoc.summary.inedible&quot;,
+                                      &quot;current.intake.envecosoc.summary.wasted&quot;, 
+                                      &quot;CF.intake.envecosoc.summary.wasted&quot;
                                       )
 
 LB.name.vec &lt;- c(&quot;impact_lower_bound (2.5th percentile)&quot;,
@@ -876,8 +818,10 @@ for all strata combos for a given output type.</p>
 sims and summary stats. Combine food at home and food away from home
 output and populate the lists. See documentation for
 “combine.FAH.FAFH.r” for details.</p>
-<pre class="r"><code># start ll loop
-for(ll in 1:length(diet.vec)){
+<pre class="r"><code># ll=1
+
+# start ll loop
+for(ll in 1:length(diet.vec)) {
   
   diet &lt;- diet.vec[ll]
 
@@ -887,13 +831,10 @@ for(ll in 1:length(diet.vec)){
   summary.list.percapita &lt;- list()
   
   # start k loop
-  for(k in 1:length(output.type.vec.sims)){
+  for(k in 1:length(output.type.vec.sims)) {
     
     summary.list[[k]] &lt;- list()
     summary.list.percapita[[k]] &lt;- list()
-
-    # set wd as code location
-    # setwd(code_location)
     
     output.type.sims &lt;- output.type.vec.sims[k]
     output.type.summary &lt;- output.type.vec.summary[k]
@@ -913,904 +854,37 @@ for(ll in 1:length(diet.vec)){
   summary.list.by.strata.combo &lt;- revert_list_str_4(summary.list)
   summary.list.percapita.by.strata.combo &lt;- revert_list_str_4(summary.list.percapita)
 
-  output_location &lt;- paste0(&quot;output/cost_env/&quot;, diet, &quot;_diet_both/&quot;)
+  output_location &lt;- paste0(&quot;output/envecosoc/&quot;, diet, &quot;_diet_both/&quot;)
 
-  for(mm in 1:length(names(summary.list[[1]]))){
-    
-    # setwd(paste(output_location, &quot;/By_SubGroup&quot;, sep=&quot;&quot;))
+  for(mm in 1:length(names(summary.list[[1]]))) {
     
     list.names.intersect &lt;- 
       Reduce(intersect, lapply(summary.list.by.strata.combo[[mm]], colnames))
     
     merged &lt;- 
-      Reduce(function(...) merge(..., by=list.names.intersect), 
+      Reduce(function(...) merge(..., by = list.names.intersect), 
              summary.list.by.strata.combo[[mm]])
     
-    write_csv(x=merged, 
-              file=paste0(output_location, 
+    write_csv(x = merged, 
+              file = paste0(output_location, 
                           &quot;By_SubGroup/&quot;, &quot;summary.output_by_&quot;, 
-                          names(summary.list[[1]])[mm], &quot;.costenv.csv&quot;))
+                          names(summary.list[[1]])[mm], &quot;.envecosoc.csv&quot;))
     
-    # setwd(paste(output_location, &quot;/per_capita/By_SubGroup&quot;, sep=&quot;&quot;))
     list.names.intersect &lt;- 
       Reduce(intersect, lapply(summary.list.percapita.by.strata.combo[[mm]], colnames))
     
     merged.percapita &lt;- 
-      Reduce(function(...) merge(..., by=list.names.intersect), 
+      Reduce(function(...) merge(..., by = list.names.intersect), 
              summary.list.percapita.by.strata.combo[[mm]])
     
-    write.csv(x=merged.percapita, 
-              file=paste0(output_location, 
+    write.csv(x = merged.percapita, 
+              file = paste0(output_location, 
                           &quot;per_capita/By_SubGroup/&quot;, &quot;summary.output_by_&quot;, 
-                          names(summary.list[[1]])[mm], &quot;.costenv.csv&quot;))
+                          names(summary.list[[1]])[mm], &quot;.envecosoc.csv&quot;))
     
   }
   
 }</code></pre>
-<pre><code>## Rows: 432 Columns: 25
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (10): Foodgroup, sex_gp, race_gp, age_gp, Intake_unit, GHG_unit, WATER_u...
-## dbl (15): subgroup_id, population, Mean_Intake, SE_Intake, CF_Mean_Intake, C...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 432 Columns: 25
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (10): Foodgroup, sex_gp, race_gp, age_gp, Intake_unit, GHG_unit, WATER_u...
-## dbl (15): subgroup_id, population, Mean_Intake, SE_Intake, CF_Mean_Intake, C...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 48 Columns: 20
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr  (6): Age_label, Sex_label, Race_label, age_gp, sex_gp, race_gp
-## dbl (14): subgroup, Age, Sex, Race, population, population.se, agecat, femal...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 432 Columns: 25
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (10): Foodgroup, sex_gp, race_gp, age_gp, Intake_unit, GHG_unit, WATER_u...
-## dbl (15): subgroup_id, population, Mean_Intake, SE_Intake, CF_Mean_Intake, C...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 432 Columns: 25
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (10): Foodgroup, sex_gp, race_gp, age_gp, Intake_unit, GHG_unit, WATER_u...
-## dbl (15): subgroup_id, population, Mean_Intake, SE_Intake, CF_Mean_Intake, C...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 48 Columns: 20
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr  (6): Age_label, Sex_label, Race_label, age_gp, sex_gp, race_gp
-## dbl (14): subgroup, Age, Sex, Race, population, population.se, agecat, femal...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 432 Columns: 25
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (10): Foodgroup, sex_gp, race_gp, age_gp, Intake_unit, GHG_unit, WATER_u...
-## dbl (15): subgroup_id, population, Mean_Intake, SE_Intake, CF_Mean_Intake, C...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 432 Columns: 25
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (10): Foodgroup, sex_gp, race_gp, age_gp, Intake_unit, GHG_unit, WATER_u...
-## dbl (15): subgroup_id, population, Mean_Intake, SE_Intake, CF_Mean_Intake, C...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 48 Columns: 20
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr  (6): Age_label, Sex_label, Race_label, age_gp, sex_gp, race_gp
-## dbl (14): subgroup, Age, Sex, Race, population, population.se, agecat, femal...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 432 Columns: 25
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (10): Foodgroup, sex_gp, race_gp, age_gp, Intake_unit, GHG_unit, WATER_u...
-## dbl (15): subgroup_id, population, Mean_Intake, SE_Intake, CF_Mean_Intake, C...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 432 Columns: 25
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (10): Foodgroup, sex_gp, race_gp, age_gp, Intake_unit, GHG_unit, WATER_u...
-## dbl (15): subgroup_id, population, Mean_Intake, SE_Intake, CF_Mean_Intake, C...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 48 Columns: 20
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr  (6): Age_label, Sex_label, Race_label, age_gp, sex_gp, race_gp
-## dbl (14): subgroup, Age, Sex, Race, population, population.se, agecat, femal...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 432 Columns: 25
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (10): Foodgroup, sex_gp, race_gp, age_gp, Intake_unit, GHG_unit, WATER_u...
-## dbl (15): subgroup_id, population, Mean_Intake, SE_Intake, CF_Mean_Intake, C...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 432 Columns: 25
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (10): Foodgroup, sex_gp, race_gp, age_gp, Intake_unit, GHG_unit, WATER_u...
-## dbl (15): subgroup_id, population, Mean_Intake, SE_Intake, CF_Mean_Intake, C...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 48 Columns: 20
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr  (6): Age_label, Sex_label, Race_label, age_gp, sex_gp, race_gp
-## dbl (14): subgroup, Age, Sex, Race, population, population.se, agecat, femal...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 432 Columns: 25
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (10): Foodgroup, sex_gp, race_gp, age_gp, Intake_unit, GHG_unit, WATER_u...
-## dbl (15): subgroup_id, population, Mean_Intake, SE_Intake, CF_Mean_Intake, C...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 432 Columns: 25
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (10): Foodgroup, sex_gp, race_gp, age_gp, Intake_unit, GHG_unit, WATER_u...
-## dbl (15): subgroup_id, population, Mean_Intake, SE_Intake, CF_Mean_Intake, C...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 48 Columns: 20
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr  (6): Age_label, Sex_label, Race_label, age_gp, sex_gp, race_gp
-## dbl (14): subgroup, Age, Sex, Race, population, population.se, agecat, femal...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 432 Columns: 25
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (10): Foodgroup, sex_gp, race_gp, age_gp, Intake_unit, GHG_unit, WATER_u...
-## dbl (15): subgroup_id, population, Mean_Intake, SE_Intake, CF_Mean_Intake, C...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 432 Columns: 25
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (10): Foodgroup, sex_gp, race_gp, age_gp, Intake_unit, GHG_unit, WATER_u...
-## dbl (15): subgroup_id, population, Mean_Intake, SE_Intake, CF_Mean_Intake, C...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 48 Columns: 20
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr  (6): Age_label, Sex_label, Race_label, age_gp, sex_gp, race_gp
-## dbl (14): subgroup, Age, Sex, Race, population, population.se, agecat, femal...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 432 Columns: 25
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (10): Foodgroup, sex_gp, race_gp, age_gp, Intake_unit, GHG_unit, WATER_u...
-## dbl (15): subgroup_id, population, Mean_Intake, SE_Intake, CF_Mean_Intake, C...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 432 Columns: 25
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (10): Foodgroup, sex_gp, race_gp, age_gp, Intake_unit, GHG_unit, WATER_u...
-## dbl (15): subgroup_id, population, Mean_Intake, SE_Intake, CF_Mean_Intake, C...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 48 Columns: 20
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr  (6): Age_label, Sex_label, Race_label, age_gp, sex_gp, race_gp
-## dbl (14): subgroup, Age, Sex, Race, population, population.se, agecat, femal...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 432 Columns: 25
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (10): Foodgroup, sex_gp, race_gp, age_gp, Intake_unit, GHG_unit, WATER_u...
-## dbl (15): subgroup_id, population, Mean_Intake, SE_Intake, CF_Mean_Intake, C...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 432 Columns: 25
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (10): Foodgroup, sex_gp, race_gp, age_gp, Intake_unit, GHG_unit, WATER_u...
-## dbl (15): subgroup_id, population, Mean_Intake, SE_Intake, CF_Mean_Intake, C...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 48 Columns: 20
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr  (6): Age_label, Sex_label, Race_label, age_gp, sex_gp, race_gp
-## dbl (14): subgroup, Age, Sex, Race, population, population.se, agecat, femal...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 432 Columns: 25
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (10): Foodgroup, sex_gp, race_gp, age_gp, Intake_unit, GHG_unit, WATER_u...
-## dbl (15): subgroup_id, population, Mean_Intake, SE_Intake, CF_Mean_Intake, C...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 432 Columns: 25
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (10): Foodgroup, sex_gp, race_gp, age_gp, Intake_unit, GHG_unit, WATER_u...
-## dbl (15): subgroup_id, population, Mean_Intake, SE_Intake, CF_Mean_Intake, C...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 48 Columns: 20
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr  (6): Age_label, Sex_label, Race_label, age_gp, sex_gp, race_gp
-## dbl (14): subgroup, Age, Sex, Race, population, population.se, agecat, femal...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 432 Columns: 25
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (10): Foodgroup, sex_gp, race_gp, age_gp, Intake_unit, GHG_unit, WATER_u...
-## dbl (15): subgroup_id, population, Mean_Intake, SE_Intake, CF_Mean_Intake, C...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 432 Columns: 25
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (10): Foodgroup, sex_gp, race_gp, age_gp, Intake_unit, GHG_unit, WATER_u...
-## dbl (15): subgroup_id, population, Mean_Intake, SE_Intake, CF_Mean_Intake, C...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 48 Columns: 20
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr  (6): Age_label, Sex_label, Race_label, age_gp, sex_gp, race_gp
-## dbl (14): subgroup, Age, Sex, Race, population, population.se, agecat, femal...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 432 Columns: 25
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (10): Foodgroup, sex_gp, race_gp, age_gp, Intake_unit, GHG_unit, WATER_u...
-## dbl (15): subgroup_id, population, Mean_Intake, SE_Intake, CF_Mean_Intake, C...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 432 Columns: 25
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (10): Foodgroup, sex_gp, race_gp, age_gp, Intake_unit, GHG_unit, WATER_u...
-## dbl (15): subgroup_id, population, Mean_Intake, SE_Intake, CF_Mean_Intake, C...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 48 Columns: 20
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr  (6): Age_label, Sex_label, Race_label, age_gp, sex_gp, race_gp
-## dbl (14): subgroup, Age, Sex, Race, population, population.se, agecat, femal...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 432 Columns: 25
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (10): Foodgroup, sex_gp, race_gp, age_gp, Intake_unit, GHG_unit, WATER_u...
-## dbl (15): subgroup_id, population, Mean_Intake, SE_Intake, CF_Mean_Intake, C...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 432 Columns: 25
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (10): Foodgroup, sex_gp, race_gp, age_gp, Intake_unit, GHG_unit, WATER_u...
-## dbl (15): subgroup_id, population, Mean_Intake, SE_Intake, CF_Mean_Intake, C...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 48 Columns: 20
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr  (6): Age_label, Sex_label, Race_label, age_gp, sex_gp, race_gp
-## dbl (14): subgroup, Age, Sex, Race, population, population.se, agecat, femal...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 432 Columns: 25
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (10): Foodgroup, sex_gp, race_gp, age_gp, Intake_unit, GHG_unit, WATER_u...
-## dbl (15): subgroup_id, population, Mean_Intake, SE_Intake, CF_Mean_Intake, C...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 432 Columns: 25
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (10): Foodgroup, sex_gp, race_gp, age_gp, Intake_unit, GHG_unit, WATER_u...
-## dbl (15): subgroup_id, population, Mean_Intake, SE_Intake, CF_Mean_Intake, C...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 48 Columns: 20
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr  (6): Age_label, Sex_label, Race_label, age_gp, sex_gp, race_gp
-## dbl (14): subgroup, Age, Sex, Race, population, population.se, agecat, femal...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 432 Columns: 25
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (10): Foodgroup, sex_gp, race_gp, age_gp, Intake_unit, GHG_unit, WATER_u...
-## dbl (15): subgroup_id, population, Mean_Intake, SE_Intake, CF_Mean_Intake, C...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 432 Columns: 25
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (10): Foodgroup, sex_gp, race_gp, age_gp, Intake_unit, GHG_unit, WATER_u...
-## dbl (15): subgroup_id, population, Mean_Intake, SE_Intake, CF_Mean_Intake, C...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 48 Columns: 20
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr  (6): Age_label, Sex_label, Race_label, age_gp, sex_gp, race_gp
-## dbl (14): subgroup, Age, Sex, Race, population, population.se, agecat, femal...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 432 Columns: 25
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (10): Foodgroup, sex_gp, race_gp, age_gp, Intake_unit, GHG_unit, WATER_u...
-## dbl (15): subgroup_id, population, Mean_Intake, SE_Intake, CF_Mean_Intake, C...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 432 Columns: 25
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (10): Foodgroup, sex_gp, race_gp, age_gp, Intake_unit, GHG_unit, WATER_u...
-## dbl (15): subgroup_id, population, Mean_Intake, SE_Intake, CF_Mean_Intake, C...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 48 Columns: 20
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr  (6): Age_label, Sex_label, Race_label, age_gp, sex_gp, race_gp
-## dbl (14): subgroup, Age, Sex, Race, population, population.se, agecat, femal...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 432 Columns: 25
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (10): Foodgroup, sex_gp, race_gp, age_gp, Intake_unit, GHG_unit, WATER_u...
-## dbl (15): subgroup_id, population, Mean_Intake, SE_Intake, CF_Mean_Intake, C...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 432 Columns: 25
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (10): Foodgroup, sex_gp, race_gp, age_gp, Intake_unit, GHG_unit, WATER_u...
-## dbl (15): subgroup_id, population, Mean_Intake, SE_Intake, CF_Mean_Intake, C...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 48 Columns: 20
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr  (6): Age_label, Sex_label, Race_label, age_gp, sex_gp, race_gp
-## dbl (14): subgroup, Age, Sex, Race, population, population.se, agecat, femal...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 432 Columns: 25
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (10): Foodgroup, sex_gp, race_gp, age_gp, Intake_unit, GHG_unit, WATER_u...
-## dbl (15): subgroup_id, population, Mean_Intake, SE_Intake, CF_Mean_Intake, C...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 432 Columns: 25
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (10): Foodgroup, sex_gp, race_gp, age_gp, Intake_unit, GHG_unit, WATER_u...
-## dbl (15): subgroup_id, population, Mean_Intake, SE_Intake, CF_Mean_Intake, C...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 48 Columns: 20
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr  (6): Age_label, Sex_label, Race_label, age_gp, sex_gp, race_gp
-## dbl (14): subgroup, Age, Sex, Race, population, population.se, agecat, femal...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 432 Columns: 25
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (10): Foodgroup, sex_gp, race_gp, age_gp, Intake_unit, GHG_unit, WATER_u...
-## dbl (15): subgroup_id, population, Mean_Intake, SE_Intake, CF_Mean_Intake, C...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 432 Columns: 25
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (10): Foodgroup, sex_gp, race_gp, age_gp, Intake_unit, GHG_unit, WATER_u...
-## dbl (15): subgroup_id, population, Mean_Intake, SE_Intake, CF_Mean_Intake, C...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 48 Columns: 20
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr  (6): Age_label, Sex_label, Race_label, age_gp, sex_gp, race_gp
-## dbl (14): subgroup, Age, Sex, Race, population, population.se, agecat, femal...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 432 Columns: 25
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (10): Foodgroup, sex_gp, race_gp, age_gp, Intake_unit, GHG_unit, WATER_u...
-## dbl (15): subgroup_id, population, Mean_Intake, SE_Intake, CF_Mean_Intake, C...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 432 Columns: 25
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (10): Foodgroup, sex_gp, race_gp, age_gp, Intake_unit, GHG_unit, WATER_u...
-## dbl (15): subgroup_id, population, Mean_Intake, SE_Intake, CF_Mean_Intake, C...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 48 Columns: 20
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr  (6): Age_label, Sex_label, Race_label, age_gp, sex_gp, race_gp
-## dbl (14): subgroup, Age, Sex, Race, population, population.se, agecat, femal...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 432 Columns: 25
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (10): Foodgroup, sex_gp, race_gp, age_gp, Intake_unit, GHG_unit, WATER_u...
-## dbl (15): subgroup_id, population, Mean_Intake, SE_Intake, CF_Mean_Intake, C...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 432 Columns: 25
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (10): Foodgroup, sex_gp, race_gp, age_gp, Intake_unit, GHG_unit, WATER_u...
-## dbl (15): subgroup_id, population, Mean_Intake, SE_Intake, CF_Mean_Intake, C...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 48 Columns: 20
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr  (6): Age_label, Sex_label, Race_label, age_gp, sex_gp, race_gp
-## dbl (14): subgroup, Age, Sex, Race, population, population.se, agecat, femal...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 432 Columns: 25
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (10): Foodgroup, sex_gp, race_gp, age_gp, Intake_unit, GHG_unit, WATER_u...
-## dbl (15): subgroup_id, population, Mean_Intake, SE_Intake, CF_Mean_Intake, C...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 432 Columns: 25
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (10): Foodgroup, sex_gp, race_gp, age_gp, Intake_unit, GHG_unit, WATER_u...
-## dbl (15): subgroup_id, population, Mean_Intake, SE_Intake, CF_Mean_Intake, C...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 48 Columns: 20
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr  (6): Age_label, Sex_label, Race_label, age_gp, sex_gp, race_gp
-## dbl (14): subgroup, Age, Sex, Race, population, population.se, agecat, femal...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 432 Columns: 25
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (10): Foodgroup, sex_gp, race_gp, age_gp, Intake_unit, GHG_unit, WATER_u...
-## dbl (15): subgroup_id, population, Mean_Intake, SE_Intake, CF_Mean_Intake, C...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 432 Columns: 25
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (10): Foodgroup, sex_gp, race_gp, age_gp, Intake_unit, GHG_unit, WATER_u...
-## dbl (15): subgroup_id, population, Mean_Intake, SE_Intake, CF_Mean_Intake, C...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 48 Columns: 20
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr  (6): Age_label, Sex_label, Race_label, age_gp, sex_gp, race_gp
-## dbl (14): subgroup, Age, Sex, Race, population, population.se, agecat, femal...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 432 Columns: 25
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (10): Foodgroup, sex_gp, race_gp, age_gp, Intake_unit, GHG_unit, WATER_u...
-## dbl (15): subgroup_id, population, Mean_Intake, SE_Intake, CF_Mean_Intake, C...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 432 Columns: 25
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (10): Foodgroup, sex_gp, race_gp, age_gp, Intake_unit, GHG_unit, WATER_u...
-## dbl (15): subgroup_id, population, Mean_Intake, SE_Intake, CF_Mean_Intake, C...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 48 Columns: 20
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr  (6): Age_label, Sex_label, Race_label, age_gp, sex_gp, race_gp
-## dbl (14): subgroup, Age, Sex, Race, population, population.se, agecat, femal...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 432 Columns: 25
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (10): Foodgroup, sex_gp, race_gp, age_gp, Intake_unit, GHG_unit, WATER_u...
-## dbl (15): subgroup_id, population, Mean_Intake, SE_Intake, CF_Mean_Intake, C...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 432 Columns: 25
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (10): Foodgroup, sex_gp, race_gp, age_gp, Intake_unit, GHG_unit, WATER_u...
-## dbl (15): subgroup_id, population, Mean_Intake, SE_Intake, CF_Mean_Intake, C...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 48 Columns: 20
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr  (6): Age_label, Sex_label, Race_label, age_gp, sex_gp, race_gp
-## dbl (14): subgroup, Age, Sex, Race, population, population.se, agecat, femal...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 432 Columns: 25
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (10): Foodgroup, sex_gp, race_gp, age_gp, Intake_unit, GHG_unit, WATER_u...
-## dbl (15): subgroup_id, population, Mean_Intake, SE_Intake, CF_Mean_Intake, C...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 432 Columns: 25
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (10): Foodgroup, sex_gp, race_gp, age_gp, Intake_unit, GHG_unit, WATER_u...
-## dbl (15): subgroup_id, population, Mean_Intake, SE_Intake, CF_Mean_Intake, C...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 48 Columns: 20
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr  (6): Age_label, Sex_label, Race_label, age_gp, sex_gp, race_gp
-## dbl (14): subgroup, Age, Sex, Race, population, population.se, agecat, femal...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 432 Columns: 25
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (10): Foodgroup, sex_gp, race_gp, age_gp, Intake_unit, GHG_unit, WATER_u...
-## dbl (15): subgroup_id, population, Mean_Intake, SE_Intake, CF_Mean_Intake, C...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 432 Columns: 25
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (10): Foodgroup, sex_gp, race_gp, age_gp, Intake_unit, GHG_unit, WATER_u...
-## dbl (15): subgroup_id, population, Mean_Intake, SE_Intake, CF_Mean_Intake, C...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 48 Columns: 20
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr  (6): Age_label, Sex_label, Race_label, age_gp, sex_gp, race_gp
-## dbl (14): subgroup, Age, Sex, Race, population, population.se, agecat, femal...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 432 Columns: 25
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (10): Foodgroup, sex_gp, race_gp, age_gp, Intake_unit, GHG_unit, WATER_u...
-## dbl (15): subgroup_id, population, Mean_Intake, SE_Intake, CF_Mean_Intake, C...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 432 Columns: 25
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (10): Foodgroup, sex_gp, race_gp, age_gp, Intake_unit, GHG_unit, WATER_u...
-## dbl (15): subgroup_id, population, Mean_Intake, SE_Intake, CF_Mean_Intake, C...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 48 Columns: 20
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr  (6): Age_label, Sex_label, Race_label, age_gp, sex_gp, race_gp
-## dbl (14): subgroup, Age, Sex, Race, population, population.se, agecat, femal...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 432 Columns: 25
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (10): Foodgroup, sex_gp, race_gp, age_gp, Intake_unit, GHG_unit, WATER_u...
-## dbl (15): subgroup_id, population, Mean_Intake, SE_Intake, CF_Mean_Intake, C...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 432 Columns: 25
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (10): Foodgroup, sex_gp, race_gp, age_gp, Intake_unit, GHG_unit, WATER_u...
-## dbl (15): subgroup_id, population, Mean_Intake, SE_Intake, CF_Mean_Intake, C...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 48 Columns: 20
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr  (6): Age_label, Sex_label, Race_label, age_gp, sex_gp, race_gp
-## dbl (14): subgroup, Age, Sex, Race, population, population.se, agecat, femal...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 432 Columns: 25
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (10): Foodgroup, sex_gp, race_gp, age_gp, Intake_unit, GHG_unit, WATER_u...
-## dbl (15): subgroup_id, population, Mean_Intake, SE_Intake, CF_Mean_Intake, C...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 432 Columns: 25
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (10): Foodgroup, sex_gp, race_gp, age_gp, Intake_unit, GHG_unit, WATER_u...
-## dbl (15): subgroup_id, population, Mean_Intake, SE_Intake, CF_Mean_Intake, C...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 48 Columns: 20
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr  (6): Age_label, Sex_label, Race_label, age_gp, sex_gp, race_gp
-## dbl (14): subgroup, Age, Sex, Race, population, population.se, agecat, femal...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 432 Columns: 25
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (10): Foodgroup, sex_gp, race_gp, age_gp, Intake_unit, GHG_unit, WATER_u...
-## dbl (15): subgroup_id, population, Mean_Intake, SE_Intake, CF_Mean_Intake, C...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 432 Columns: 25
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (10): Foodgroup, sex_gp, race_gp, age_gp, Intake_unit, GHG_unit, WATER_u...
-## dbl (15): subgroup_id, population, Mean_Intake, SE_Intake, CF_Mean_Intake, C...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 48 Columns: 20
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr  (6): Age_label, Sex_label, Race_label, age_gp, sex_gp, race_gp
-## dbl (14): subgroup, Age, Sex, Race, population, population.se, agecat, femal...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 432 Columns: 25
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (10): Foodgroup, sex_gp, race_gp, age_gp, Intake_unit, GHG_unit, WATER_u...
-## dbl (15): subgroup_id, population, Mean_Intake, SE_Intake, CF_Mean_Intake, C...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 432 Columns: 25
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (10): Foodgroup, sex_gp, race_gp, age_gp, Intake_unit, GHG_unit, WATER_u...
-## dbl (15): subgroup_id, population, Mean_Intake, SE_Intake, CF_Mean_Intake, C...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 48 Columns: 20
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr  (6): Age_label, Sex_label, Race_label, age_gp, sex_gp, race_gp
-## dbl (14): subgroup, Age, Sex, Race, population, population.se, agecat, femal...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 432 Columns: 25
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (10): Foodgroup, sex_gp, race_gp, age_gp, Intake_unit, GHG_unit, WATER_u...
-## dbl (15): subgroup_id, population, Mean_Intake, SE_Intake, CF_Mean_Intake, C...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 432 Columns: 25
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (10): Foodgroup, sex_gp, race_gp, age_gp, Intake_unit, GHG_unit, WATER_u...
-## dbl (15): subgroup_id, population, Mean_Intake, SE_Intake, CF_Mean_Intake, C...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 48 Columns: 20
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr  (6): Age_label, Sex_label, Race_label, age_gp, sex_gp, race_gp
-## dbl (14): subgroup, Age, Sex, Race, population, population.se, agecat, femal...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 432 Columns: 25
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (10): Foodgroup, sex_gp, race_gp, age_gp, Intake_unit, GHG_unit, WATER_u...
-## dbl (15): subgroup_id, population, Mean_Intake, SE_Intake, CF_Mean_Intake, C...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 432 Columns: 25
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (10): Foodgroup, sex_gp, race_gp, age_gp, Intake_unit, GHG_unit, WATER_u...
-## dbl (15): subgroup_id, population, Mean_Intake, SE_Intake, CF_Mean_Intake, C...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 48 Columns: 20
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr  (6): Age_label, Sex_label, Race_label, age_gp, sex_gp, race_gp
-## dbl (14): subgroup, Age, Sex, Race, population, population.se, agecat, femal...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 432 Columns: 25
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (10): Foodgroup, sex_gp, race_gp, age_gp, Intake_unit, GHG_unit, WATER_u...
-## dbl (15): subgroup_id, population, Mean_Intake, SE_Intake, CF_Mean_Intake, C...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 432 Columns: 25
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (10): Foodgroup, sex_gp, race_gp, age_gp, Intake_unit, GHG_unit, WATER_u...
-## dbl (15): subgroup_id, population, Mean_Intake, SE_Intake, CF_Mean_Intake, C...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 48 Columns: 20
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr  (6): Age_label, Sex_label, Race_label, age_gp, sex_gp, race_gp
-## dbl (14): subgroup, Age, Sex, Race, population, population.se, agecat, femal...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 432 Columns: 25
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (10): Foodgroup, sex_gp, race_gp, age_gp, Intake_unit, GHG_unit, WATER_u...
-## dbl (15): subgroup_id, population, Mean_Intake, SE_Intake, CF_Mean_Intake, C...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 432 Columns: 25
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (10): Foodgroup, sex_gp, race_gp, age_gp, Intake_unit, GHG_unit, WATER_u...
-## dbl (15): subgroup_id, population, Mean_Intake, SE_Intake, CF_Mean_Intake, C...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 48 Columns: 20
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr  (6): Age_label, Sex_label, Race_label, age_gp, sex_gp, race_gp
-## dbl (14): subgroup, Age, Sex, Race, population, population.se, agecat, femal...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
 <p>To output how much time it took run the cost/env/social portion of
 the code (find it in .txt file when you run the code).</p>
 <pre class="r"><code> end_time1 &lt;- Sys.time()
@@ -1824,17 +898,20 @@ the code (find it in .txt file when you run the code).</p>
 <p>List out dietary factors of interest and subset master input file by
 them.</p>
 <pre class="r"><code># Dietary factors vector (for CRA)
-rfvec_cra &lt;- c(&quot;dairy_tot&quot;,
+rfvec_cra &lt;- c(
+               # &quot;dairy_tot&quot;,
                # &quot;gr_whole&quot;,
                # &quot;pf_ns&quot;,
                # &quot;pf_pm&quot;,
                # &quot;pf_redm&quot;,
                # &quot;pf_seafood&quot;,
-               # &quot;veg_exc_sta&quot;,
+               &quot;veg_exc_sta&quot;,
                # &quot;ssb&quot;,
                # &quot;sodium&quot;,
-               # &quot;fruit_exc_juice&quot;,
-               &quot;leg_tot&quot;)
+               &quot;fruit_exc_juice&quot;
+               # ,
+               # &quot;leg_tot&quot;
+               )
 
 # subset to only include dietary factors for CRA
 primary_input_cra &lt;- subset(primary_input, Foodgroup %in% rfvec_cra)</code></pre>
@@ -1867,7 +944,8 @@ disease.type2.vec &lt;- c(&quot;Cancer&quot;, &quot;Cancer&quot;, &quot;Cancer&q
                        &quot;Cancer&quot;, &quot;Cancer&quot;, &quot;Cancer&quot;, &quot;Cancer&quot;, &quot;Cancer&quot;, &quot;Cancer&quot;,
                        &quot;Cancer&quot;, &quot;Cancer&quot;, &quot;Cancer&quot;, &quot;Cancer&quot;,
                        &quot;IHD&quot;, &quot;ISTK&quot;, &quot;HSTK&quot;, &quot;OSTK&quot;, &quot;DIAB&quot;, &quot;HHD&quot;,
-                       &quot;Other_CVD&quot;, &quot;Other_CVD&quot;, &quot;Other_CVD&quot;, &quot;Other_CVD&quot;, &quot;Other_CVD&quot;, &quot;Other_CVD&quot;, &quot;Other_CVD&quot;
+                       &quot;Other_CVD&quot;, &quot;Other_CVD&quot;, &quot;Other_CVD&quot;, &quot;Other_CVD&quot;, 
+                       &quot;Other_CVD&quot;, &quot;Other_CVD&quot;, &quot;Other_CVD&quot;
 )
 
 # option 3
@@ -1875,7 +953,8 @@ disease.type3.vec &lt;- c(&quot;Cancer&quot;, &quot;Cancer&quot;, &quot;Cancer&q
                        &quot;Cancer&quot;, &quot;Cancer&quot;, &quot;Cancer&quot;, &quot;Cancer&quot;, &quot;Cancer&quot;, &quot;Cancer&quot;,
                        &quot;Cancer&quot;, &quot;Cancer&quot;, &quot;Cancer&quot;, &quot;Cancer&quot;,
                        &quot;All_HD&quot;, &quot;All_STK&quot;, &quot;All_STK&quot;, &quot;All_STK&quot;, &quot;DIAB&quot;, &quot;All_HD&quot;,
-                       &quot;Other_CVD&quot;, &quot;Other_CVD&quot;, &quot;Other_CVD&quot;, &quot;Other_CVD&quot;, &quot;Other_CVD&quot;, &quot;Other_CVD&quot;, &quot;Other_CVD&quot;
+                       &quot;Other_CVD&quot;, &quot;Other_CVD&quot;, &quot;Other_CVD&quot;, &quot;Other_CVD&quot;, 
+                       &quot;Other_CVD&quot;, &quot;Other_CVD&quot;, &quot;Other_CVD&quot;
 )</code></pre>
 <p>Create variable for number of diseases, and create various vectors
 and matrices for the “expanded” disease list, meaning each disease, but
@@ -1885,21 +964,24 @@ SBP, and mediated by BMI.</p>
 n.diseases &lt;- length(diseases.vec)
 
 pathway.vec &lt;- c(&quot;direct&quot;, &quot;medBMI&quot;, &quot;medSBP&quot;)
-pathway &lt;- rep(pathway.vec, each=length(diseases.vec))
+pathway &lt;- rep(pathway.vec, each = length(diseases.vec))
 
-disease.table &lt;- cbind(diseases.vec, disease.type.vec, disease.type1.vec, disease.type2.vec, disease.type3.vec)
+disease.table &lt;- cbind(diseases.vec, 
+                       disease.type.vec, 
+                       disease.type1.vec, 
+                       disease.type2.vec, 
+                       disease.type3.vec)
 
-diseases_medBMI.vec &lt;- paste(diseases.vec, &quot;_medBMI&quot;, sep=&quot;&quot;)
-diseases_medSBP.vec &lt;- paste(diseases.vec, &quot;_medSBP&quot;, sep=&quot;&quot;)
+diseases_medBMI.vec &lt;- paste(diseases.vec, &quot;_medBMI&quot;, sep = &quot;&quot;)
+diseases_medSBP.vec &lt;- paste(diseases.vec, &quot;_medSBP&quot;, sep = &quot;&quot;)
 
 diseases.vec &lt;- c(diseases.vec, diseases_medBMI.vec, diseases_medSBP.vec)
-diseases.vec.mn &lt;- paste(diseases.vec, &quot;mn&quot;, sep=&quot;&quot;)
-diseases.vec.se &lt;- paste(diseases.vec, &quot;se&quot;, sep=&quot;&quot;)
+diseases.vec.mn &lt;- paste(diseases.vec, &quot;mn&quot;, sep = &quot;&quot;)
+diseases.vec.se &lt;- paste(diseases.vec, &quot;se&quot;, sep = &quot;&quot;)
 num.diseases &lt;- length(diseases.vec.mn)
 
-disease.total.vec &lt;- gsub(pattern=&quot;_medBMI|_medSBP&quot;, replacement=&quot;&quot;, x=diseases.vec)
+disease.total.vec &lt;- gsub(pattern = &quot;_medBMI|_medSBP&quot;, replacement = &quot;&quot;, x = diseases.vec)
 
-# brooke edited
 disease.type.total.vec &lt;- disease.type.vec[match(disease.total.vec, disease.table)]
 disease.type1.total.vec &lt;- disease.type1.vec[match(disease.total.vec, disease.table)]
 disease.type2.total.vec &lt;- disease.type2.vec[match(disease.total.vec, disease.table)]
@@ -1915,16 +997,9 @@ do a little data processing. (These inputs may also be in data input
 file for the sake of completeness, but the actual inputs for the code
 are from the files listed below.</p>
 <pre class="r"><code># Import relative risk (RR) data input
-rrtotal &lt;- read_csv(file=paste0(file_location, &quot;rr_agesexrace_&quot;, version.date, &quot;.csv&quot;))</code></pre>
-<pre><code>## Rows: 2064 Columns: 191
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr   (1): RF
-## dbl (190): subgroup, AA, AFF, ALL, APCA, BC, CC, CM, DIAB, ECA, ENDO, GC, HH...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
-<pre class="r"><code># Create age categories
+rrtotal &lt;- read_csv(file = paste0(file_location, &quot;rr_agesexrace_&quot;, version.date, &quot;.csv&quot;))
+
+# Create age categories
 # rrtotal$age &lt;- 0
 # rrtotal$age[rrtotal$agecat==1] &lt;- 25
 # rrtotal$age[rrtotal$agecat==2] &lt;- 35
@@ -1934,25 +1009,13 @@ rrtotal &lt;- read_csv(file=paste0(file_location, &quot;rr_agesexrace_&quot;, ve
 # rrtotal$age[rrtotal$agecat==6] &lt;- 75
 
 # Import effect data inputs
-Food.to.BMI.effects &lt;- read_csv(file=paste0(file_location, &quot;food_to_bmi_effects_converted_&quot;, version.date, &quot;.csv&quot;))</code></pre>
-<pre><code>## Rows: 41 Columns: 6
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (2): food_group, effect_unit
-## dbl (4): effect_normal_mean, effect_normal_mean_se, effect_overweight_mean, ...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
-<pre class="r"><code>Food.to.SBP.effects &lt;- read_csv(file=paste0(file_location, &quot;food_to_sbp_effects_converted_&quot;, version.date, &quot;.csv&quot;))</code></pre>
-<pre><code>## Rows: 41 Columns: 10
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (2): food_group, effect_unit
-## dbl (8): main.effect.mean, main.effect.se, age.effect.mean, age.effect.se, r...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
-<pre class="r"><code># Create theoretical minimum (&#39;theomin&#39;) (TMRED) from data input file
+Food.to.BMI.effects &lt;- 
+  read_csv(file = paste0(file_location, &quot;food_to_bmi_effects_converted_&quot;, version.date, &quot;.csv&quot;))
+
+Food.to.SBP.effects &lt;- 
+  read_csv(file = paste0(file_location, &quot;food_to_sbp_effects_converted_&quot;, version.date, &quot;.csv&quot;))
+
+# Create theoretical minimum (&#39;theomin&#39;) (TMRED) from data input file
 theomin &lt;- primary_input_cra %&gt;%
   filter(datatype == &quot;Total&quot;) %&gt;%
   select(Foodgroup, TMRED_Mean_Intake, TMRED_SD_Intake, TMRED_intake_unit) %&gt;%
@@ -1963,15 +1026,7 @@ theomin &lt;- primary_input_cra %&gt;%
          Unit = TMRED_intake_unit)</code></pre>
 <p>Create mortality/incidence simulations.</p>
 <pre class="r"><code># pre-simulate mortality/incidence numbers, to be used in CRA simulations, as well for calculating reverse-engineered PAFs
-source(paste0(code_location, &quot;source_code/presimulate_observed_mort_draws.r&quot;))</code></pre>
-<pre><code>## Rows: 2832 Columns: 11
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (4): Age_label, Sex_label, Race_label, diseases
-## dbl (7): subgroup, Age, Sex, Race, count, crude_se, population
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+source(paste0(code_location, &quot;source_code/presimulate_observed_disease_draws.r&quot;))</code></pre>
 <p>Create output file path.</p>
 <pre class="r"><code># create output file path
 output_location &lt;- &quot;output/CRA/&quot;</code></pre>
@@ -2003,7 +1058,7 @@ cluster_type &lt;- if (get_os() == &quot;windows&quot;) {&quot;PSOCK&quot;} else
 no_cores &lt;- detectCores() - 1
 s = 1 # initialize iteration variable before forking
 
-cl &lt;- makeCluster(no_cores, type=cluster_type) # Make the cluster
+cl &lt;- makeCluster(no_cores, type = cluster_type) # Make the cluster
 registerDoParallel(cl)</code></pre>
 <p>Start foreach loop. Inside the loop is the code to run the CRA.
 Recall that diet.vec is a vector listing all dietary patterns of
@@ -2025,38 +1080,40 @@ interest for all subgroups, x times depending on what you set nsim to
 be. The entire simulation results will be saved. Part 2 creates summary
 results, for all possible subgroup combinations. Part 3 calculates joint
 PIFs (for all subgroups).</p>
-<pre class="r"><code># debug
-ss=1
+<pre class="r"><code>ss=1
 
 # This is the for loop that runs the CRA analysis for all dietary patterns
-foreach(ss=1:length(diet.vec), .verbose=TRUE) %dopar% {
+foreach(ss = 1:length(diet.vec), .verbose = TRUE) %dopar% {
 
   set.seed(359)
-
-  # update file path
-  # setwd(file_location)
 
   # Read CSV file of exposure 
   expos &lt;- read_csv(file = paste0(file_location, &quot;input_data_&quot;, version.date, &quot;.csv&quot;))
   
-  expos$diet_pattern[expos$diet_pattern==&quot;Vegetarian&quot;] &lt;- &quot;Veg&quot;
+  expos$diet_pattern[expos$diet_pattern == &quot;Vegetarian&quot;] &lt;- &quot;Veg&quot;
   expos &lt;- subset(expos, Foodgroup %in% rfvec_cra)
 
-  expos &lt;- subset(expos, diet_pattern == diet.vec[ss] &amp; datatype==&quot;Total&quot;)
+  expos &lt;- subset(expos, diet_pattern == diet.vec[ss] &amp; datatype == &quot;Total&quot;)
   expos &lt;- expos[order(expos$Foodgroup),]
 
   # check
   print(as.data.frame(table(expos$Foodgroup, useNA = &quot;always&quot;))) # good
 
   # Fix a bunch of variable names
-  expos$riskfactor &lt;- expos$Foodgroup # renaming it in case name of variable ever changes in datafile.
-  expos$diet &lt;- expos$Foodgroup # renaming it in case name of variable ever changes in datafile.
-  expos$sd &lt;- expos$sigma_u_wgt # change this line if you want to use total sd or unweighted sd or something else for sd.
+  
+  # renaming it in case name of variable ever changes in datafile.
+  expos$riskfactor &lt;- expos$Foodgroup 
+  
+  # renaming it in case name of variable ever changes in datafile.
+  expos$diet &lt;- expos$Foodgroup
+  
+  # change this line if you want to use total sd or unweighted sd or something else for sd.
+  expos$sd &lt;- expos$sigma_u_wgt
   
   # note to self - this var doesn&#39;t exist??
   # let&#39;s see if it runs without it
-  # expos$sd.alt &lt;- expos$sigma_u_wgt.alt # change this line if you want to use total sd or unweighted sd or something else for sd.
-  
+  # change this line if you want to use total sd or unweighted sd or something else for sd.
+  # expos$sd.alt &lt;- expos$sigma_u_wgt.alt
   
   expos$mean &lt;- expos$Mean_Intake
   expos$se &lt;- expos$SE_Intake
@@ -2066,43 +1123,42 @@ foreach(ss=1:length(diet.vec), .verbose=TRUE) %dopar% {
   expos$age &lt;- expos$Age
   expos$agecat &lt;- expos$Age
   expos$race &lt;- 0
-  expos$race[expos$Race_label==&quot;NHW&quot;] &lt;- 1
-  expos$race[expos$Race_label==&quot;NHB&quot;] &lt;- 2
-  expos$race[expos$Race_label==&quot;HIS&quot;] &lt;- 3
-  expos$race[expos$Race_label==&quot;OTH&quot;] &lt;- 4
+  expos$race[expos$Race_label == &quot;NHW&quot;] &lt;- 1
+  expos$race[expos$Race_label == &quot;NHB&quot;] &lt;- 2
+  expos$race[expos$Race_label == &quot;HIS&quot;] &lt;- 3
+  expos$race[expos$Race_label == &quot;OTH&quot;] &lt;- 4
   expos$female &lt;- 0
-  expos[expos$Sex==1,]$female &lt;- 1
+  expos[expos$Sex == 1,]$female &lt;- 1
 
   # Create # of strata variable
   n.strata &lt;- expos %&gt;% select(subgroup_id) %&gt;% distinct() %&gt;% nrow()
 
   # Assign age
   expos$age &lt;- 0
-  expos$age[expos$agecat==1] &lt;- 25
-  expos$age[expos$agecat==2] &lt;- 35
-  expos$age[expos$agecat==3] &lt;- 45
-  expos$age[expos$agecat==4] &lt;- 55
-  expos$age[expos$agecat==5] &lt;- 65
-  expos$age[expos$agecat==6] &lt;- 75
+  expos$age[expos$agecat == 1] &lt;- 25
+  expos$age[expos$agecat == 2] &lt;- 35
+  expos$age[expos$agecat == 3] &lt;- 45
+  expos$age[expos$agecat == 4] &lt;- 55
+  expos$age[expos$agecat == 5] &lt;- 65
+  expos$age[expos$agecat == 6] &lt;- 75
 
-  expos$age.mid&lt;-0
-  expos$age.mid[expos$agecat==1] &lt;- median(c(25,35))
-  expos$age.mid[expos$agecat==2] &lt;- median(c(35,45))
-  expos$age.mid[expos$agecat==3] &lt;- median(c(45,55))
-  expos$age.mid[expos$agecat==4] &lt;- median(c(55,65))
-  expos$age.mid[expos$agecat==5] &lt;- median(c(65,75))
-  expos$age.mid[expos$agecat==6] &lt;- median(c(75,100))
+  expos$age.mid &lt;- 0
+  expos$age.mid[expos$agecat == 1] &lt;- median(c(25,35))
+  expos$age.mid[expos$agecat == 2] &lt;- median(c(35,45))
+  expos$age.mid[expos$agecat == 3] &lt;- median(c(45,55))
+  expos$age.mid[expos$agecat == 4] &lt;- median(c(55,65))
+  expos$age.mid[expos$agecat == 5] &lt;- median(c(65,75))
+  expos$age.mid[expos$agecat == 6] &lt;- median(c(75,100))
   .GlobalEnv$expos &lt;- expos
 
-  expos.rf &lt;- length(unique(expos$riskfactor)) # number of risk factors in the file (e.g., 1 if there is only one risk factor)
+  # number of risk factors in the file (e.g., 1 if there is only one risk factor)
+  expos.rf &lt;- length(unique(expos$riskfactor)) 
 
-  nsim2 &lt;- length(expos$mean)/expos.rf # length of exposure dataset for one risk factor (i.e. rows in exposure dataset: sex * age-groups * coutries)
+  # length of exposure dataset for one risk factor (i.e. rows in exposure dataset: sex * age-groups * coutries)
+  nsim2 &lt;- length(expos$mean)/expos.rf 
 
   # add var to global environment
   .GlobalEnv$nsim2 &lt;- nsim2
-
-  # change working directory to cluster code folder
-  # setwd(code_location)
 
   # set diet pattern
   diet_pattern &lt;- diet.vec[ss]
@@ -2110,18 +1166,12 @@ foreach(ss=1:length(diet.vec), .verbose=TRUE) %dopar% {
   # add var to global environment
   .GlobalEnv$diet_pattern &lt;- diet_pattern
 
-  # save data so I don&#39;t have to run everything again when debugging
-  # save.image(paste0(code_location, &quot;/debug/BeforeRun.RData&quot;))
-
   # Part 1
   # Actually runs the simulations and calculates PIF for nsim1 simulations
   source(paste0(code_location, &quot;source_code/PIF_analysis_part_1.r&quot;)) 
 
   # Part 2
   source(paste0(code_location, &quot;source_code/PIF_analysis_part_2.r&quot;))
-
-  # change working directory to code folder
-  # setwd(code_location)
 
   # Part 3
   # Calculates Joint PIFs for each strata and each disease

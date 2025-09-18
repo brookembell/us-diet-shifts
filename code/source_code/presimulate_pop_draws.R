@@ -26,15 +26,15 @@
 # That being said, if you make changes to the age/sex/race groups (or 
 # add/subtract strata), then you will need to change this part of the code to match.
 
-mort <- pop
+pop_edit <- pop
 
-mort$agecat <- as.numeric(as.factor(mort$Age))
-mort$female <- as.numeric(mort$Sex)
-mort$female[as.numeric(mort$Sex) == 2] <- 0
-mort$race <- mort$Race
+pop_edit$agecat <- as.numeric(as.factor(pop_edit$Age))
+pop_edit$female <- as.numeric(pop_edit$Sex)
+pop_edit$female[as.numeric(pop_edit$Sex) == 2] <- 0
+pop_edit$race <- pop_edit$Race
 
 # add vars used for price/environment models
-mort <- mort %>% mutate(subgroup_id = subgroup,
+pop_edit <- pop_edit %>% mutate(subgroup_id = subgroup,
                         age_gp = case_when(agecat == 1 ~ '20-34',
                                            agecat == 2 ~ '35-44',
                                            agecat == 3 ~ '45-54',
@@ -49,48 +49,50 @@ mort <- mort %>% mutate(subgroup_id = subgroup,
                                            female == 1 ~ 'Female')
 )
 
-mort$race_gp <- mort$Race_label
+pop_edit$race_gp <- pop_edit$Race_label
 
-mort$age <- 0
-mort$age[mort$agecat == 1] <- 25
-mort$age[mort$agecat == 2] <- 35
-mort$age[mort$agecat == 3] <- 45
-mort$age[mort$agecat == 4] <- 55
-mort$age[mort$agecat == 5] <- 65
-mort$age[mort$agecat == 6] <- 75
+pop_edit$age <- 0
+pop_edit$age[pop_edit$agecat == 1] <- 25
+pop_edit$age[pop_edit$agecat == 2] <- 35
+pop_edit$age[pop_edit$agecat == 3] <- 45
+pop_edit$age[pop_edit$agecat == 4] <- 55
+pop_edit$age[pop_edit$agecat == 5] <- 65
+pop_edit$age[pop_edit$agecat == 6] <- 75
 
-mort$race <- 0
-mort$race[mort$Race_label == "NHW"] <- 1
-mort$race[mort$Race_label == "NHB"] <- 2
-mort$race[mort$Race_label == "HIS"] <- 3
-mort$race[mort$Race_label == "OTH"] <- 4
+pop_edit$race <- 0
+pop_edit$race[pop_edit$Race_label == "NHW"] <- 1
+pop_edit$race[pop_edit$Race_label == "NHB"] <- 2
+pop_edit$race[pop_edit$Race_label == "HIS"] <- 3
+pop_edit$race[pop_edit$Race_label == "OTH"] <- 4
 
 # Loop through each row and generate population sims based on mean and standard 
 # error of population for each subgroup. 
 
-observed.pop.draws <- matrix(data = NA, nrow = dim(mort)[1], ncol = nsim1)
+observed.pop.draws_mat <- matrix(data = NA, nrow = dim(pop_edit)[1], ncol = nsim1)
 
-print(observed.pop.draws)
-
-for(i in 1:dim(mort)[1]) {
+for(i in 1:dim(pop_edit)[1]) {
   
-  temp <- rnorm(n = nsim1, mean = mort$population[i], sd = mort$population.se[i])
+  temp <- rnorm(n = nsim1, mean = pop_edit$population[i], sd = pop_edit$population.se[i])
   temp[temp < 0] <- 0
-  observed.pop.draws[i,] <- temp
+  observed.pop.draws_mat[i,] <- temp
   
 }
 
+print(observed.pop.draws_mat)
+
+# change to data frame
+observed.pop.draws_df <- as.data.frame(observed.pop.draws_mat)
+
+print(observed.pop.draws_df)
+
+# change variable names to start with "X"
+observed.pop.draws_df1 <- observed.pop.draws_df %>% 
+  rename_with(~gsub("V", "X", .x))
+
+# final dataset
+observed.pop.draws <- cbind(pop_edit, observed.pop.draws_df1)
+
 print(observed.pop.draws)
-
-observed.pop.draws <- cbind(mort, observed.pop.draws)
-
-print(observed.pop.draws)
-
-# fix variable name
-observed.pop.draws <- observed.pop.draws %>% 
-  rename("X1" = `1`,
-         "X2" = `2`,
-         "X3" = `3`)
 
 # Save sims as a csv file.
 
