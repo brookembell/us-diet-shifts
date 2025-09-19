@@ -6,9 +6,9 @@
 
 ### Documentation for R script ###
 
-# This script runs after "part one". After you've generated a distribution of 
+# This script runs after "PIF_analysis_part_1.r". After we've generated a distribution of 
 # PIFs/attributable mortality/incidence for each subgroup/dietary factor/disease, 
-# you run this to generate summary statistics (median, uncertainty intervals) of 
+# we run this to generate summary statistics (median, uncertainty intervals) of 
 # the output generated in part one.
 
 ############################################################################
@@ -69,8 +69,8 @@ totaldisease <- totaldisease[totaldisease$pathway  == "direct",]
 totaldisease <- subset(totaldisease, outcome %in% diseases.vec, select = -c(pathway))
 
 # Recall, we also have three broader outcome categories of interest (denoted as 
-# disease type 1, diseaes type 2, disease type 3), and have mapped each outcome 
-# to each category (for all three) in run_models.r, and that mapping is stored 
+# disease type 1, disease type 2, disease type 3), and have mapped each outcome 
+# to each category (for all three) in run_models.rmd, and that mapping is stored 
 # in disease.table. Code below uses that mapping to create variables for the 
 # three disease type categories.
 
@@ -124,7 +124,7 @@ names(sum.stats.PIF)[(1 + length(covar.vec)):(6 + length(covar.vec))] <-
 
 # Read in original exposure file, strictly for the purpose of calculating "l", 
 # the number of subgroups. Note this is only valid assuming you subgroups are 
-# defined by age, sex and race.
+# defined by age, sex, and race.
 
 # Read CSV file of exposure
 disease.dat <- read_csv(file = paste0(file_location, "nhanes1518_agesexrace_merged_", 
@@ -141,8 +141,8 @@ if(identical(covar.vec, c("Age", "Sex", "Race"))) {
 }
 
 # Now we will calculate "reverse engineered PIFs", meaning we are going to 
-# back-calculte PIFs from taking the attibutable mortality/incidence and dividing 
-# my total number of deaths/incidence. This is how we calculate PIFs for broader 
+# back-calculte PIFs from taking the attributable mortality/incidence and dividing 
+# by total number of deaths/cases. This is how we calculate PIFs for broader 
 # subgroups (results by age, results by sex, results by disease type, overall 
 # results for the population, etc... as opposed results by each 
 # age/sex/race/outcome/etc..). 
@@ -289,7 +289,7 @@ for(i in 1:length(strata)) {
 }
 
 # Not all combinations are of interest. We want to, at the very least, have 
-# outcome pathway or a disease type as a strata (Results are event specific 
+# outcome pathway or a disease type as a strata (Results are event-specific 
 # after all. We aren't reporting all preventable events by age when the types 
 # of events are not even consistent by outcome). Also, not all the strata are 
 # mutually exclusive. It's redundant to stratify by disease type 1 if you're 
@@ -302,9 +302,6 @@ for(i in 1:length(strata)) {
 # outcome/disease type will mix up incidence (from cancer) and mortality 
 # (from CMDs). Good point! You got me! (Generally, I recommend not mixing 
 # cancer mortality and CMD incidence when reporting results)
-
-# debug
-# i = 6
 
 strata.combos.of.interest.boolean <- c()
 
@@ -345,17 +342,6 @@ print(strata.combos.of.interest.index)
 # 3: entire simulation of observed deaths by specified strata, 
 # 
 # 4: entire simulation of "reverse engineered" PIFs by specified strata.
-
-# debug
-# i=5
-
-# for(i in strata.combos.of.interest.index) {
-#   
-#   print(i)
-#   print(strata.combos[[i]])
-#   print("")
-#   
-# }
 
 for(i in strata.combos.of.interest.index) {
   

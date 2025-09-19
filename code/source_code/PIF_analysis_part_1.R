@@ -6,7 +6,7 @@
 
 ### Documentation for R script ###
 
-# Complete.PIF.Analysis.PartOne.r estimates the PIFs for all diet-disease pairs 
+# PIF_analysis_part_1.r estimates the PIFs for all diet-disease pairs 
 # of interest, using probabilistic sensitivity analysis to propagate uncertainty 
 # (Which just means we use monte carlo simulations to calculate the PIFs multiple 
 # times). The general idea for this script is we traverse through each 
@@ -60,25 +60,25 @@ p.rr.alt <- c()
 p <- list()
 p.alt <- list()
 
-pif <- replicate(num.diseases, matrix(NA, nsim2, nsim1), simplify = F)
-disease <- replicate(num.diseases, matrix(NA, nsim2, nsim1), simplify = F)
-observed.disease <- replicate(num.diseases, matrix(NA, nsim2, nsim1), simplify = F)
+pif <- replicate(num.diseases, matrix(NA, nsim2, nsim1), simplify = FALSE)
+disease <- replicate(num.diseases, matrix(NA, nsim2, nsim1), simplify = FALSE)
+observed.disease <- replicate(num.diseases, matrix(NA, nsim2, nsim1), simplify = FALSE)
 
 final_mat_pif <-  matrix (NA, nsim2, 12)
-final_mat_disease <-  matrix (NA, nsim2, 12) # matrix with final mortality estimates
+final_mat_disease <-  matrix (NA, nsim2, 12) # matrix with final incidence/mortality estimates
 
 m <- list()
 s <- list()
 m_disease <- list()
 s_disease <- list()
 
-# We are going to be using nested for loops to traverse through everything we need.
+# We are going to be using nested for-loops to traverse through everything we need.
 
-# The highest level of the nested for loop is for looping through the risk factors 
+# The highest level of the nested for-loop is for looping through the risk factors 
 # of interest. We'll call it the r loop.
 
 # First Loop for Each Risk Factor 
-# this loop runs for each risk factor in the vector rfvec
+# this loop runs for each risk factor in the vector `rfvec`
 
 # r=1
 
@@ -86,7 +86,7 @@ for (r in 1:length(rfvec_cra)) {  # Start risk factor loop
   
   # Within the r loop, first extract inputs specific to risk factor r, which 
   # includes RRs, risk factor to BMI and risk factor to SBP effects, and the 
-  # TMRED. Recall that the data below are read in / extracted in run_model.r 
+  # TMRED. Recall that the data below are read in / extracted in run_models.rmd 
   # in the CRA-SPECIFIC INPUTS section. 
   
   # vector of age-sex-race specific files to be read in; for dietary risks 
@@ -119,24 +119,25 @@ for (r in 1:length(rfvec_cra)) {  # Start risk factor loop
   
   for (l in 1:nsim3) {   
     
-    data0 <- expos # data0 will be the exposure file 
+    # expos3 is the exposure file 
+    data <- expos3
     
-    # subset to dietary factor
-    data01 <- subset(data0, diet == rfvec_cra[r]) 
+    data1 <- data %>% 
+      # subset to dietary factor
+      filter(riskfactor == rfvec_cra[r]) %>% 
+      # make sure that the rf data is in the same order as the rr data
+      arrange(subgroup)
     
-    # reorder
-    data1 <- data01[order(data01$subgroup),] 
+    # data01 <- subset(data0, diet == rfvec_cra[r]) 
+    # data1 <- data01[order(data01$subgroup),] 
+    # data1 will be the ordered data01 
     
-    # The purpose of the ordering is to make the risk factor / death data input 
+    # The purpose of the ordering is to make the risk factor / disease burden data input 
     # file consistent with the rr file. Turns out, the rr file is not ordered 
     # by sex, age, race (looks like it's ordered by age, sex, race?). In any 
     # case, since rr file is ordered by subgroup, I am just going to change 
     # the code to order the rf data to be ordered by subgroup (which it already is)
-    # strange that we didn't see more stark difference in other foods besides ssb. 
-    
-    # data1 will be the ordered data01 
-    # make sure that the rf data is in the same order as the rr data
-    
+
     # It's possible for the intake means used to calculate PIFs to be negative 
     # (If we are drawing from a normal distribution and the estimate for mean 
     # intake is very low). Should be rare but given how many times we draw sims 
@@ -169,7 +170,9 @@ for (r in 1:length(rfvec_cra)) {  # Start risk factor loop
         
         if(!is.null(rr$subgroup)) {
           
-          subset.rr = subset(rr, rr$subgroup == data1$subgroup[i])
+          subset.rr = rr %>% filter(subgroup == data1$subgroup[i])
+            
+          # subset(rr, rr$subgroup == data1$subgroup[i])
           
         }                                                                                  
         
@@ -180,11 +183,16 @@ for (r in 1:length(rfvec_cra)) {  # Start risk factor loop
         samp_beta <- list()
         disease.samp <- list()
         
-        # Still within the i-loop: Create draws (from normal distribution) for 
+        # Still within the i-loop: create draws (from normal distribution) for 
         # current and counterfactual mean intake.
         
-        mm1 = rnorm(n = nsim1, mean = data1$mean[i], sd = data1$se[i])
-        mm2 = rnorm(n = nsim1, mean = data1$CF_mean_intake[i], sd = data1$CF_SE_Intake[i])
+        mm1 = rnorm(n = nsim1, 
+                    mean = data1$mean[i], 
+                    sd = data1$se[i])
+        
+        mm2 = rnorm(n = nsim1, 
+                    mean = data1$CF_mean_intake[i], 
+                    sd = data1$CF_se_intake[i])
         
         # Still within the i-loop: we recode some variables (age and sex) and 
         # simulate draws for certain inputs relevant for mediated effects.
@@ -194,20 +202,36 @@ for (r in 1:length(rfvec_cra)) {  # Start risk factor loop
                                  mean = data1$overweight_rate[i], 
                                  sd = data1$overweight_rate_se[i]) / 100
         
+        # if overweight.prev is < 0, then set to 0
         overweight.prev[overweight.prev < 0] <- 0
+        
+        # if overweight.prev is > 1, then set to 1
         overweight.prev[overweight.prev > 1] <- 1
         
-        # define the variables necessary for modifying the linear effect of Na on BP (age, rage, htn..)
-        gender = data1$female[i] + 1 # gender = female + 1 in this hypertension model
+        # define the variables necessary for modifying the linear effect of sodium on blood pressure (age, rage, htn..)
+        
+        gender <- data1$female[i] + 1 # gender = female + 1 in this hypertension model
         agemid <- data1$age.mid[i] # agemid predefined in input data
         
-        htn.prev <- rnorm(n = nsim1, mean = data1$hbp[i], sd = data1$hbp_se[i])
+        htn.prev <- rnorm(n = nsim1, 
+                          mean = data1$hbp[i], 
+                          sd = data1$hbp_se[i])
+        
+        # if hypertension prevalence (htn.prev) is < 0, then set to 0
         htn.prev[htn.prev < 0] <- 0
+        
+        # if hypertension prevalence (htn.prev) is > 1, then set to 1
         htn.prev[htn.prev > 1] <- 1
         
         # similarly, we use 'Black' prevalence obtained from NHANES
-        black <- rnorm(n = nsim1, mean = data1$nhb[i], sd = data1$nhb_se[i])
+        black <- rnorm(n = nsim1, 
+                       mean = data1$nhb[i], 
+                       sd = data1$nhb_se[i])
+        
+        # if black proportion is < 0, then set to 0
         black[black < 0] <- 0
+        
+        # if black proportion is > 1, then set to 1
         black[black > 1] <- 1
         
         # use proportion of high sbp (over 115) to get overall sodium to sbp 
@@ -216,7 +240,10 @@ for (r in 1:length(rfvec_cra)) {  # Start risk factor loop
                                mean = data1$highSBP_rate[i], 
                                sd = data1$highSBP_rate_se[i]) / 100
         
+        # if high.SBP is < 0, then set to 0
         high.SBP.prev[overweight.prev < 0] <- 0
+        
+        # if high.SBP is > 1, then set to 1
         high.SBP.prev[overweight.prev > 1] <- 1
         
         # Nested within the r,l,i loop, we are now starting the j-loop, looping 
@@ -282,7 +309,7 @@ for (r in 1:length(rfvec_cra)) {  # Start risk factor loop
                              mean = food.to.SBP$htn.effect.mean, 
                              sd = food.to.SBP$htn.effect.se)
           
-          # here assign a value to the linear effect of Na on BP, depending 
+          # here assign a value to the linear effect of sodium on BP, depending 
           # on age, region and htn status
           
           # age effect
@@ -312,10 +339,12 @@ for (r in 1:length(rfvec_cra)) {  # Start risk factor loop
           # disease j (and subgroup i) and store them into the observed.disease 
           # list created earlier. 
           
-          subset.observed.disease.draws <- 
-            subset(observed.disease.draws, 
-                   observed.disease.draws$disease == diseases.vec[j] & 
-                     observed.disease.draws$subgroup == data1$subgroup[i])
+          subset.observed.disease.draws <- observed.disease.draws %>% 
+            filter(disease == diseases.vec[j] & subgroup == data1$subgroup[i])
+            
+            # subset(observed.disease.draws, 
+            #        observed.disease.draws$disease == diseases.vec[j] & 
+            #          observed.disease.draws$subgroup == data1$subgroup[i])
           
           observed.disease.draws.start.point <- 
             which(names(subset.observed.disease.draws) == "X1")
@@ -324,13 +353,13 @@ for (r in 1:length(rfvec_cra)) {  # Start risk factor loop
             which(names(subset.observed.disease.draws) == paste0("X", nsim1))
           
           observed.disease[[j]][i,] <- 
-            t(subset.observed.disease.draws[,observed.disease.draws.start.point:
+            t(subset.observed.disease.draws[, observed.disease.draws.start.point:
                                            observed.disease.draws.end.point])
           
           # Now, still within the j-loop, we start the k-loop, which loops 
           # through all simulated draws (for a given disease/pathway and risk 
           # factor) to calculate the PIF nsim1 times (Recall nsim1 is set to 
-          # 1000 in run_models.r, but you can set it whatever you want. For 
+          # 1000 in run_models.rmd, but you can set it whatever you want. For 
           # testing purposes, you'll probably want to set it to something 
           # much smaller initially). 
           
@@ -545,7 +574,7 @@ for (r in 1:length(rfvec_cra)) {  # Start risk factor loop
             # PIF must be zero theoretically, but because of computational issues, 
             # you many not get exactly zero when computing it. In these cases, we 
             # set the PIF to zero manually. Meaning, if conditions below are met 
-            # (relative risk for this simulation is 0, , or risk profile for 
+            # (relative risk for this simulation is 0, or risk profile for 
             # counterfactual distribution somehow being greater than risk profile 
             # for current distribution, for example), we replace whatever was 
             # calculated above with zero. 
@@ -562,7 +591,7 @@ for (r in 1:length(rfvec_cra)) {  # Start risk factor loop
               pif[[j]][i, k] <- 0
             
             # If counterfactual is more harmful than current exposure 
-            # distribution, then we can get negative numberers for PIF. 
+            # distribution, then we can get negative numbers for PIF. 
             # Just set it to zero in that case
             
             if(pif[[j]][i, k] < 0)
@@ -630,7 +659,7 @@ for (r in 1:length(rfvec_cra)) {  # Start risk factor loop
   # about creating two sets of dataframes for each riskfactor with all simulations 
   # (for all disease/pathways and all subgroups) and making sure all rows are 
   # properly labeled. First set of data frames is for attributable 
-  # mortality/incidence, second set of data frames is for PIFs (both calcuated 
+  # mortality/incidence, second set of data frames is for PIFs (both calculated 
   # within the k-loop).
   
   # First extract subgroup info (subgroup + current and counterfactual exposure).
@@ -638,9 +667,15 @@ for (r in 1:length(rfvec_cra)) {  # Start risk factor loop
   
   a = paste("diseasedraw.", seq(1, nsim1, by = 1), sep = '')
   
-  if(identical(covar.vec, c("Age", "Sex", "Race")))
-    id = data1[,c("age", "female", "race", "mean", "se", "sd", 
-                  "CF_mean_intake", "CF_se_intake", "CF_sd_intake")]
+  if(identical(covar.vec, c("Age", "Sex", "Race"))) {
+    
+    id <- data1 %>% select("age", "female", "race", "mean", "se", "sd", 
+                         "CF_mean_intake", "CF_se_intake", "CF_sd_intake")
+      
+      # data1[, c("age", "female", "race", "mean", "se", "sd", 
+      #             "CF_mean_intake", "CF_se_intake", "CF_sd_intake")]
+    
+    }
   
   disease.df <- list()
   disease.df2 <- list()
@@ -650,9 +685,9 @@ for (r in 1:length(rfvec_cra)) {  # Start risk factor loop
   
   # Next, we will loop through disease.df and pif.df (both lists where each element 
   # is a matrix that contains the attributable mortality/incidence (the 
-  # mort/incidence attributed to  the population being at the current exposure 
+  # mortality/incidence attributed to the population being at the current exposure 
   # distribution rather than the counterfactual exposure distribution) or PIF 
-  # (potential impact fraction, aka, the proportion of mort/incidence attributable 
+  # (potential impact fraction, aka, the proportion of mortality/incidence attributable 
   # to being at the current exposure distribution rather than the counterfactual 
   # exposure distribution) sims for a disease/pathway), turning each matrix into 
   # a data frame and outcome of interest, pathway, and disease type. We then bind 
@@ -666,23 +701,39 @@ for (r in 1:length(rfvec_cra)) {  # Start risk factor loop
   
   for(ii in 1:num.diseases){
     
-    disease.df[[ii]] <- as.data.frame(disease[[ii]])
-    disease.df[[ii]]$outcome <- disease.total.vec[[ii]]
-    disease.df[[ii]]$pathway <- pathway[[ii]]
-    disease.df[[ii]]$disease_type <- disease.type.total.vec[[ii]]
-    disease.df[[ii]]$disease_type1 <- disease.type1.total.vec[[ii]]
-    disease.df[[ii]]$disease_type2 <- disease.type2.total.vec[[ii]]
-    disease.df[[ii]]$disease_type3 <- disease.type3.total.vec[[ii]]
+    # disease.df[[ii]] <- as.data.frame(disease[[ii]])
+    # disease.df[[ii]]$outcome <- disease.total.vec[[ii]]
+    # disease.df[[ii]]$pathway <- pathway[[ii]]
+    # disease.df[[ii]]$disease_type <- disease.type.total.vec[[ii]]
+    # disease.df[[ii]]$disease_type1 <- disease.type1.total.vec[[ii]]
+    # disease.df[[ii]]$disease_type2 <- disease.type2.total.vec[[ii]]
+    # disease.df[[ii]]$disease_type3 <- disease.type3.total.vec[[ii]]
+    
+    disease.df[[ii]] <- as.data.frame(disease[[ii]]) %>% 
+      mutate(outcome = disease.total.vec[[ii]],
+             pathway = pathway[[ii]],
+             disease_type = disease.type.total.vec[[ii]],
+             disease_type1 = disease.type1.total.vec[[ii]],
+             disease_type2 = disease.type2.total.vec[[ii]],
+             disease_type3 = disease.type3.total.vec[[ii]])
     
     disease.df2[[ii]] <- cbind(id, disease.df[[ii]])
     
-    PIF.df[[ii]] <- as.data.frame(PIF.list[[r]][[ii]])
-    PIF.df[[ii]]$outcome <- disease.total.vec[[ii]]
-    PIF.df[[ii]]$pathway <- pathway[[ii]]
-    PIF.df[[ii]]$disease_type <- disease.type.total.vec[[ii]]
-    PIF.df[[ii]]$disease_type1 <- disease.type1.total.vec[[ii]]
-    PIF.df[[ii]]$disease_type2 <- disease.type2.total.vec[[ii]]
-    PIF.df[[ii]]$disease_type3 <- disease.type3.total.vec[[ii]]
+    # PIF.df[[ii]] <- as.data.frame(PIF.list[[r]][[ii]])
+    # PIF.df[[ii]]$outcome <- disease.total.vec[[ii]]
+    # PIF.df[[ii]]$pathway <- pathway[[ii]]
+    # PIF.df[[ii]]$disease_type <- disease.type.total.vec[[ii]]
+    # PIF.df[[ii]]$disease_type1 <- disease.type1.total.vec[[ii]]
+    # PIF.df[[ii]]$disease_type2 <- disease.type2.total.vec[[ii]]
+    # PIF.df[[ii]]$disease_type3 <- disease.type3.total.vec[[ii]]
+    
+    PIF.df[[ii]] <- as.data.frame(PIF.list[[r]][[ii]]) %>% 
+      mutate(outcome = disease.total.vec[[ii]],
+             pathway = pathway[[ii]],
+             disease_type = disease.type.total.vec[[ii]],
+             disease_type1 = disease.type1.total.vec[[ii]],
+             disease_type2 = disease.type2.total.vec[[ii]],
+             disease_type3 = disease.type3.total.vec[[ii]])
     
     PIF.df2[[ii]] <- cbind(id, PIF.df[[ii]])
     
@@ -700,11 +751,13 @@ for (r in 1:length(rfvec_cra)) {  # Start risk factor loop
   for(jj in 2:num.diseases) {
     
     alldisease <- rbind(alldisease, disease.df2[[jj]])
+    
     allPIF <- rbind(allPIF, PIF.df2[[jj]])
     
   }
   
   alldisease$riskfactor = rfvec_cra[r]
+  
   allPIF$riskfactor = rfvec_cra[r]
   
   alldisease <- as.data.frame(alldisease)
@@ -735,9 +788,8 @@ all.PIFs <- PIFs[[1]]
 
 # f=1
 
-# brooke - why does this start at 2?
-# changing to 1 for now
-# this means you have to run a minimum of 2 dietary factors...
+# FYI - the way this for-loop is written means that we must include a minimum of 2 dietary 
+# factors when running the CRA 
 for(f in 2:length(rfvec_cra)) {
   
   all.diseasedraws <- rbind(all.diseasedraws, disease.list[[f]])
@@ -756,7 +808,7 @@ names(all.PIFs)[(1 + length(covar.vec)):(6 + length(covar.vec))] <-
 # Save the files into CSVs, and then delete them from R workspace 
 # (since they are large).
 
-# first create directory if it doesn't already exist
+# first create directories if they don't already exist
 ifelse(!dir.exists(file.path(output_location)),
        dir.create(file.path(output_location)),
        "Directory Exists")

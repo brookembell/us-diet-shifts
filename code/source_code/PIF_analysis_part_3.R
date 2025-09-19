@@ -6,9 +6,8 @@
 
 ### Documentation for R script ###
 
-# This is documentation for "part 3" of the CRA code, which is for calculating 
-# the joint PIFs (attributable mortality/incidence of multiple concurrent 
-# counterfactual exposures).
+# This script calculates the joint PIFs (attributable mortality/incidence of 
+# multiple concurrent counterfactual exposures).
 
 ############################################################################
 

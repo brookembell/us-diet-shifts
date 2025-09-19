@@ -6,10 +6,10 @@
 
 ### Documentation for R script ###
   
-# presimulate.pop.draws_cluster.r, which creates simulation draws for population 
+# presimulate_pop_draws.r creates simulation draws for population 
 # counts of the subgroups of interest based on estimates for mean and corresponding 
-# standard errors. I call it "pre"-simulate because I'm creating the draws before 
-# doing the simulating of PIFs and impacts (the 4 pillar results). It's useful to 
+# standard errors. We call it "pre"-simulate because we're creating the draws before 
+# doing the simulating of PIFs and impacts (the `4-pillar` results). It's useful to 
 # get these sims at the beginning (as opposed to redoing them when we calculate 
 # impacts for each outcome) so we can use a consistent set of sims we use for all 
 # impacts and outcomes.   
@@ -18,12 +18,9 @@
 
 # Create variables to match the specific naming and coding of other input files. 
 # Note that "pop" is the dataframe with data on population counts. That data has 
-# already been read in in	"LASTING_cluster_w_master_input.r". Also, don't be 
-# confused by the "pop" being essentially renamed to "mort". This is actually just 
-# legacy from previous versions of the code which created mortality draws instead 
-# of population draws. I consider this code to be very "under the hood" so 
-# hopefully you don't have to navigate this part of the code very often. 
-# That being said, if you make changes to the age/sex/race groups (or 
+# already been read in in	"run_models.rmd". 
+
+# If you make changes to the age/sex/race groups (or 
 # add/subtract strata), then you will need to change this part of the code to match.
 
 pop_edit <- pop
@@ -33,7 +30,7 @@ pop_edit$female <- as.numeric(pop_edit$Sex)
 pop_edit$female[as.numeric(pop_edit$Sex) == 2] <- 0
 pop_edit$race <- pop_edit$Race
 
-# add vars used for price/environment models
+# add vars used for environment models
 pop_edit <- pop_edit %>% mutate(subgroup_id = subgroup,
                         age_gp = case_when(agecat == 1 ~ '20-34',
                                            agecat == 2 ~ '35-44',
@@ -49,6 +46,7 @@ pop_edit <- pop_edit %>% mutate(subgroup_id = subgroup,
                                            female == 1 ~ 'Female')
 )
 
+# note to self: this line of code is needed for calculate_change.r to run
 pop_edit$race_gp <- pop_edit$Race_label
 
 pop_edit$age <- 0
@@ -68,6 +66,7 @@ pop_edit$race[pop_edit$Race_label == "OTH"] <- 4
 # Loop through each row and generate population sims based on mean and standard 
 # error of population for each subgroup. 
 
+# create empty matrix
 observed.pop.draws_mat <- matrix(data = NA, nrow = dim(pop_edit)[1], ncol = nsim1)
 
 for(i in 1:dim(pop_edit)[1]) {
@@ -94,10 +93,6 @@ observed.pop.draws <- cbind(pop_edit, observed.pop.draws_df1)
 
 print(observed.pop.draws)
 
-# Save sims as a csv file.
-
+# Save sims as a csv file
 write_csv(x = observed.pop.draws,
           file = paste0(file_location, "observed.pop.draws.csv"))
-
-
-

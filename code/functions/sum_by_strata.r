@@ -6,10 +6,8 @@
 
 ### Documentation for R script ###
 
-# You'll read in this script in "Complete.PIF.Analysis.partTwo.cluster.r". It 
-# defines a bunch of function used for summarizing the output (and a couple 
-# obsolete functions that have seen been replaced. Since this code is just 
-# defining functions, there is no harm in not commenting them out). 
+# You'll read in this script in "PIF_analysis_part_2.r". It 
+# defines a bunch of functions used for summarizing the output.
 
 ############################################################################
 
@@ -19,7 +17,7 @@
 # divided by total mortality/incidence. What's the point when we calculate the PIFs 
 # directly in part one? We want to be able to report PIFs for broader subgroups 
 # (not just by age/sex/race) and this is the way to do that. First step in the 
-# function is two merge totaldisease and alldisease (to ensure everything matches up 
+# function is to merge totaldisease and alldisease (to ensure everything matches up 
 # by subgroup), next is to identify column indices for the totaldisease and alldisease 
 # simulations, and then finally use those indices to take alldisease sims and divide 
 # by total disease sims. Note that this function only works when your subgroups 
@@ -122,7 +120,7 @@ sum.stats.maker <- function(alldisease) {
 }
 
 # Next, a similar function that is used for Reverse engineered PAF draws. In 
-# addition for getting the five summary stats mentioned above, it also outputs 
+# addition to getting the five summary stats mentioned above, it also outputs 
 # median, 2.5th percentile, and 97.5th percentile as a percent (as opposed to as 
 # a proportion) for convenience. 
 
@@ -153,24 +151,18 @@ sum.stats.maker.RE.PAFs <- function(RE.PAFs) {
 }
 
 # Next is Sum.by.strata. Very important function that produces output by strata 
-# of interest (e.g, by age instead of by age/sex/race, etc...). Inputs are 
+# of interest (i.e., by age instead of by age/sex/race, etc...). Inputs are 
 # simulation output for attributable disease (alldisease), total disease (total disease), 
 # total population (pop), and finally, a string vector of the strata of interest 
-# (covar). This function is a bit more steps than function above so I'll break it 
+# (covar). This function is a few more steps than the function above so I'll break it 
 # down chunk by chunk, by the general idea is simple: Step 1 is to sum over 
 # strata of interest, Step 2 is calculate summary stats for those strata of interest.
-
-# debug
-# alldisease = alldisease
-# totaldisease = totaldisease
-# pop = pop.draws
-# covar = strata.combos[[i]]
 
 Sum.by.strata <- function(alldisease, totaldisease, pop, covar) {
   
   # First, convert input data frames to data tables and get string of variable 
-  # names for the simulations for each file. (note, we also rename our string 
-  # vector of strata to "strata")
+  # names for the simulations for each file (note, we also rename our string 
+  # vector of strata to "strata").
   
   alldisease.dt <- as.data.table(alldisease)
   totaldisease.dt <- as.data.table(totaldisease)
@@ -182,7 +174,7 @@ Sum.by.strata <- function(alldisease, totaldisease, pop, covar) {
   cols.to.sum.totaldisease <- paste("X", 1:n.sims, sep = "")
   cols.to.sum.pop <- paste("Y", 1:n.sims, sep = "")
   
-  # Following code sums the simulations over strata of interest. 
+  # The following code sums the simulations over strata of interest. 
   # 
   # ".SDcols: are your variables of interest (in our case, the simulated 
   # values: V1, V2, etc...). 
@@ -218,10 +210,10 @@ Sum.by.strata <- function(alldisease, totaldisease, pop, covar) {
   # (merging the three outputs together), but they need to be implemented 
   # differently depending on whether one or more of the data tables are one 
   # dimensional or not (merge function basically doesn't work if one of the 
-  # things to be merged is one dimensional). So, the first if statement, where 
-  # none of the three are one dimentionsal, then we can use the merge function 
+  # things to be merged is one dimensional). So, in the first if statement, where 
+  # none of the three are one dimensional, we can use the merge function 
   # without issue. In the other three cases, where either strata.sims.totaldisease 
-  # is one dimensional, we need to use cbind instead o of merge to bind the 
+  # is one dimensional, we need to use cbind instead of merge to bind the 
   # files together. So if strata.sims.pop is one dimensional 
   # (if length(strata[strata %in% c("age", "female", "race")]) == 0  is true) 
   # and/or if strata.sims.alldisease is one dimensional 
@@ -276,7 +268,7 @@ Sum.by.strata <- function(alldisease, totaldisease, pop, covar) {
   pop.starting.point <- which(names(merged) == "Y1")
   pop.ending.point <- which(names(merged) == paste("Y", nsim1, sep = ""))
   
-  # Along the same lines as described previously (in part two documentation): 
+  # Along the same lines as described previously: 
   # calculate "reverse-engineered" PIFs and "standardized disease", 
   # and get summary stats.
   
@@ -309,7 +301,6 @@ Sum.by.strata <- function(alldisease, totaldisease, pop, covar) {
   # standardized disease) into one super output file which we will call 
   # "strata.summary.stats". 
   
-  #merged.results <- merge(sum.stats.attr.disease.PAF, RE.PAFs.sum.stats)
   merged.results <- reduce(list(sum.stats.attr.disease.PAF, 
                                 RE.PAFs.sum.stats, 
                                 standardized.disease.sum.stats), 
@@ -333,120 +324,119 @@ Sum.by.strata <- function(alldisease, totaldisease, pop, covar) {
 }
 
 # function to use to get summary stats by strata for joint PIFs (that is, 
-# for combination of shifts of multiple dietary factors). It is now identical 
-# to the Sum.by.strata function. (It used to be different, before sum.by.strata 
-# was made to be more flexible). Easier to change the function than change 
-# every instance of Sum.by.strata.joint being used in part three.
+# for combination of shifts of multiple dietary factors). It is very similar 
+# to the Sum.by.strata function above. In this function, we don't stratify by 
+# risk factor (i.e., food group) since we're dealing with joint effects.
 
 Sum.by.strata.joint <- function(alldisease, totaldisease, pop, covar) {
-  
+
   alldisease.dt <- as.data.table(alldisease)
   totaldisease.dt <- as.data.table(totaldisease)
   pop.dt <- as.data.table(pop)
-  
+
   strata <- covar
-  
+
   cols.to.sum.alldisease <- paste("V", 1:n.sims, sep = "")
   cols.to.sum.totaldisease <- paste("X", 1:n.sims, sep = "")
   cols.to.sum.pop <- paste("Y", 1:n.sims, sep = "")
-  
-  strata.sims.alldisease <- alldisease.dt[, lapply(.SD, sum), 
-                                    by = c(strata), 
+
+  strata.sims.alldisease <- alldisease.dt[, lapply(.SD, sum),
+                                    by = c(strata),
                                     .SDcols = cols.to.sum.alldisease]
-  
-  strata.sims.totaldisease <- 
-    totaldisease.dt[,lapply(.SD, sum), 
-                 by = c(strata[strata %in% c("age", "female", "race", 
+
+  strata.sims.totaldisease <-
+    totaldisease.dt[,lapply(.SD, sum),
+                 by = c(strata[strata %in% c("age", "female", "race",
                                            "outcome", "disease_type",
-                                           "disease_type1", "disease_type2", 
-                                           "disease_type3")]), 
+                                           "disease_type1", "disease_type2",
+                                           "disease_type3")]),
                  .SDcols = cols.to.sum.totaldisease]
-  
-  strata.sims.pop <- 
-    pop.dt[,lapply(.SD, sum), 
-           by = c(strata[strata %in% c("age", "female", "race")]), 
+
+  strata.sims.pop <-
+    pop.dt[,lapply(.SD, sum),
+           by = c(strata[strata %in% c("age", "female", "race")]),
            .SDcols = cols.to.sum.pop]
-  
-  if(length(strata[strata %in% c("age", "female", "race")]) > 0 & 
+
+  if(length(strata[strata %in% c("age", "female", "race")]) > 0 &
      dim(strata.sims.totaldisease)[1] > 1) {
-    
-    merged <- merge(merge(strata.sims.alldisease, strata.sims.totaldisease), 
-                    strata.sims.pop, 
+
+    merged <- merge(merge(strata.sims.alldisease, strata.sims.totaldisease),
+                    strata.sims.pop,
                     by = strata[strata %in% c("age", "female", "race")])
-    
+
   }
-  
-  if(length(strata[strata %in% c("age", "female", "race")]) > 0 & 
+
+  if(length(strata[strata %in% c("age", "female", "race")]) > 0 &
      dim(strata.sims.totaldisease)[1] == 1) {
-    
+
     merge.a <- cbind(strata.sims.alldisease, strata.sims.totaldisease)
-    
-    merged <- merge(merge.a, 
-                    strata.sims.pop, 
+
+    merged <- merge(merge.a,
+                    strata.sims.pop,
                     by = strata[strata %in% c("age", "female", "race")])
-    
+
   }
-  
-  if(length(strata[strata %in% c("age", "female", "race")]) == 0 & 
+
+  if(length(strata[strata %in% c("age", "female", "race")]) == 0 &
      dim(strata.sims.totaldisease)[1] > 1) {
-    
-    merged <- cbind(merge(strata.sims.alldisease, strata.sims.totaldisease), 
+
+    merged <- cbind(merge(strata.sims.alldisease, strata.sims.totaldisease),
                     strata.sims.pop)
-    
+
   }
-  
-  if(length(strata[strata %in% c("age", "female", "race")]) == 0 & 
+
+  if(length(strata[strata %in% c("age", "female", "race")]) == 0 &
      dim(strata.sims.totaldisease)[1] == 1) {
-    
+
     merged <- cbind(strata.sims.alldisease, strata.sims.totaldisease, strata.sims.pop)
-    
+
   }
-  
+
   alldisease.starting.point <- which(names(merged) == "V1")
   alldisease.ending.point <- which(names(merged) == paste("V", nsim1, sep = ""))
   totaldisease.starting.point <- which(names(merged) == "X1")
   totaldisease.ending.point <- which(names(merged) == paste("X", nsim1, sep = ""))
   pop.starting.point <- which(names(merged) == "Y1")
   pop.ending.point <- which(names(merged) == paste("Y", nsim1, sep = ""))
-  
-  RE.PAFs <- cbind(merged[, c(strata), with = FALSE], 
-                 merged[, alldisease.starting.point:alldisease.ending.point] / 
+
+  RE.PAFs <- cbind(merged[, c(strata), with = FALSE],
+                 merged[, alldisease.starting.point:alldisease.ending.point] /
                    merged[, totaldisease.starting.point:totaldisease.ending.point])
-  
-  
+
+
   setorderv(RE.PAFs, cols = c(strata))
-  
+
   sum.stats.attr.disease.PAF <- sum.stats.maker(strata.sims.alldisease)
-  
+
   RE.PAFs.sum.stats <- sum.stats.maker.RE.PAFs(RE.PAFs)
-  
-  standardized.disease <- cbind(merged[, c(strata), with = FALSE], 
-                           merged[, alldisease.starting.point:alldisease.ending.point] / 
+
+  standardized.disease <- cbind(merged[, c(strata), with = FALSE],
+                           merged[, alldisease.starting.point:alldisease.ending.point] /
                              merged[, pop.starting.point:pop.ending.point] * 100000)
-  
+
   setorderv(standardized.disease, cols = c(strata))
-  
+
   standardized.disease.sum.stats <- sum.stats.maker(standardized.disease)
-  
+
   names(standardized.disease.sum.stats)[(length(names(standardized.disease.sum.stats)) - 4):
-                                       length(names(standardized.disease.sum.stats))] <- 
-    paste("disease.per.100k.", 
+                                       length(names(standardized.disease.sum.stats))] <-
+    paste("disease.per.100k.",
           names(standardized.disease.sum.stats)[(length(names(standardized.disease.sum.stats)) - 4):
-                                               length(names(standardized.disease.sum.stats))], 
+                                               length(names(standardized.disease.sum.stats))],
           sep = "")
-  
-  merged.results <- 
-    reduce(list(sum.stats.attr.disease.PAF, RE.PAFs.sum.stats, standardized.disease.sum.stats), 
-           merge, 
+
+  merged.results <-
+    reduce(list(sum.stats.attr.disease.PAF, RE.PAFs.sum.stats, standardized.disease.sum.stats),
+           merge,
            by = strata)
-  
+
   strata.summary.stats <- merged.results
-  
-  return(list(strata.summary.stats, 
-              strata.sims.alldisease, 
-              strata.sims.totaldisease, 
-              RE.PAFs, 
+
+  return(list(strata.summary.stats,
+              strata.sims.alldisease,
+              strata.sims.totaldisease,
+              RE.PAFs,
               standardized.disease))
-  
+
 }
 

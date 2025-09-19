@@ -6,17 +6,17 @@
 
 ### Documentation for R script ###
 
-# combine.FAH.FAFH_cluster.r is used to combine food at home (FAH) and food away 
-# from home (FAFH) results. This script is called in "run_models.r" to combine 
-# these two results which are generated separately in LASTING model. To better 
+# combine_FAH_FAFH_.r is used to combine food at home (FAH) and food away 
+# from home (FAFH) results. This script is called in "run_models.rmd" to combine 
+# these two results which are generated separately in the LASTING model. To better 
 # understand the context, in which this script is being used, it may be useful to 
-# review the section in "run_models.r" that calls this script.
+# review the section in "run_models.rmd" that calls this script.
 
 ############################################################################
 
 # Load necessary libraries and read in FAH and FAFH output files (all simulated 
 # draws) for the diet pattern and outcome type of interest (defined in 
-# "LASTING_cluster_w_master_input.r" where this script is called). Give each file 
+# "run_models.rmd" where this script is called). Give each file 
 # indicator variable "X" so we can differentiate between FAH and FAFH results 
 # after merging.
 
@@ -101,8 +101,8 @@ write_csv(x = combined.summary.percapita,
                       ".percapita.csv"))
 
 # Next, we want to get these results for all strata combos. First, we define the 
-# vector "strata" which has strings of all the strata you are using for your 
-# analysis. Note that, if the names of your strata change or you are using your 
+# vector "strata" which has strings of all the strata we are using for our 
+# analysis. Note that, if the names of the strata change or you are using your 
 # own strata, you need to change this vector to match your analysis. 
 
 strata <- c("age_gp", "sex_gp", "race_gp", "Foodgroup")
@@ -112,11 +112,11 @@ strata <- c("age_gp", "sex_gp", "race_gp", "Foodgroup")
 # possible number of a strata that a strata-combination is made out of. In our 
 # case, we have 4 possibilities. 1-strata "combos" like age, sex, etc.., 2-strata 
 # combos like age/sex, age/race, etc.., 3-strata combos like age/sex/race etc... 
-# and one four strata combo: age/sex/race/Foodgroup. So, You loop through from 
-# i =1 to i=4, and at each iteration, you get all possible strata combinations 
-# with i strata using combn function. Then, you add  to strata.combos.list. 
-# Finally, you want add a "null" element to your list so you when you loop through 
-# strata.combos, you also create results that sum over all subgroups.
+# and one four strata combo: age/sex/race/Foodgroup. So, we loop through from 
+# i=1 to i=4, and at each iteration, we get all possible strata combinations 
+# with i strata using combn function. Then, we add to strata.combos.list. 
+# Finally, we add a "null" element to our list so when we loop through 
+# strata.combos, we also create results that sum over all subgroups.
 
 strata.combos <- list()
 
@@ -131,9 +131,9 @@ for(i in 1:length(strata)){
 # add null element to list to use for overall numbers
 strata.combos["null"] <- list(NULL) 
 
-# Use summary.stats.by.strata function defined in "cost_change_functions.r" to get 
+# Use summary.stats.by.strata function defined in "change_functions.r" to get 
 # summary stats for all strata combinations, which takes the strata.combos list 
-# you just created and the FAH+FAFH combined sims as input. summ.stats.by.strata.cost 
+# we just created and the FAH+FAFH combined sims as input. summ.stats.by.strata.cost 
 # will be a list of 4 lists, each corresponding to an output type: 1 = summary stats, 
 # 2 = sims, 3 = per capita summary stats, 4 = per capita sims. Each list is a list 
 # with an element for each strata combo. 
@@ -147,12 +147,12 @@ summ.stats.by.strata.envecosoc <-
 
 # Next, loop through the strata combos and save the sim output, rename variables 
 # names for the summary output and include them in summary.list and 
-# summary.list.percapita created in "LASTING_cluster_w_masterinput.r". 
-# Finally, Some fine-tuning on names of the list elements (adding underscores 
+# summary.list.percapita created in "run_models.rmd". 
+# Finally, some fine-tuning on names of the list elements (adding underscores 
 # between strata, as well as adding "all" label to last element of lists which 
 # corresponds the "null" strata combo summing over all subgroups).
 
-# first create directory if it doesn't already exist
+# first create directories if they don't already exist
 ifelse(!dir.exists(file.path(paste0("output/envecosoc/", 
                                     diet, "_diet_both/By_Subgroup"))),
        dir.create(file.path(paste0("output/envecosoc/", 

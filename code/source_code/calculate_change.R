@@ -6,15 +6,11 @@
 
 ### Documentation for R script ###
 
-# Cost_change_source_cluster.r  is called by "LASTING_cluster_w_masterinput.r" 
-# and is used to calculate  cost, environment and social pillar impact for a given 
+# Calculate_change.r  is called by "run_models.rmd" and is used to calculate 
+# the environmental, economic, and social ("env-eco-soc") impacts for a given 
 # dietary type and food source (food at home vs food away from home). It will 
-# calculate population level and per capita results, and output the full sims, as 
+# calculate population-level and per capita results, and output the full sims, as 
 # well as summary stats, into separate output files.
-
-# Don't be confused by the name of the file or some of the object names within 
-# this script. This is adapted from code that was originally for calculating cost 
-# change only, hence the "econ" specific naming conventions peppered throughout.
 
 ############################################################################
 
@@ -28,11 +24,8 @@ output_location <- paste0("output/envecosoc/", envecosoc_output_loc.vec[k], "/")
 
 print(output_location)
 
-# Read in relevant inputs (population draws, envecosoc and impact factors of dietary 
-# factors) and do some minor data processing. Remember, the "impact factors" for 
-# cost is the cost for that dietary factor. We are not speculating how much envecosoc 
-# for each dietary factor change as intake changes, just how much total spend on 
-# food would change (assuming envecosoc stay the same). 
+# Read in relevant inputs (population draws, env-eco-soc impact factors of dietary 
+# factors) and do some minor data processing.
 
 pop.sims <- read_csv(paste0(file_location, "observed.pop.draws.csv"))
 
@@ -42,15 +35,15 @@ merged <- merge(envecosoc.inputs, pop.sims, by = "subgroup_id")
 merged$Sex <- merged$Sex.y
 merged$population <- merged$population.y
 
-# Create list objects to store outputs. Each element of the lists corresponds to 
-# a specific subgroup. There are 31 lists in total, corresponding so some combination 
-# of 1. what we are looking at (impact (as in, change in impact), substitution impact, 
+# Create empty list objects to store outputs. Each element of the lists corresponds to 
+# a specific subgroup. There are 31 lists in total, corresponding to some combination 
+# of (1) what we are looking at (impact (as in, change in impact), substitution impact, 
 # combined impact (change in impact + substitution impact), population, delta 
 # (aka, change in intake), current intake impact, counterfactual intake impact)*, 
-# and 2. level of disaggregation (total, consumed, unconsumed, inedible, wasted). 
+# and (2) level of disaggregation (total, consumed, unconsumed, inedible, wasted). 
 # Hopefully, what each list corresponds to is clear from name.
 
-# See "cost_change_function_documentation" for more detail on what these things mean
+# See "change_functions.r" for more detail on what these things mean
 
 list.of.impact.sims.total <- list()
 list.of.substitution.impact.sims.total <- list()
@@ -95,8 +88,10 @@ list.of.CF.intake.impact.sims.wasted <- list()
 n.sims <- nsim1
 impact.factor.names <- envecosoc.outcomes.vec
 
-# Start for loop. We are going to be traversing the "merged" file row by row and 
+# Start for-loop. We are going to be traversing the "merged" file row-by-row and 
 # calculating impacts. Each row should correspond to a subgroup and dietary factor.
+
+# i=1
 
 for(i in 1:dim(merged)[1]){ # for each row in the input file (corresponding to fcid for a given subgroup)
   
@@ -155,7 +150,7 @@ for(i in 1:dim(merged)[1]){ # for each row in the input file (corresponding to f
   counterfactual_foodwaste_p <- merged[i, envecosoc.counterfactual.foodwaste.p.mn]
   counterfactual_foodwaste_p_se <- merged[i, envecosoc.counterfactual.foodwaste.p.se]
   
-  # Take the above inputs and feed it into function that simulates the impact 
+  # We take the above inputs and feed it into a function that simulates the impact 
   # (simulate.impact). The resulting "b" is a list of 31 matrices with simulation 
   # results that correspond to the 31 lists we made earlier.
   
@@ -181,7 +176,7 @@ for(i in 1:dim(merged)[1]){ # for each row in the input file (corresponding to f
                        n.sims = n.sims,
                        population.sims = population.sims)
   
-  # Extract results from "b" (which itself is a list of 31 matrices) # and 
+  # Extract results from "b" (which itself is a list of 31 matrices) and 
   # create data frames with proper labels.
   
   df.b1 <- data.frame(outcome = rownames(b[[1]]), b[[1]])
@@ -457,11 +452,13 @@ for(i in 1:dim(merged)[1]){ # for each row in the input file (corresponding to f
   list.of.current.intake.impact.sims.unconsumed[[i]] <- df.c18
   list.of.CF.intake.impact.sims.unconsumed[[i]] <- df.c19
   
+  # inedible
   list.of.impact.sims.inedible[[i]] <- df.c20
   list.of.substitution.impact.sims.inedible[[i]] <- df.c21
   list.of.combined.impact.sims.inedible[[i]] <- df.c22
   list.of.delta.sims.inedible[[i]] <- df.c23
   
+  # wasted
   list.of.impact.sims.wasted[[i]] <- df.c24
   list.of.substitution.impact.sims.wasted[[i]] <- df.c25
   list.of.combined.impact.sims.wasted[[i]] <- df.c26
@@ -479,10 +476,10 @@ for(i in 1:dim(merged)[1]){ # for each row in the input file (corresponding to f
 # results for all dietary factors and subgroups, for one outcome (specified in 
 # name of data frame). NAs are also replaced with 0. 
 
-# Recall there are 31 lists,each corresponding to some combination of 1. what we 
+# Recall there are 31 lists,each corresponding to some combination of (1) what we 
 # are looking at (impact (as in, impact of change), substitution impact, combined 
 # impact, population, delta (aka, change in intake), current intake impact, 
-# counterfactual intake impact), and 2. level of disaggregation (total, consumed, 
+# counterfactual intake impact), and (2) level of disaggregation (total, consumed, 
 # unconsumed, inedible, wasted).
 
 impact.sims.total.allgroups <- 
@@ -696,13 +693,13 @@ fwrite(x = current.intake.impact.sims.wasted.allgroups,
 fwrite(x = CF.intake.impact.sims.wasted.allgroups, 
        file = paste0(output_location, "CF.intake.envecosoc.sims.granular.wasted.csv"))
 
-# All of what we just did pertains to population level impact. Next. we get per 
-# capita sims for all outputs of interest. 
+# All of what we just did pertains to population level impact. Next. we get 
+# per capita sims for all outputs of interest. 
 
 # Recall there are 31 outcome types of interest, each corresponding to some 
-# combination of 1. what we are looking at (impact (as in, impact of change), 
+# combination of (1) what we are looking at (impact (as in, impact of change), 
 # substitution impact, combined impact, population, delta (aka, change in intake), 
-# current intake impact, counterfactual intake impact), and 2. level of 
+# current intake impact, counterfactual intake impact), and (2) level of 
 # disaggregation (total, consumed, unconsumed, inedible, wasted).
 
 # PER CAPITA 
@@ -1003,7 +1000,7 @@ fwrite(x = CF.intake.impact.sims.percapita.unconsumed.allgroups,
                    "CF.intake.envecosoc.sims.percapita.granular.wasted.csv"))
 
 # Get summary stats from simulations (mean, median, standard deviation, 
-# uncertainty intervals, the things you'll be reporting in your manuscript) for 
+# uncertainty intervals, i.e., the things we report in the manuscript) for 
 # all outcome of interests and save (for both total and per capita impact).
 
 # get summary stats 
@@ -1072,7 +1069,6 @@ all.impact.sims.percapita.summary <-
     CF.intake.impact.sims.wasted = CF.intake.impact.sims.percapita.wasted.allgroups,
     vars = paste("X", 1:n.sims, sep = ""))
 
-# setwd(output_location)
 write_csv(x = all.impact.sims.percapita.summary, 
           file = paste0(output_capita_location, 
                       "envecosoc.percapita.summary.granular.csv"))
@@ -1169,8 +1165,6 @@ summ.stats.by.strata.CF.intake.unconsumed.envecosoc <-
                           strata.combos.list = strata.combos, 
                           pop.sims = pop.sims)
 
-# inedible and wasted
-
 summ.stats.by.strata.combined.inedible.envecosoc <- 
   summary.stats.by.strata(impact.sims.allgroups = combined.impact.sims.inedible.allgroups, 
                           strata.combos.list = strata.combos, 
@@ -1201,7 +1195,7 @@ summ.stats.by.strata.CF.intake.wasted.envecosoc <-
                           strata.combos.list = strata.combos, 
                           pop.sims = pop.sims)
 
-# Next, we're going to go through a for loop and output all outcomes into their 
+# Next, we're going to go through a for-loop and output all outcomes into their 
 # own csv files for each strata combination (In my opinion, this is a better way 
 # to go about it than manually saving each file. Less prone to error, and robust 
 # to future changes). 
@@ -1228,8 +1222,7 @@ ifelse(!dir.exists(file.path(paste0(output_capita_location, "By_SubGroup/full_si
        dir.create(file.path(paste0(output_capita_location, "By_SubGroup/full_sims"))),
        "Directory Exists")
 
-
-# First, start the for loop.
+# First, start the for-loop.
 
 for(j in 1:length(strata.combos)) {
   

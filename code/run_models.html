@@ -429,7 +429,7 @@ nsim1 &lt;- 2
 n.sims &lt;- nsim1</code></pre>
 <p>Specify the demographic subgroups of interest. The names used for the
 subgroups should match what is used in the primary input file.</p>
-<p>For the purposes of these documents let’s formalize some of the terms
+<p>For the purposes of this project, let’s formalize some of the terms
 to reduce confusion. “Subgroup” will denote the 48 unique age/sex/race
 combinations that we divide the population into. The “strata” are the
 variables used to divide up a data set. For example, the 48 subgroups
@@ -449,8 +449,12 @@ diet.vec &lt;- c(&quot;HUS&quot;)
               # &quot;Vegan&quot;, 
               # &quot;CDP&quot;
               # )</code></pre>
+</div>
+<div id="environmental-economic-and-social-env-eco-soc-models" class="section level2">
+<h2>Environmental, Economic, and Social (“env-eco-soc”) Models</h2>
 <p>Identify all environmental, economic, social pillar outcomes.</p>
-<pre class="r"><code>envecosoc.outcomes.vec &lt;- c(
+<pre class="r"><code># here is where you specify the outcomes you want to run
+envecosoc.outcomes.vec &lt;- c(
                      # &quot;CED&quot;, # environmental
                      &quot;GHG&quot;
                      # , # environmental
@@ -460,6 +464,7 @@ diet.vec &lt;- c(&quot;HUS&quot;)
                      )
 
 # don&#39;t change this
+# you must list all possible outcomes here for the code to run 
 all.outcomes.vec &lt;- c(
   &quot;CED&quot;,
   &quot;GHG&quot;,
@@ -468,9 +473,6 @@ all.outcomes.vec &lt;- c(
   &quot;Food_price&quot;,
   &quot;FL&quot;
   )</code></pre>
-</div>
-<div id="environmental-economic-and-social-env-eco-soc-models" class="section level2">
-<h2>Environmental, Economic, and Social (env-eco-soc) Models</h2>
 <p>Create vectors to store outcomes.</p>
 <pre class="r"><code>n.envecosoc.outcomes &lt;- length(envecosoc.outcomes.vec)
 envecosoc.outcomes.vec.mn &lt;- paste(&quot;Mean&quot;, envecosoc.outcomes.vec,  sep = &quot;_&quot;)
@@ -486,12 +488,12 @@ envecosoc.counterfactual.foodwaste.p.se &lt;- paste(&quot;CF_&quot;,envecosoc.ou
 num.envecosoc.outcomes &lt;- length(envecosoc.outcomes.vec.mn)
 envecosoc.outcomes.substitution.vec.mn &lt;- paste(&quot;Mean_substitution&quot;, envecosoc.outcomes.vec, sep = &quot;_&quot;)
 envecosoc.outcomes.substitution.vec.se &lt;- paste(&quot;SE_substitution&quot;, envecosoc.outcomes.vec, sep = &quot;_&quot;)</code></pre>
-<p>List dietary vectors of interest here. Certain dietary factors are
+<p>List dietary factors of interest here. Certain dietary factors are
 only of interest for environment/social (FCID-level), others only for
-cost (FNDDS-level). But all dietary factors of interest in those three
-pillars should be listed here. Names should match what is used in the
-data input file.</p>
-<pre class="r"><code># Dietary factors vector (for cost/env/labor)
+economic (FNDDS-level). But all dietary factors of interest in those
+three pillars should be listed here. Names should match what is used in
+the data input file.</p>
+<pre class="r"><code># Dietary factors vector (for env-eco-soc)
 rfvec_envecosoc &lt;- c(# Dairy
                #     &quot;dairy_tot&quot;, # cost
                #     &quot;dairy_cow&quot;, # enviro
@@ -526,7 +528,7 @@ rfvec_envecosoc &lt;- c(# Dairy
                # &quot;sat_fat&quot;
                )</code></pre>
 <p>Import data input file and rename some variables, subset for
-cost/env/labor analysis.</p>
+env-eco-soc analyses.</p>
 <pre class="r"><code># Import exposure file
 primary_input &lt;- read_csv(file = paste0(file_location, &quot;input_data_&quot;, version.date, &quot;.csv&quot;))
 
@@ -574,30 +576,19 @@ pop &lt;- envecosoc_inputs.vec[[1]] %&gt;%
 <p>Next, simulate distribution for total population numbers (in our
 cases, since population standard errors are set to 0, we’re just
 repeating the same pop count for each simulation).</p>
-<pre class="r"><code># Also, pre-simulate total population numbers
-
+<pre class="r"><code># pre-simulate total population numbers
 source(paste0(code_location, &quot;source_code/presimulate_pop_draws.r&quot;))</code></pre>
-<p>Run the cost/env/social simulations via a for loop (for each pair of
-dietary pattern and grocery/non-grocery combo)</p>
-<pre class="r"><code>for(k in 1:length(envecosoc_inputs.vec)) {
+<p>Run the env-eco-soc simulations via a for-loop (for each pair of
+dietary pattern and grocery/non-grocery combo).</p>
+<pre class="r"><code># don&#39;t run right now
 
-  print(k)
-  
-  source(paste0(code_location, &quot;source_code/calculate_change.r&quot;))
-  
-}</code></pre>
-<pre><code>## Warning: Using an external vector in selections was deprecated in tidyselect 1.1.0.
-## ℹ Please use `all_of()` or `any_of()` instead.
-##   # Was:
-##   data %&gt;% select(impact_unit_strings)
-## 
-##   # Now:
-##   data %&gt;% select(all_of(impact_unit_strings))
-## 
-## See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.
-## This warning is displayed once every 8 hours.
-## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
-## generated.</code></pre>
+# for(k in 1:length(envecosoc_inputs.vec)) {
+# 
+#   print(k)
+#   
+#   source(paste0(code_location, &quot;source_code/calculate_change.r&quot;))
+#   
+# }</code></pre>
 <p>Create vectors used to name output files and used to define variable
 names in summary output files.</p>
 <pre class="r"><code>output.type.vec.sims &lt;- c(&quot;envecosoc.sims.granular&quot;, 
@@ -809,15 +800,15 @@ SD.name.vec &lt;- c(&quot;impact_SD&quot;,
 output type (specified in output.type.vec.sims), combine grocery and
 non-grocery output and save, and, for each strata combination, save
 summary output files (both absolute and per-capita).</p>
-<p>First, start the loop (through the dietary patterns). For each
-dietary pattern we create lists (summary.list and
+<p>First, start the for-loop (through the dietary patterns). For each
+dietary pattern, we create lists (summary.list and
 summary.list.percapita) to store summary stats for that dietary pattern.
 Note that each element of the list is itself a list containing summaries
 for all strata combos for a given output type.</p>
 <p>Within ll loop, loop through the different output types and extract
-sims and summary stats. Combine food at home and food away from home
-output and populate the lists. See documentation for
-“combine.FAH.FAFH.r” for details.</p>
+sims and summary stats. Combine food at home (FAH) and food away from
+home (FAFH) output and populate the lists. See “combine_FAH_FAFH.r” for
+details.</p>
 <pre class="r"><code># ll=1
 
 # start ll loop
@@ -885,8 +876,8 @@ for(ll in 1:length(diet.vec)) {
   }
   
 }</code></pre>
-<p>To output how much time it took run the cost/env/social portion of
-the code (find it in .txt file when you run the code).</p>
+<p>Calculate how much time it took run the env-eco-soc portion of the
+code.</p>
 <pre class="r"><code> end_time1 &lt;- Sys.time()
 
  print(&quot;time it takes to run environmental, economic, and social models: &quot;)
@@ -895,8 +886,10 @@ the code (find it in .txt file when you run the code).</p>
 <div id="health-models" class="section level2">
 <h2>Health Models</h2>
 <p>Now we start with CRA portion of the code.</p>
-<p>List out dietary factors of interest and subset master input file by
-them.</p>
+<p>List out dietary factors of interest and subset the primary input
+file by them.</p>
+<p><em>Note</em> that you must include at least two dietary factors in
+the CRA analysis in order for the code to run properly.</p>
 <pre class="r"><code># Dietary factors vector (for CRA)
 rfvec_cra &lt;- c(
                # &quot;dairy_tot&quot;,
@@ -915,8 +908,13 @@ rfvec_cra &lt;- c(
 
 # subset to only include dietary factors for CRA
 primary_input_cra &lt;- subset(primary_input, Foodgroup %in% rfvec_cra)</code></pre>
-<p>List out disease in disease vector, and create corresponding disease
-type vector (Cancer or CMD).</p>
+<p>List out all of the cancer and cardiometabolic diseases in the
+disease vector, and create a corresponding disease type vector (Cancer
+or CMD).</p>
+<p>Also, we wanted to summarize the results in two additional ways:
+first, by breaking down “CMD” into seven subgroups (IHD, ISTK, HSTK,
+OSTK, DIAB, HHD, Other_CVD), and second, by breaking down “CMD” into
+five subgroups (All_HD, All_STK, DIAB, All_HD, Other_CVD).</p>
 <pre class="r"><code># Diseases vector
 diseases.vec &lt;- c(# Cancers
                   &quot;CC&quot;, &quot;MLPC&quot;, &quot;LC&quot;, &quot;UC&quot;, &quot;BC&quot;, &quot;KC&quot;,
@@ -992,21 +990,12 @@ have to edit the code to add those effects those, not just this
 line).</p>
 <pre class="r"><code>nsim3 &lt;- 1  # number of exposure files
 n.mediated.effects &lt;- 2 # number of mediated effects</code></pre>
-<p>Read in RRs, food to BMI effects, food to SBP effects,and TMREDs, and
-do a little data processing. (These inputs may also be in data input
-file for the sake of completeness, but the actual inputs for the code
-are from the files listed below.</p>
+<p>Read in RRs, food to BMI effects, food to SBP effects, and TMREDs,
+and do a little data processing. (These inputs may also be in the
+primary data input file for the sake of completeness, but the actual
+inputs for the code are from the files listed below.</p>
 <pre class="r"><code># Import relative risk (RR) data input
 rrtotal &lt;- read_csv(file = paste0(file_location, &quot;rr_agesexrace_&quot;, version.date, &quot;.csv&quot;))
-
-# Create age categories
-# rrtotal$age &lt;- 0
-# rrtotal$age[rrtotal$agecat==1] &lt;- 25
-# rrtotal$age[rrtotal$agecat==2] &lt;- 35
-# rrtotal$age[rrtotal$agecat==3] &lt;- 45
-# rrtotal$age[rrtotal$agecat==4] &lt;- 55
-# rrtotal$age[rrtotal$agecat==5] &lt;- 65
-# rrtotal$age[rrtotal$agecat==6] &lt;- 75
 
 # Import effect data inputs
 Food.to.BMI.effects &lt;- 
@@ -1028,8 +1017,7 @@ theomin &lt;- primary_input_cra %&gt;%
 <pre class="r"><code># pre-simulate mortality/incidence numbers, to be used in CRA simulations, as well for calculating reverse-engineered PAFs
 source(paste0(code_location, &quot;source_code/presimulate_observed_disease_draws.r&quot;))</code></pre>
 <p>Create output file path.</p>
-<pre class="r"><code># create output file path
-output_location &lt;- &quot;output/CRA/&quot;</code></pre>
+<pre class="r"><code>output_location &lt;- &quot;output/CRA/&quot;</code></pre>
 <p>Next, we set up parallel processing so we can run all five diet
 patterns at the same time.</p>
 <pre class="r"><code># Set up parallel processing
@@ -1060,27 +1048,26 @@ s = 1 # initialize iteration variable before forking
 
 cl &lt;- makeCluster(no_cores, type = cluster_type) # Make the cluster
 registerDoParallel(cl)</code></pre>
-<p>Start foreach loop. Inside the loop is the code to run the CRA.
+<p>Start the for-each loop. Inside the loop is the code to run the CRA.
 Recall that diet.vec is a vector listing all dietary patterns of
-interest. The foreach loop allows us to run the code (in this case, the
-CRA code) within the loop in parallel for reach element in diet.vec.</p>
+interest. The for-each loop allows us to run the code (in this case, the
+CRA code) within the loop in parallel for each element in diet.vec.</p>
 <p>Read in data input file, subset by dietary pattern of interest, and
-do some data processing. Also set seed within the for loop with the hope
+do some data processing. Also set seed within the for-loop with the hope
 that any duplicated simulations will be consistent among dietary
 patterns.</p>
 <p>Add variable to specify number of risk factors, variable to specify
 length of exposure dataset for one risk factor (in our case, that’s the
 number of subgroups) and variable specifying name of dietary of pattern.
 Note some of these variables needed to be added to the global
-environment for the code to work with parallel processing. Note also
-that <code>expos</code> dataframe also was added to global variable.</p>
+environment for the code to work with parallel processing.</p>
 <p>Once we have read in everything we need, next is running the model.
 Part 1 actually calculates the PIFs for all diet-disease pairs of
 interest for all subgroups, x times depending on what you set nsim to
 be. The entire simulation results will be saved. Part 2 creates summary
 results, for all possible subgroup combinations. Part 3 calculates joint
 PIFs (for all subgroups).</p>
-<pre class="r"><code>ss=1
+<pre class="r"><code># ss=1
 
 # This is the for loop that runs the CRA analysis for all dietary patterns
 foreach(ss = 1:length(diet.vec), .verbose = TRUE) %dopar% {
@@ -1090,72 +1077,119 @@ foreach(ss = 1:length(diet.vec), .verbose = TRUE) %dopar% {
   # Read CSV file of exposure 
   expos &lt;- read_csv(file = paste0(file_location, &quot;input_data_&quot;, version.date, &quot;.csv&quot;))
   
-  expos$diet_pattern[expos$diet_pattern == &quot;Vegetarian&quot;] &lt;- &quot;Veg&quot;
-  expos &lt;- subset(expos, Foodgroup %in% rfvec_cra)
-
-  expos &lt;- subset(expos, diet_pattern == diet.vec[ss] &amp; datatype == &quot;Total&quot;)
-  expos &lt;- expos[order(expos$Foodgroup),]
+  expos1 &lt;- expos %&gt;% 
+    # fix veg
+    mutate(diet_pattern = case_match(diet_pattern,
+                                     &quot;Vegetarian&quot; ~ &quot;Veg&quot;,
+                                     .default = diet_pattern)) %&gt;% 
+    # rename variable
+    rename(&quot;riskfactor&quot; = &quot;Foodgroup&quot;)
+  
+  # Fix a bunch of variable names
+  # renaming it in case name of variable ever changes in datafile.
+  # expos$riskfactor &lt;- expos$Foodgroup 
+  
+  # renaming it in case name of variable ever changes in datafile.
+  # expos$diet &lt;- expos$Foodgroup
+    
+  # expos$diet_pattern[expos$diet_pattern == &quot;Vegetarian&quot;] &lt;- &quot;Veg&quot;
+  
+  expos2 &lt;- expos1 %&gt;% 
+    # only keep food groups we specified above
+    filter(riskfactor %in% rfvec_cra) %&gt;% 
+    # remove &#39;grocery&#39; and &#39;nongrocery&#39; data types
+    # only keep diet pattern that we specified above
+    filter(datatype == &quot;Total&quot; &amp; diet_pattern == diet.vec[ss]) %&gt;% 
+    arrange(riskfactor, subgroup_id)
+  
+  # expos &lt;- subset(expos, Foodgroup %in% rfvec_cra)
+  # expos &lt;- subset(expos, diet_pattern == diet.vec[ss] &amp; datatype == &quot;Total&quot;)
+  # expos &lt;- expos[order(expos$Foodgroup),]
 
   # check
-  print(as.data.frame(table(expos$Foodgroup, useNA = &quot;always&quot;))) # good
-
-  # Fix a bunch of variable names
-  
-  # renaming it in case name of variable ever changes in datafile.
-  expos$riskfactor &lt;- expos$Foodgroup 
-  
-  # renaming it in case name of variable ever changes in datafile.
-  expos$diet &lt;- expos$Foodgroup
+  print(as.data.frame(table(expos2$riskfactor, useNA = &quot;always&quot;))) # good
   
   # change this line if you want to use total sd or unweighted sd or something else for sd.
-  expos$sd &lt;- expos$sigma_u_wgt
+  # expos$sd &lt;- expos$sigma_u_wgt
   
   # note to self - this var doesn&#39;t exist??
   # let&#39;s see if it runs without it
   # change this line if you want to use total sd or unweighted sd or something else for sd.
   # expos$sd.alt &lt;- expos$sigma_u_wgt.alt
   
-  expos$mean &lt;- expos$Mean_Intake
-  expos$se &lt;- expos$SE_Intake
-  expos$subgroup &lt;- expos$subgroup_id
-  expos$CF_mean_intake &lt;- expos$CF_Mean_Intake
-  expos$CF_se_intake &lt;- expos$CF_SE_Intake
-  expos$age &lt;- expos$Age
-  expos$agecat &lt;- expos$Age
-  expos$race &lt;- 0
-  expos$race[expos$Race_label == &quot;NHW&quot;] &lt;- 1
-  expos$race[expos$Race_label == &quot;NHB&quot;] &lt;- 2
-  expos$race[expos$Race_label == &quot;HIS&quot;] &lt;- 3
-  expos$race[expos$Race_label == &quot;OTH&quot;] &lt;- 4
-  expos$female &lt;- 0
-  expos[expos$Sex == 1,]$female &lt;- 1
+  expos3 &lt;- expos2 %&gt;% 
+    rename(mean = Mean_Intake,
+           se = SE_Intake,
+           sd = sigma_u_wgt,
+           subgroup = subgroup_id,
+           CF_mean_intake = CF_Mean_Intake,
+           CF_se_intake = CF_SE_Intake,
+           agecat = Age,
+           race = Race) %&gt;% 
+    mutate(age = case_when(agecat == 1 ~ 25,
+                           agecat == 2 ~ 35,
+                           agecat == 3 ~ 45,
+                           agecat == 4 ~ 55,
+                           agecat == 5 ~ 65,
+                           agecat == 6 ~ 75),
+           age.mid = case_when(agecat == 1 ~ median(c(25,35)),
+                               agecat == 2 ~ median(c(35,45)),
+                               agecat == 3 ~ median(c(45,55)),
+                               agecat == 4 ~ median(c(55,65)),
+                               agecat == 5 ~ median(c(65,75)),
+                               agecat == 6 ~ median(c(75,100))),
+           female = case_when(Sex == 1 ~ 1,
+                              Sex == 2 ~ 0)) %&gt;% 
+    relocate(c(age, age.mid), .after = agecat) %&gt;% 
+    relocate(female, .before = Sex)
+  
+  # expos$race[expos$Race_label == &quot;NHW&quot;] &lt;- 1
+  # expos$race[expos$Race_label == &quot;NHB&quot;] &lt;- 2
+  # expos$race[expos$Race_label == &quot;HIS&quot;] &lt;- 3
+  # expos$race[expos$Race_label == &quot;OTH&quot;] &lt;- 4
+  
+    # Assign age
+  # expos$age &lt;- 0
+  # expos$age[expos$agecat == 1] &lt;- 25
+  # expos$age[expos$agecat == 2] &lt;- 35
+  # expos$age[expos$agecat == 3] &lt;- 45
+  # expos$age[expos$agecat == 4] &lt;- 55
+  # expos$age[expos$agecat == 5] &lt;- 65
+  # expos$age[expos$agecat == 6] &lt;- 75
+  
+  # expos$age.mid &lt;- 0
+  # expos$age.mid[expos$agecat == 1] &lt;- median(c(25,35))
+  # expos$age.mid[expos$agecat == 2] &lt;- median(c(35,45))
+  # expos$age.mid[expos$agecat == 3] &lt;- median(c(45,55))
+  # expos$age.mid[expos$agecat == 4] &lt;- median(c(55,65))
+  # expos$age.mid[expos$agecat == 5] &lt;- median(c(65,75))
+  # expos$age.mid[expos$agecat == 6] &lt;- median(c(75,100))
+  
+  .GlobalEnv$expos3 &lt;- expos3
+  
+  # expos$mean &lt;- expos$Mean_Intake
+  # expos$se &lt;- expos$SE_Intake
+  # expos$subgroup &lt;- expos$subgroup_id
+  # expos$CF_mean_intake &lt;- expos$CF_Mean_Intake
+  # expos$CF_se_intake &lt;- expos$CF_SE_Intake
+  # expos$age &lt;- expos$Age
+  # expos$agecat &lt;- expos$Age
+  # expos$race &lt;- 0
+  # expos$race[expos$Race_label == &quot;NHW&quot;] &lt;- 1
+  # expos$race[expos$Race_label == &quot;NHB&quot;] &lt;- 2
+  # expos$race[expos$Race_label == &quot;HIS&quot;] &lt;- 3
+  # expos$race[expos$Race_label == &quot;OTH&quot;] &lt;- 4
+  # expos$female &lt;- 0
+  # expos[expos$Sex == 1,]$female &lt;- 1
 
   # Create # of strata variable
-  n.strata &lt;- expos %&gt;% select(subgroup_id) %&gt;% distinct() %&gt;% nrow()
-
-  # Assign age
-  expos$age &lt;- 0
-  expos$age[expos$agecat == 1] &lt;- 25
-  expos$age[expos$agecat == 2] &lt;- 35
-  expos$age[expos$agecat == 3] &lt;- 45
-  expos$age[expos$agecat == 4] &lt;- 55
-  expos$age[expos$agecat == 5] &lt;- 65
-  expos$age[expos$agecat == 6] &lt;- 75
-
-  expos$age.mid &lt;- 0
-  expos$age.mid[expos$agecat == 1] &lt;- median(c(25,35))
-  expos$age.mid[expos$agecat == 2] &lt;- median(c(35,45))
-  expos$age.mid[expos$agecat == 3] &lt;- median(c(45,55))
-  expos$age.mid[expos$agecat == 4] &lt;- median(c(55,65))
-  expos$age.mid[expos$agecat == 5] &lt;- median(c(65,75))
-  expos$age.mid[expos$agecat == 6] &lt;- median(c(75,100))
-  .GlobalEnv$expos &lt;- expos
+  n.strata &lt;- expos3 %&gt;% select(subgroup) %&gt;% distinct() %&gt;% nrow()
 
   # number of risk factors in the file (e.g., 1 if there is only one risk factor)
-  expos.rf &lt;- length(unique(expos$riskfactor)) 
+  expos.rf &lt;- length(unique(expos3$riskfactor)) 
 
   # length of exposure dataset for one risk factor (i.e. rows in exposure dataset: sex * age-groups * coutries)
-  nsim2 &lt;- length(expos$mean)/expos.rf 
+  nsim2 &lt;- length(expos3$mean)/expos.rf 
 
   # add var to global environment
   .GlobalEnv$nsim2 &lt;- nsim2
@@ -1178,7 +1212,7 @@ foreach(ss = 1:length(diet.vec), .verbose = TRUE) %dopar% {
   source(paste0(code_location, &quot;source_code/PIF_analysis_part_3.r&quot;)) 
 
 }</code></pre>
-<p>We’re done. End the timer, stop the set up to run simultaneously, and
+<p>We’re done! End the timer, stop the set up to run simultaneously, and
 print how much time it took to run the code.</p>
 <pre class="r"><code>end_time2 &lt;- Sys.time()
 

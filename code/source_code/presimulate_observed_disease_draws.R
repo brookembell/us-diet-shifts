@@ -6,19 +6,21 @@
 
 ### Documentation for R script ###
 
-# presimulate.observed.mort.draws_cluster.r creates simulation draws for 
+# presimulate_observed_disease_draws.r creates simulation draws for 
 # morality/incidence counts of the subgroups of interest based on estimates 
-# for mean and corresponding standard errors. I call it "pre"-simulate because 
-# I'm creating the draws before doing the simulating of PIFs. It's useful to 
+# for mean and corresponding standard errors. We call it "pre"-simulate because 
+# we're creating the draws before doing the simulating of PIFs. It's useful to 
 # create these sims at the beginning (as opposed to redoing them when we 
 # calculate PIFs for each outcome) so we can use a consistent set of sims for all 
 # health outcomes.  
 
 ############################################################################
 
-# First, read in input file with CMD/Cancer incidence/death data, and do change 
-# some some processing (change some variable names and subset to variables on 
-# interest). Note that, if you decide to change the strata names or end up 
+# First, read in input file with CMD mortality & cancer incidence data, and do 
+# some processing (change some variable names and subset to variables of 
+# interest). 
+
+# Note that, if you decide to change the strata names or end up 
 # adding/subtracing strata, you'll have to make corresponding changes to the code 
 # (specfically, where you define vars.to.keep).
 
@@ -90,14 +92,11 @@ observed.disease.draws <- rbind(observed.disease.draws_df2,
                              medSBP.observed.disease.draws, 
                              total.observed.disease.draws)
 
-# Save sims as a csv file. Don't be confused by the file name, it's just another 
-# artifact from the days the code was used for the cancer CRA project. 
+# Save sims as a csv file. 
+
 # "observed.disease.draws" contains simulation draws for morality/incidence counts 
 # of the subgroups for CMD/Cancer, by subgroup of interest.
 
 write_csv(x = observed.disease.draws, 
           file = paste0(file_location, "observed.disease.burden.draws.csv"))
-
-
-
 

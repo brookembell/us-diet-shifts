@@ -6,36 +6,36 @@
 
 ### Documentation for R script ###
 
-# cost_change_functions.r contains various functions used in calculating and 
-# summarizing the impacts for the non-health pillar outcomes. Everything in here 
-# are functions that are used in "cost_change_source_cluster.r". 
+# change_functions.r contains various functions used in calculating and 
+# summarizing the impacts for the non-health (env-eco-soc) outcomes. 
+# All of the functions in this script are used in calculate_change.r.
 
 ############################################################################
 
-# The first function here,  simulate.impact, is the core of the entire operation. 
-# It runs monte carlo simulations for env/cost/labor impact calculations and 
+# The first function here, simulate.impact, is the core of the entire operation. 
+# It runs monte carlo simulations for env-eco-soc impact calculations and 
 # outputs the resulting distributions. The inputs are going to be specific to the 
-# population and dietary factor of interest. In "cost_change_source_cluster.r", 
+# population and dietary factor of interest. In "calculate_change.r", 
 # this function is being called for each pair of subgroup/dietary factor. 
 
-# Meaning of 21 inputs should be mostly self explanatory, 
+# The meaning of the 21 inputs (stated below) should be mostly self explanatory, 
 # but 2 things may need explanation.
 # 
-# 1. "substitution.impact.factor.means", "substitution.impact.factor.ses", 
+# (1) "substitution.impact.factor.means", "substitution.impact.factor.ses", 
 # "substitution_unit" refer to substitution impact. While we don't use this 
 # right now (all these inputs are zero), we can calculate substitution effects 
 # as well. Say, if we change the diet for just one diet factor, we need replace 
 # the calories from other foods. So, we need to calculate the impact of the 
 # increase/decrease that comes from the substitution (probably using the impact 
-# per unit of the average diet as substition impact factor). Since we keep energy 
+# per unit of the average diet as substitution impact factor). Since we keep energy 
 # constant for the five alternate scenarios, we don't actually use this for the 
 # 4 pillars paper. But if you're not keeping energy constant when going from 
-# current to counterfactual intake (e.g just changing intake for one dietary 
+# current to counterfactual intake (i.e., just changing intake for one dietary 
 # factor), you'd want to use substitution effects (and by "not use", I mean 
 # setting all substitution impact factors to zero, not commenting out code 
 # related to substitution factors).
 # 
-# 2. "current_foodwaste_p", "current_foodwaste_p_se, "counterfactual_foodwaste_p", 
+# (2) "current_foodwaste_p", "current_foodwaste_p_se, "counterfactual_foodwaste_p", 
 # "counterfactual_foodwaste_p_se": Don't forget that food waste proportion is 
 # conditional on edible. It's the proportion of the food wasted out of the 
 # edible portion. It is NOT food waste / total food including inedible portion.
@@ -297,7 +297,8 @@ simulate.impact <- function(current.mean, current.se,
   combined.impact.sims.wasted <- 
     impact.sims.unconsumed + substitution.sims.wasted
   
-  # total impact/cost, not just difference between current and counterfactual
+  # calculate total impact, not just difference between current and counterfactual
+  
   current.impact.sims <- 
     impact.factor.sims * 
     current.mean.sims.matrix.after.correction * 
@@ -565,7 +566,7 @@ simulate.impact <- function(current.mean, current.se,
   
 }
 
-# Next is a function that calculate per capita sims by dividing impact sims with population count. 
+# Next is a function that calculates per capita sims by dividing impact sims with population count. 
 
 get.percapita.sims <- function(impact.sims, population.sims, 
                                pop.sims.names, new.pop.sims.names, 
@@ -970,7 +971,7 @@ get.summary.stats <-
   combined.impact.sims.unconsumed.summary <- 
     combined.impact.sims.unconsumed.summary[, (vars) := NULL]
   
-  # current.intake
+  # current intake
   current.intake.impact.sims.dt <- as.data.table(current.intake.impact.sims)
   
   current.intake.impact.sims.summary <- 
@@ -1392,7 +1393,6 @@ summary.stats.by.strata <- function(impact.sims.allgroups, strata.combos.list, p
   strata.combos.summary.stats.wide <- list()
   strata.combos.summary.stats.misc <- list()
   
-  
   pop.strata.combos.sims <- list() 
   
   percapita.sims <- list()
@@ -1401,7 +1401,7 @@ summary.stats.by.strata <- function(impact.sims.allgroups, strata.combos.list, p
   percapita.summary.stats.wide <- list()
   percapita.summary.stats.misc <- list()
   
-  # Start a for loop to traverse through each strata combination of interest.
+  # Start a for-loop to traverse through each strata combination of interest.
   
   for(j in 1:length(strata.combos.list)) {
     
@@ -1552,7 +1552,6 @@ summary.stats.by.strata <- function(impact.sims.allgroups, strata.combos.list, p
               "summary.output.percapita" = percapita.summary.stats.wide,
               "full.sims.output.percapita" = percapita.sims)
          )
-  
   
 }
 
